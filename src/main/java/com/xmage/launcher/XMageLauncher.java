@@ -104,8 +104,8 @@ public class XMageLauncher implements Runnable {
             path = Utilities.getInstallPath();
             textArea.append("XMage folder:  " + path.getAbsolutePath() + "\n");
             CountDownLatch latch = new CountDownLatch(1);
-            DownloadJavaTask java = new DownloadJavaTask(latch);
-            DownloadXMageTask xmage = new DownloadXMageTask(latch);
+            DownloadJavaTask java = new DownloadJavaTask(latch, progressBar);
+            DownloadXMageTask xmage = new DownloadXMageTask(latch, progressBar);
             java.execute();
             xmage.execute();
         } catch (IOException | JSONException ex) {
@@ -119,7 +119,8 @@ public class XMageLauncher implements Runnable {
         
         private final CountDownLatch latch;
 
-        public DownloadJavaTask(CountDownLatch latch) {
+        public DownloadJavaTask(CountDownLatch latch, JProgressBar progressBar) {
+            super(progressBar);
             this.latch = latch;
         }
 
@@ -142,12 +143,19 @@ public class XMageLauncher implements Runnable {
                         URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
                         textArea.append("Downloading Java ...\n");
 
-                        download(progressBar, java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
+                        download(java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
+                        
+                        File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
+                        textArea.append("Installing Java ...\n");
+
+                        extract(from, javaFolder);
+                        from.delete();
+                        Config.setInstalledJavaVersion(javaAvailableVersion);
                     }
                 }
             }
             catch (IOException | JSONException ex) {
-                this.setProgress(0);
+                progressBar.setValue(0);
                 this.cancel(true);
                 Logger.getLogger(XMageLauncher.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -164,7 +172,8 @@ public class XMageLauncher implements Runnable {
         
         private final CountDownLatch latch;
 
-        public DownloadXMageTask(CountDownLatch latch) {
+        public DownloadXMageTask(CountDownLatch latch, JProgressBar progressBar) {
+            super(progressBar);
             this.latch = latch;
         }
 
@@ -186,9 +195,16 @@ public class XMageLauncher implements Runnable {
                         }
                         String xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("location"));
                         URL xmage = new URL(xmageRemoteLocation);
-                        textArea.append("Downloading Java ...\n");
+                        textArea.append("Downloading XMage ...\n");
 
-                        download(progressBar, xmage, path.getAbsolutePath(), "");
+                        download(xmage, path.getAbsolutePath(), "");
+
+                        File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
+                        textArea.append("Installing XMage ...\n");
+
+                        //TODO:  unzip file
+                        from.delete();
+                        Config.setInstalledXMageVersion(xmageAvailableVersion);
                     }
                 }
             }

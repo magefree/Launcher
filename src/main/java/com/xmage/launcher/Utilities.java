@@ -103,16 +103,15 @@ public class Utilities {
     }
 
     
-    public static void extract(File dest) {
+    public static void extract(File from, File to) {
         try {
-            File temp = new File(dest, "xmage.dl");
-            TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(temp)));
+            TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(from)));
             //InputStream in = new BufferedInputStream(oracle.openStream());
             //TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(in));
             
             TarArchiveEntry tarEntry;
             while ((tarEntry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-                File destPath = new File(dest, tarEntry.getName());
+                File destPath = new File(to, tarEntry.getName());
                 if (tarEntry.isDirectory()) {
                     destPath.mkdirs();
                 } else {
