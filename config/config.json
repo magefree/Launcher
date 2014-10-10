@@ -1,0 +1,11 @@
+{
+  "java" : {
+    "version": "1.7.0_67",
+    "location": "http://download.oracle.com/otn-pub/java/jdk/7u67-b01/jre-7u67-"
+  },
+  "XMage" : {
+    "version": "1.3.0.dev2014-09-13",
+    "location": "http://xmage.info/download/mage-bundle-1.3.0.dev2014-09-13.zip",
+    "images": ""
+  }
+}
