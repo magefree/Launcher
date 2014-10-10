@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,12 +26,16 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author BetaSteward
  */
 public class XMageLauncher implements Runnable {
+    
+    private static final Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
     
     private final JFrame frame;
     private final JLabel labelProgress;
@@ -67,6 +70,7 @@ public class XMageLauncher implements Runnable {
         
         btnLaunchClient = new JButton("Launch Client");
         btnLaunchClient.setFont(font14);
+        btnLaunchClient.setEnabled(false);
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.weightx = 0.0;
@@ -83,6 +87,7 @@ public class XMageLauncher implements Runnable {
         
         btnLaunchClientServer = new JButton("Launch Client and Server");
         btnLaunchClientServer.setFont(font14);
+        btnLaunchClientServer.setEnabled(false);
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.weightx = 0.0;
@@ -99,6 +104,7 @@ public class XMageLauncher implements Runnable {
 
         btnLaunchServer = new JButton("Launch Server");
         btnLaunchServer.setFont(font14);
+        btnLaunchServer.setEnabled(false);
         constraints.gridx = 0;
         constraints.gridy = 2;
         constraints.weightx = 0.0;
@@ -147,7 +153,7 @@ public class XMageLauncher implements Runnable {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             SwingUtilities.invokeLater(new XMageLauncher());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(XMageLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error: ", ex);
         }
     }
     
@@ -162,8 +168,19 @@ public class XMageLauncher implements Runnable {
         });
 
         try {
-            textArea.append("Reading config ...\n");
-            config = Utilities.readJsonFromUrl(new URL(Config.getXMageHome() + "/config.json"));
+            URL xmageUrl = new URL(Config.getXMageHome() + "/config.json");
+            try {
+                textArea.append("Reading config ...\n");
+                config = Utilities.readJsonFromUrl(xmageUrl);
+            } catch (IOException ex) {
+                logger.error("Error reading config from " + xmageUrl.toString(), ex);
+                textArea.append("Error reading config from " + xmageUrl.toString() + "\n");
+                return;
+            } catch (JSONException ex) {
+                logger.error("Invalid config from " + xmageUrl.toString(), ex);
+                textArea.append("Invalid config from " + xmageUrl.toString() + "\n");
+                return;
+            }
             path = Utilities.getInstallPath();
             textArea.append("XMage folder:  " + path.getAbsolutePath() + "\n");
             CountDownLatch latch = new CountDownLatch(1);
@@ -171,8 +188,8 @@ public class XMageLauncher implements Runnable {
             DownloadXMageTask xmage = new DownloadXMageTask(latch, progressBar);
             java.execute();
             xmage.execute();
-        } catch (IOException | JSONException ex) {
-            Logger.getLogger(XMageLauncher.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            logger.error("Error: ", ex);
             textArea.append("Error: " + ex.getMessage());
         }        
               
@@ -223,7 +240,7 @@ public class XMageLauncher implements Runnable {
             catch (IOException | JSONException ex) {
                 progressBar.setValue(0);
                 this.cancel(true);
-                Logger.getLogger(XMageLauncher.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Error: ", ex);
             }
             return null;
         }
@@ -276,11 +293,14 @@ public class XMageLauncher implements Runnable {
                         Config.setInstalledXMageVersion(xmageAvailableVersion);
                     }
                 }
+                btnLaunchClient.setEnabled(true);
+                btnLaunchClientServer.setEnabled(true);
+                btnLaunchServer.setEnabled(true);
             }
             catch (IOException | JSONException | InterruptedException ex) {
                 progressBar.setValue(0);
                 this.cancel(true);
-                Logger.getLogger(XMageLauncher.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Error: ", ex);
             }
             return null;
         }
