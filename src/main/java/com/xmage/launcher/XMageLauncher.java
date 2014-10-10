@@ -2,6 +2,7 @@
 package com.xmage.launcher;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -14,6 +15,8 @@ import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,6 +38,12 @@ public class XMageLauncher implements Runnable {
     private final JLabel labelProgress;
     private final JProgressBar progressBar;
     private final JTextArea textArea;
+    private final JButton btnLaunchClient;
+    private final JLabel labelLaunchClient;
+    private final JButton btnLaunchServer;
+    private final JLabel labelLaunchServer;
+    private final JButton btnLaunchClientServer;
+    private final JLabel labelLaunchClientServer;
     
     private JSONObject config;
     private File path;
@@ -45,17 +54,72 @@ public class XMageLauncher implements Runnable {
         frame.setLayout(new GridBagLayout());
         frame.setPreferredSize(new Dimension(640, 480));
         
+        URL iconURL = XMageLauncher.class.getResource("/icon-mage.png");
+        ImageIcon icon = new ImageIcon(iconURL);
+        frame.setIconImage(icon.getImage());
+        
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(5, 5, 5, 5);
     
+        Font font14 = new Font("Arial", Font.BOLD, 14);
+        Font font12 = new Font("Arial", Font.PLAIN, 12);
+        
+        btnLaunchClient = new JButton("Launch Client");
+        btnLaunchClient.setFont(font14);
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0.0;
+        constraints.weighty = 0.2;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        frame.add(btnLaunchClient, constraints);
+
+        labelLaunchClient = new JLabel("<html>Launch Client application only - use this if you will be connecting to a remote XMage server to play against others.</html>");
+        labelLaunchClient.setFont(font12);
+        constraints.gridx = 1;
+        constraints.weightx = 1.0;
+        frame.add(labelLaunchClient, constraints);
+        
+        btnLaunchClientServer = new JButton("Launch Client and Server");
+        btnLaunchClientServer.setFont(font14);
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.weightx = 0.0;
+        constraints.weighty = 0.2;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        frame.add(btnLaunchClientServer, constraints);
+
+        labelLaunchClientServer = new JLabel("<html>Launch Client and Server applications - use this if you will be playing locally against an AI</html>");
+        labelLaunchClientServer.setFont(font12);
+        constraints.gridx = 1;
+        constraints.weightx = 1.0;
+        frame.add(labelLaunchClientServer, constraints);
+
+        btnLaunchServer = new JButton("Launch Server");
+        btnLaunchServer.setFont(font14);
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        constraints.weightx = 0.0;
+        constraints.weighty = 0.2;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        frame.add(btnLaunchServer, constraints);
+
+        labelLaunchServer = new JLabel("<html>Launch Server application only - use this if you want run an XMage server.  Additional network configuration may be necessary to allow clients to connect.</html>");
+        labelLaunchServer.setFont(font12);
+        constraints.gridx = 1;
+        constraints.weightx = 1.0;
+        frame.add(labelLaunchServer, constraints);
+        
         textArea = new JTextArea(5, 50);
         constraints.gridx = 0;
         constraints.gridy = 4;
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
         constraints.gridwidth = 2;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.fill = GridBagConstraints.BOTH;
         frame.add(textArea, constraints);
         
         labelProgress = new JLabel("Progress:");
@@ -64,7 +128,6 @@ public class XMageLauncher implements Runnable {
         constraints.weightx = 0.0;
         constraints.weighty = 0.0;
         constraints.gridwidth = 1;
-        //constraints.fill = GridBagConstraints.CENTER;
         constraints.anchor = GridBagConstraints.WEST;
         frame.add(labelProgress, constraints);
 
