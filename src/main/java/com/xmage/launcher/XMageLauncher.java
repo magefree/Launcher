@@ -136,9 +136,10 @@ public class XMageLauncher implements Runnable {
                     textArea.append("New version of Java available.  \n");
                     int response = JOptionPane.showConfirmDialog(frame, "A newer version of Java is available.  Would you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
-                        if (!javaFolder.isDirectory()) {
-                            javaFolder.mkdirs();
+                        if (javaFolder.isDirectory()) {  //remove existing install
+                            javaFolder.delete();
                         }
+                        javaFolder.mkdirs();
                         String javaRemoteLocation = (String)config.getJSONObject("java").get(("location"));
                         URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
                         textArea.append("Downloading Java ...\n");
@@ -149,6 +150,8 @@ public class XMageLauncher implements Runnable {
                         textArea.append("Installing Java ...\n");
 
                         extract(from, javaFolder);
+                        textArea.append("Done\n");
+                        progressBar.setValue(0);
                         from.delete();
                         Config.setInstalledJavaVersion(javaAvailableVersion);
                     }
@@ -190,9 +193,10 @@ public class XMageLauncher implements Runnable {
                     textArea.append("New version of XMage available.  \n");
                     int response = JOptionPane.showConfirmDialog(frame, "A newer version of XMage is available.  Would you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
-                        if (!xmageFolder.isDirectory()) {
-                            xmageFolder.mkdirs();
+                        if (!xmageFolder.isDirectory()) {  //remove existing install
+                            xmageFolder.delete();
                         }
+                        xmageFolder.mkdirs();
                         String xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("location"));
                         URL xmage = new URL(xmageRemoteLocation);
                         textArea.append("Downloading XMage ...\n");
@@ -202,14 +206,16 @@ public class XMageLauncher implements Runnable {
                         File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
                         textArea.append("Installing XMage ...\n");
 
-                        //TODO:  unzip file
+                        unzip(from, xmageFolder);
+                        textArea.append("Done\n");
+                        progressBar.setValue(0);
                         from.delete();
                         Config.setInstalledXMageVersion(xmageAvailableVersion);
                     }
                 }
             }
             catch (IOException | JSONException | InterruptedException ex) {
-                this.setProgress(0);
+                progressBar.setValue(0);
                 this.cancel(true);
                 Logger.getLogger(XMageLauncher.class.getName()).log(Level.SEVERE, null, ex);
             }
