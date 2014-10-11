@@ -174,11 +174,13 @@ public class XMageLauncher implements Runnable {
                 config = Utilities.readJsonFromUrl(xmageUrl);
             } catch (IOException ex) {
                 logger.error("Error reading config from " + xmageUrl.toString(), ex);
-                textArea.append("Error reading config from " + xmageUrl.toString() + "\n");
+                textArea.append("Error reading config from " + xmageUrl.toString() + "\nPossible causes:  Site is offline or your internet connection is unavailable.");
+                enableButtons();
                 return;
             } catch (JSONException ex) {
                 logger.error("Invalid config from " + xmageUrl.toString(), ex);
                 textArea.append("Invalid config from " + xmageUrl.toString() + "\n");
+                enableButtons();
                 return;
             }
             path = Utilities.getInstallPath();
@@ -193,6 +195,24 @@ public class XMageLauncher implements Runnable {
             textArea.append("Error: " + ex.getMessage());
         }        
               
+    }
+    
+    private void enableButtons() {
+        String javaInstalledVersion = Config.getInstalledJavaVersion();
+        if (!javaInstalledVersion.isEmpty()) {
+            String xmageInstalledVersion = Config.getInstalledXMageVersion();
+            if (!xmageInstalledVersion.isEmpty()) {
+                btnLaunchClient.setEnabled(true);
+                btnLaunchClientServer.setEnabled(true);
+                btnLaunchServer.setEnabled(true);
+            }
+            else {
+                textArea.append("XMage is not installed.  Unable to continue.");
+            }
+        }
+        else {
+            textArea.append("Java is not installed.  Unable to continue.");
+        }
     }
     
     private class DownloadJavaTask extends DownloadTask {
@@ -293,9 +313,6 @@ public class XMageLauncher implements Runnable {
                         Config.setInstalledXMageVersion(xmageAvailableVersion);
                     }
                 }
-                btnLaunchClient.setEnabled(true);
-                btnLaunchClientServer.setEnabled(true);
-                btnLaunchServer.setEnabled(true);
             }
             catch (IOException | JSONException | InterruptedException ex) {
                 progressBar.setValue(0);
@@ -303,6 +320,11 @@ public class XMageLauncher implements Runnable {
                 logger.error("Error: ", ex);
             }
             return null;
+        }
+        
+        @Override
+        public void done() {
+            enableButtons();
         }
 
     }
