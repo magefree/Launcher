@@ -1,27 +1,20 @@
 
 package com.xmage.launcher;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -29,7 +22,7 @@ import org.json.JSONObject;
  */
 public class Utilities {
     private static final String OS_name = System.getProperty("os.name").toLowerCase();
-    private static final int BUFFER_SIZE = 4096;
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
     
     public enum OS {
         WIN,
@@ -43,7 +36,7 @@ public class Utilities {
         try {
             path = new File(Utilities.class.getProtectionDomain().getCodeSource().getLocation().toURI().getSchemeSpecificPart()).getParentFile();
         } catch (URISyntaxException ex) {
-            Logger.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error: ", ex);
         }
         return path;
     }
@@ -102,32 +95,37 @@ public class Utilities {
         return sb.toString();
     }
 
+    public static void launchClientProcess() {
+        
+        launchProcess("mage.client.MageFrame", "", "mage-client");
+        
+    }
+
+    public static void launchServerProcess() {
+        
+        launchProcess("mage.server.Main", "", "mage-server");
+        
+    }
     
-    public static void extract(File from, File to) {
+    private static void launchProcess(String main, String args, String path) {
+        
+        File installPath = Utilities.getInstallPath();
+        File javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
+        File javaBin = new File(javaHome, "/bin/java");
+        File xmagePath = new File(installPath, "/xmage/" + path);
+        File classPath = new File(xmagePath, "/lib/*");
+
+        ProcessBuilder pb = new ProcessBuilder(javaBin.getAbsolutePath(), "-cp", classPath.getAbsolutePath(), main);
+        pb.environment().clear();
+        pb.environment().put("JAVA_HOME", javaHome.getAbsolutePath());
+        pb.directory(xmagePath);
+        pb.redirectErrorStream(true);
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         try {
-            TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(from)));
-            //InputStream in = new BufferedInputStream(oracle.openStream());
-            //TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(in));
-            
-            TarArchiveEntry tarEntry;
-            while ((tarEntry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-                File destPath = new File(to, tarEntry.getName());
-                if (tarEntry.isDirectory()) {
-                    destPath.mkdirs();
-                } else {
-                    destPath.createNewFile();
-                    byte data[] = new byte[BUFFER_SIZE];
-                    BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destPath), BUFFER_SIZE);
-                    int count = 0;
-                    while ((count = tarIn.read(data, 0, BUFFER_SIZE)) != -1) {
-                        out.write(data, 0, count);
-                    }
-                    out.close();
-                }
-            }
+            pb.start();
         } catch (IOException ex) {
             Logger.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
 }

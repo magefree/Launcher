@@ -7,13 +7,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -71,6 +72,14 @@ public class XMageLauncher implements Runnable {
         btnLaunchClient = new JButton("Launch Client");
         btnLaunchClient.setFont(font14);
         btnLaunchClient.setEnabled(false);
+        btnLaunchClient.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                Utilities.launchClientProcess();
+            }
+        });      
+
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.weightx = 0.0;
@@ -88,6 +97,15 @@ public class XMageLauncher implements Runnable {
         btnLaunchClientServer = new JButton("Launch Client and Server");
         btnLaunchClientServer.setFont(font14);
         btnLaunchClientServer.setEnabled(false);
+        btnLaunchClientServer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                Utilities.launchServerProcess();
+                Utilities.launchClientProcess();
+            }
+        });      
+
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.weightx = 0.0;
@@ -105,6 +123,14 @@ public class XMageLauncher implements Runnable {
         btnLaunchServer = new JButton("Launch Server");
         btnLaunchServer.setFont(font14);
         btnLaunchServer.setEnabled(false);
+        btnLaunchServer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                Utilities.launchServerProcess();
+            }
+        });      
+
         constraints.gridx = 0;
         constraints.gridy = 2;
         constraints.weightx = 0.0;
