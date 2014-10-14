@@ -10,8 +10,11 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTextArea;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
@@ -95,19 +98,19 @@ public class Utilities {
         return sb.toString();
     }
 
-    public static void launchClientProcess() {
+    public static void launchClientProcess(JTextArea out) {
         
-        launchProcess("mage.client.MageFrame", "", "mage-client");
+        launchProcess("mage.client.MageFrame", "-Xms256m -Xmx512m -XX:MaxPermSize=384m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled", "mage-client", out);
         
     }
 
-    public static void launchServerProcess() {
+    public static void launchServerProcess(JTextArea out) {
         
-        launchProcess("mage.server.Main", "", "mage-server");
+        launchProcess("mage.server.Main", "-Xms256M -Xmx512M -XX:MaxPermSize=384m", "mage-server", out);
         
     }
     
-    private static void launchProcess(String main, String args, String path) {
+    private static void launchProcess(String main, String args, String path, JTextArea out) {
         
         File installPath = Utilities.getInstallPath();
         File javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
@@ -115,17 +118,58 @@ public class Utilities {
         File xmagePath = new File(installPath, "/xmage/" + path);
         File classPath = new File(xmagePath, "/lib/*");
 
-        ProcessBuilder pb = new ProcessBuilder(javaBin.getAbsolutePath(), "-cp", classPath.getAbsolutePath(), main);
+        ArrayList<String> command = new ArrayList<>();
+        command.add(javaBin.getAbsolutePath());
+        command.addAll(Arrays.asList(args.split(" ")));
+        command.add("-cp");
+        command.add(classPath.getAbsolutePath());
+        command.add(main);
+
+        ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[command.size()]));
         pb.environment().clear();
         pb.environment().put("JAVA_HOME", javaHome.getAbsolutePath());
         pb.directory(xmagePath);
         pb.redirectErrorStream(true);
-        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        //pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         try {
-            pb.start();
+            Process p = pb.start();
+            StreamGobbler outGobbler = new StreamGobbler(p.getInputStream(), out);
+            outGobbler.start();
         } catch (IOException ex) {
             Logger.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+}
+
+class StreamGobbler extends Thread
+{
+    private final InputStream is;
+    private final JTextArea text;
+
+    public StreamGobbler(InputStream is, JTextArea text)
+    {
+        this.is = is;
+        this.text = text;
+    }
+
+    @Override
+    public void run()
+    {
+        try
+        {
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line;
+            while ( (line = br.readLine()) != null)
+            {
+                text.append(line + "\n"); // JTextArea.append is thread safe
+            }
+        }
+        catch (IOException ioe)
+        {
+            text.append(ioe.toString()); // note below
+            ioe.printStackTrace();  
+        }
+    }
 }

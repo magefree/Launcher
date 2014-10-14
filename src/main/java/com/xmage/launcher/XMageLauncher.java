@@ -21,10 +21,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.text.DefaultCaret;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -48,6 +50,7 @@ public class XMageLauncher implements Runnable {
     private final JLabel labelLaunchServer;
     private final JButton btnLaunchClientServer;
     private final JLabel labelLaunchClientServer;
+    private final JScrollPane scrollPane;
     
     private JSONObject config;
     private File path;
@@ -76,7 +79,7 @@ public class XMageLauncher implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Utilities.launchClientProcess();
+                Utilities.launchClientProcess(textArea);
             }
         });      
 
@@ -101,8 +104,8 @@ public class XMageLauncher implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Utilities.launchServerProcess();
-                Utilities.launchClientProcess();
+                Utilities.launchServerProcess(textArea);
+                Utilities.launchClientProcess(textArea);
             }
         });      
 
@@ -127,7 +130,7 @@ public class XMageLauncher implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Utilities.launchServerProcess();
+                Utilities.launchServerProcess(textArea);
             }
         });      
 
@@ -146,13 +149,19 @@ public class XMageLauncher implements Runnable {
         frame.add(labelLaunchServer, constraints);
         
         textArea = new JTextArea(5, 50);
+        textArea.setEditable(false);
+        DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        scrollPane = new JScrollPane (textArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         constraints.gridx = 0;
         constraints.gridy = 4;
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
         constraints.gridwidth = 2;
         constraints.fill = GridBagConstraints.BOTH;
-        frame.add(textArea, constraints);
+        frame.add(scrollPane, constraints);
         
         labelProgress = new JLabel("Progress:");
         constraints.gridx = 0;
@@ -177,7 +186,8 @@ public class XMageLauncher implements Runnable {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            SwingUtilities.invokeLater(new XMageLauncher());
+            XMageLauncher gui = new XMageLauncher();
+            SwingUtilities.invokeLater(gui);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             logger.error("Error: ", ex);
         }
@@ -192,7 +202,7 @@ public class XMageLauncher implements Runnable {
                 Config.saveProperties();
             }
         });
-
+        
         try {
             URL xmageUrl = new URL(Config.getXMageHome() + "/config.json");
             try {
@@ -200,7 +210,7 @@ public class XMageLauncher implements Runnable {
                 config = Utilities.readJsonFromUrl(xmageUrl);
             } catch (IOException ex) {
                 logger.error("Error reading config from " + xmageUrl.toString(), ex);
-                textArea.append("Error reading config from " + xmageUrl.toString() + "\nPossible causes:  Site is offline or your internet connection is unavailable.");
+                textArea.append("Error reading config from " + xmageUrl.toString() + "\nPossible causes:  Site is offline or internet connection is unavailable.\n");
                 enableButtons();
                 return;
             } catch (JSONException ex) {
