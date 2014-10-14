@@ -55,6 +55,8 @@ public class XMageLauncher implements Runnable {
     private JSONObject config;
     private File path;
 
+    private Process serverProcess;
+    
     private XMageLauncher() {
         frame = new JFrame("XMage Launcher");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -104,7 +106,7 @@ public class XMageLauncher implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Utilities.launchServerProcess(textArea);
+                handleServer();
                 Utilities.launchClientProcess(textArea);
             }
         });      
@@ -130,7 +132,7 @@ public class XMageLauncher implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Utilities.launchServerProcess(textArea);
+                handleServer();
             }
         });      
 
@@ -182,7 +184,19 @@ public class XMageLauncher implements Runnable {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setLocation(dim.width/2 - frame.getSize().width/2, dim.height/2 - frame.getSize().height/2);
     }
-            
+    
+    private void handleServer() {
+        if (serverProcess == null) {
+            serverProcess = Utilities.launchServerProcess(textArea);
+            btnLaunchServer.setText("Stop Server");
+        }
+        else {
+            Utilities.stopProcess(serverProcess);
+            serverProcess = null;
+            btnLaunchServer.setText("Launch Server");
+        }
+    }
+    
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -199,6 +213,12 @@ public class XMageLauncher implements Runnable {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                if (serverProcess != null) {
+                    int response = JOptionPane.showConfirmDialog(frame, "XMage server is currently running.  Do you want to stop it?  If you don't then you will need to stop it manually.", "Server is running", JOptionPane.YES_NO_OPTION);
+                    if (response == JOptionPane.YES_OPTION) {
+                        Utilities.stopProcess(serverProcess);
+                    }
+                }
                 Config.saveProperties();
             }
         });

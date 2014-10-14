@@ -12,8 +12,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JTextArea;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Utilities {
     private static final String OS_name = System.getProperty("os.name").toLowerCase();
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Utilities.class);
     
     public enum OS {
         WIN,
@@ -98,19 +96,23 @@ public class Utilities {
         return sb.toString();
     }
 
-    public static void launchClientProcess(JTextArea out) {
+    public static Process launchClientProcess(JTextArea out) {
         
-        launchProcess("mage.client.MageFrame", "-Xms256m -Xmx512m -XX:MaxPermSize=384m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled", "mage-client", out);
+        return launchProcess("mage.client.MageFrame", "-Xms256m -Xmx512m -XX:MaxPermSize=384m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled", "mage-client", out);
         
     }
 
-    public static void launchServerProcess(JTextArea out) {
+    public static Process launchServerProcess(JTextArea out) {
         
-        launchProcess("mage.server.Main", "-Xms256M -Xmx512M -XX:MaxPermSize=384m", "mage-server", out);
+        return launchProcess("mage.server.Main", "-Xms256M -Xmx512M -XX:MaxPermSize=384m", "mage-server", out);
         
     }
     
-    private static void launchProcess(String main, String args, String path, JTextArea out) {
+    public static void stopProcess(Process p) {
+        p.destroy();
+    }
+    
+    private static Process launchProcess(String main, String args, String path, JTextArea out) {
         
         File installPath = Utilities.getInstallPath();
         File javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
@@ -130,20 +132,23 @@ public class Utilities {
         pb.environment().put("JAVA_HOME", javaHome.getAbsolutePath());
         pb.directory(xmagePath);
         pb.redirectErrorStream(true);
-        //pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         try {
             Process p = pb.start();
             StreamGobbler outGobbler = new StreamGobbler(p.getInputStream(), out);
             outGobbler.start();
+            return p;
         } catch (IOException ex) {
-            Logger.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error staring process", ex);
         }
+        return null;
     }
 
 }
 
 class StreamGobbler extends Thread
 {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StreamGobbler.class);
+    
     private final InputStream is;
     private final JTextArea text;
 
@@ -166,10 +171,10 @@ class StreamGobbler extends Thread
                 text.append(line + "\n"); // JTextArea.append is thread safe
             }
         }
-        catch (IOException ioe)
+        catch (IOException ex)
         {
-            text.append(ioe.toString()); // note below
-            ioe.printStackTrace();  
+            text.append(ex.toString()); // note below
+            logger.error("Error processing stream", ex);
         }
     }
 }
