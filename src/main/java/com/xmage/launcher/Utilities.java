@@ -63,13 +63,14 @@ public class Utilities {
         String OS_arch = "windows-i586";
         switch (getOS()) {
             case WIN:
-                OS_arch = getArch().equals("64") ? "windows-x64" : "windows-i586";
+                OS_arch = "windows-" + (getArch().equals("64") ? "x64" : "i586");
                 break;
             case OSX:
                 OS_arch = "macosx-x64";
                 break;
             case NIX:
-                OS_arch = "linux-i586";  // can't find an easy way to get OS arch
+                String arch = System.getProperty("os.arch");
+                OS_arch = "linux-" + (arch.startsWith("i") ? "i586" : "x64"); // assume arch is same as jvm arch
                 break;
         }
         return OS_arch;
@@ -128,7 +129,7 @@ public class Utilities {
         command.add(main);
 
         ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[command.size()]));
-        pb.environment().clear();
+        pb.environment().putAll(System.getenv());
         pb.environment().put("JAVA_HOME", javaHome.getAbsolutePath());
         pb.directory(xmagePath);
         pb.redirectErrorStream(true);
