@@ -298,7 +298,7 @@ public class XMageLauncher implements Runnable {
                         javaFolder.mkdirs();
                         String javaRemoteLocation = (String)config.getJSONObject("java").get(("location"));
                         URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
-                        textArea.append("Downloading Java ...\n");
+                        textArea.append("Downloading Java from " + java.toString() + "\n");
 
                         download(java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
                         
@@ -355,7 +355,7 @@ public class XMageLauncher implements Runnable {
                         xmageFolder.mkdirs();
                         String xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("location"));
                         URL xmage = new URL(xmageRemoteLocation);
-                        textArea.append("Downloading XMage ...\n");
+                        textArea.append("Downloading XMage from " + xmage.toString() + "\n");
 
                         download(xmage, path.getAbsolutePath(), "");
 
