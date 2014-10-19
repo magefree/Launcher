@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
@@ -226,7 +227,7 @@ public class XMageLauncher implements Runnable {
         try {
             URL xmageUrl = new URL(Config.getXMageHome() + "/config.json");
             try {
-                textArea.append("Reading config ...\n");
+                textArea.append("Reading config from " + xmageUrl.toString() + "\n");
                 config = Utilities.readJsonFromUrl(xmageUrl);
             } catch (IOException ex) {
                 logger.error("Error reading config from " + xmageUrl.toString(), ex);
@@ -349,8 +350,9 @@ public class XMageLauncher implements Runnable {
                     textArea.append("New version of XMage available.  \n");
                     int response = JOptionPane.showConfirmDialog(frame, "A newer version of XMage is available.  Would you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
-                        if (!xmageFolder.isDirectory()) {  //remove existing install
-                            xmageFolder.delete();
+                        if (xmageFolder.isDirectory()) {  //remove existing install
+                            textArea.append("Removing old files ...\n");
+                            removeXMageFiles(xmageFolder);
                         }
                         xmageFolder.mkdirs();
                         String xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("location"));
@@ -376,6 +378,24 @@ public class XMageLauncher implements Runnable {
                 logger.error("Error: ", ex);
             }
             return null;
+        }
+        
+        private void removeXMageFiles(File xmageFolder) {
+            // keep images folder -- no need to make users download these again
+            File[] files = xmageFolder.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
+                    return !name.matches("images");
+                }
+            } );
+            for (final File file : files) {
+                if (file.isDirectory()) {
+                    removeXMageFiles(file);
+                }
+                else if (!file.delete()) {
+                    logger.error("Can't remove " + file.getAbsolutePath());
+               }
+            }
         }
         
         @Override
