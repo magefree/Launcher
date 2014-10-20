@@ -296,8 +296,16 @@ public class XMageLauncher implements Runnable {
                 textArea.append("Java version installed:  " + javaInstalledVersion + "\n");
                 textArea.append("Java version available:  " + javaAvailableVersion + "\n");
                 if (!javaAvailableVersion.equals(javaInstalledVersion)) {
-                    textArea.append("New version of Java available.  \n");
-                    int response = JOptionPane.showConfirmDialog(frame, "A newer version of Java is available.  Would you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
+                    String javaMessage = "";
+                    if (javaInstalledVersion.isEmpty()) {
+                        textArea.append("Java not found.\n");
+                        javaMessage = "It looks like this is the first time you are running the XMage Launcher.\nThe Launcher maintains it's own dedicated version of java.\nEven if you have already installed Java the Launcher needs to download it's own version.\n";
+                    }
+                    else {
+                        textArea.append("New version of Java available.\n");
+                        javaMessage = "A newer version of Java is available.\n";
+                    }
+                    int response = JOptionPane.showConfirmDialog(frame, javaMessage + "Would you like to install it now?", "New Version Available", JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         if (javaFolder.isDirectory()) {  //remove existing install
                             textArea.append("Removing previous versions ...\n");
@@ -321,6 +329,7 @@ public class XMageLauncher implements Runnable {
                             logger.error("Error: could not cleanup temporary files");
                         }
                         Config.setInstalledJavaVersion(javaAvailableVersion);
+                        Config.saveProperties();
                     }
                 }
             }
@@ -375,7 +384,7 @@ public class XMageLauncher implements Runnable {
                 textArea.append("XMage version available:  " + xmageAvailableVersion + "\n");                
                 if (!xmageAvailableVersion.equals(xmageInstalledVersion)) {
                     textArea.append("New version of XMage available.  \n");
-                    int response = JOptionPane.showConfirmDialog(frame, "A newer version of XMage is available.  Would you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
+                    int response = JOptionPane.showConfirmDialog(frame, "A newer version of XMage is available.\nWould you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         if (xmageFolder.isDirectory()) {  //remove existing install
                             textArea.append("Removing old files ...\n");
@@ -399,6 +408,7 @@ public class XMageLauncher implements Runnable {
                             logger.error("Error: could not cleanup temporary files");
                         }
                         Config.setInstalledXMageVersion(xmageAvailableVersion);
+                        Config.saveProperties();
                     }
                 }
             }
