@@ -29,8 +29,8 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
     </properties>
     
     <build>
@@ -46,6 +46,10 @@
                             <addClasspath>true</addClasspath>
                             <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <url>xmage.info</url>
+                            <Built-By>XMage</Built-By>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
@@ -54,12 +58,16 @@
                 <version>2.4</version>
                 <configuration>
                    <descriptorRefs>
-                      <descriptorRef>jar-with-dependencies</descriptorRef>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
                    </descriptorRefs>
                    <archive>
-                      <manifest>
-                          <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
-                      </manifest>
+                        <manifest>
+                            <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <url>xmage.info</url>
+                            <Built-By>XMage</Built-By>
+                        </manifestEntries>
                    </archive>
                    <finalName>XMageLauncher</finalName>
                    <appendAssemblyId>false</appendAssemblyId>

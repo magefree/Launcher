@@ -203,7 +203,13 @@ public class XMageLauncher implements Runnable {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             XMageLauncher gui = new XMageLauncher();
             SwingUtilities.invokeLater(gui);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException ex) {
+            logger.error("Error: ", ex);
+        } catch (InstantiationException ex) {
+            logger.error("Error: ", ex);
+        } catch (IllegalAccessException ex) {
+            logger.error("Error: ", ex);
+        } catch (UnsupportedLookAndFeelException ex) {
             logger.error("Error: ", ex);
         }
     }
@@ -318,7 +324,12 @@ public class XMageLauncher implements Runnable {
                     }
                 }
             }
-            catch (IOException | JSONException ex) {
+            catch (IOException ex) {
+                progressBar.setValue(0);
+                this.cancel(true);
+                logger.error("Error: ", ex);
+            }
+            catch (JSONException ex) {
                 progressBar.setValue(0);
                 this.cancel(true);
                 logger.error("Error: ", ex);
@@ -391,7 +402,17 @@ public class XMageLauncher implements Runnable {
                     }
                 }
             }
-            catch (IOException | JSONException | InterruptedException ex) {
+            catch (IOException ex) {
+                progressBar.setValue(0);
+                this.cancel(true);
+                logger.error("Error: ", ex);
+            }
+            catch (JSONException ex) {
+                progressBar.setValue(0);
+                this.cancel(true);
+                logger.error("Error: ", ex);
+            }
+            catch (InterruptedException ex) {
                 progressBar.setValue(0);
                 this.cancel(true);
                 logger.error("Error: ", ex);

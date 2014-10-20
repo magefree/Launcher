@@ -121,7 +121,7 @@ public class Utilities {
         File xmagePath = new File(installPath, "/xmage/" + path);
         File classPath = new File(xmagePath, "/lib/*");
 
-        ArrayList<String> command = new ArrayList<>();
+        ArrayList<String> command = new ArrayList<String>();
         command.add(javaBin.getAbsolutePath());
         command.addAll(Arrays.asList(args.split(" ")));
         command.add("-cp");
