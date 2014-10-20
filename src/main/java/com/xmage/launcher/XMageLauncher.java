@@ -294,10 +294,8 @@ public class XMageLauncher implements Runnable {
                     int response = JOptionPane.showConfirmDialog(frame, "A newer version of Java is available.  Would you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         if (javaFolder.isDirectory()) {  //remove existing install
-                            if (!javaFolder.delete()) {
-                                textArea.append("ERROR: could not remove java folder\n");
-                                logger.error("Error: could not remove java folder");
-                            }
+                            textArea.append("Removing previous versions ...\n");
+                            removeJavaFiles(javaFolder);
                         }
                         javaFolder.mkdirs();
                         String javaRemoteLocation = (String)config.getJSONObject("java").get(("location"));
@@ -326,6 +324,18 @@ public class XMageLauncher implements Runnable {
                 logger.error("Error: ", ex);
             }
             return null;
+        }
+
+        private void removeJavaFiles(File javaFolder) {
+            File[] files = javaFolder.listFiles();
+            for (final File file : files) {
+                if (file.isDirectory()) {
+                    removeJavaFiles(file);
+                }
+                if (!file.delete()) {
+                    logger.error("Can't remove " + file.getAbsolutePath());
+                }
+            }
         }
         
         @Override
