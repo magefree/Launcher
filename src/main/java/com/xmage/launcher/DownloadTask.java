@@ -144,6 +144,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Void> {
         while ((zipEntry = (ZipArchiveEntry)zipIn.getNextEntry()) != null) {
             size += zipEntry.getSize();
         }
+        zipIn.close();
         
         //now write out the files
         long total = 0;
@@ -165,6 +166,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Void> {
                 progressBar.setValue((int)((total * 100)/size));
             }
         }
+        zipIn.close();
     }
 
 }

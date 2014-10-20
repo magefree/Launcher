@@ -294,7 +294,10 @@ public class XMageLauncher implements Runnable {
                     int response = JOptionPane.showConfirmDialog(frame, "A newer version of Java is available.  Would you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         if (javaFolder.isDirectory()) {  //remove existing install
-                            javaFolder.delete();
+                            if (!javaFolder.delete()) {
+                                textArea.append("ERROR: could not remove java folder\n");
+                                logger.error("Error: could not remove java folder");
+                            }
                         }
                         javaFolder.mkdirs();
                         String javaRemoteLocation = (String)config.getJSONObject("java").get(("location"));
@@ -309,7 +312,10 @@ public class XMageLauncher implements Runnable {
                         extract(from, javaFolder);
                         textArea.append("Done\n");
                         progressBar.setValue(0);
-                        from.delete();
+                        if (!from.delete()) {
+                            textArea.append("ERROR: could not cleanup temporary files\n");
+                            logger.error("Error: could not cleanup temporary files");
+                        }
                         Config.setInstalledJavaVersion(javaAvailableVersion);
                     }
                 }
@@ -367,7 +373,10 @@ public class XMageLauncher implements Runnable {
                         unzip(from, xmageFolder);
                         textArea.append("Done\n");
                         progressBar.setValue(0);
-                        from.delete();
+                        if (!from.delete()) {
+                            textArea.append("ERROR: could not cleanup temporary files\n");
+                            logger.error("Error: could not cleanup temporary files");
+                        }
                         Config.setInstalledXMageVersion(xmageAvailableVersion);
                     }
                 }
