@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Random;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -43,6 +45,9 @@ import org.slf4j.LoggerFactory;
 public class XMageLauncher implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
+    private static final String version = "1.0";
+    
+    private final ResourceBundle messages;
     
     private final JFrame frame;
     private final JLabel mainPanel;
@@ -63,7 +68,8 @@ public class XMageLauncher implements Runnable {
     private Process serverProcess;
     
     private XMageLauncher() {
-        frame = new JFrame("XMage Launcher");
+        messages = ResourceBundle.getBundle("MessagesBundle");
+        frame = new JFrame(messages.getString("frameTitle"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(800, 500));
         frame.setResizable(false);
@@ -71,8 +77,9 @@ public class XMageLauncher implements Runnable {
        
         ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
         frame.setIconImage(icon.getImage());
-       
-        int imageNum = 1 + (int)(Math.random() * 18);
+        
+        Random r = new Random();
+        int imageNum = 1 + r.nextInt(17);
         ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + Integer.toString(imageNum) + ".jpg")).getImage().getScaledInstance(800, 500, Image.SCALE_SMOOTH));
         mainPanel = new JLabel(background) {
             @Override
@@ -87,7 +94,6 @@ public class XMageLauncher implements Runnable {
         mainPanel.setLayout(new GridBagLayout());
         
         GridBagConstraints constraints = new GridBagConstraints();
-        //constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(10, 10, 10, 10);
     
         Font font14 = new Font("Arial", Font.BOLD, 14);
@@ -96,7 +102,7 @@ public class XMageLauncher implements Runnable {
         mainPanel.add(Box.createHorizontalStrut(250));
         mainPanel.add(Box.createVerticalStrut(50));
 
-        xmageInfo = new JLabel("<html><b>XMage Launcher version 1.0</b></html>", JLabel.RIGHT);
+        xmageInfo = new JLabel("<html><b>" + messages.getString("launcherVersion") + version + "</b></html>", JLabel.RIGHT);
         xmageInfo.setForeground(Color.WHITE);
         xmageInfo.setFont(font12);
         constraints.gridx = 4;
@@ -117,8 +123,8 @@ public class XMageLauncher implements Runnable {
         constraints.fill = GridBagConstraints.BOTH;
         mainPanel.add(xmageLogo, constraints);
         
-        btnLaunchClient = new JButton("<html><center>Launch<br>Client</html>");
-        btnLaunchClient.setToolTipText("<html>Launch Client application only - use this if you will be connecting to a remote XMage server to play against others.</html>");
+        btnLaunchClient = new JButton(messages.getString("launchClient"));
+        btnLaunchClient.setToolTipText(messages.getString("launchClient.tooltip"));
         btnLaunchClient.setFont(font14);
         btnLaunchClient.setForeground(Color.GRAY);
         btnLaunchClient.setEnabled(false);
@@ -136,8 +142,8 @@ public class XMageLauncher implements Runnable {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(btnLaunchClient, constraints);
         
-        btnLaunchClientServer = new JButton("<html><center>Launch Client<br>and Server</html>");
-        btnLaunchClientServer.setToolTipText("<html>Launch Client and Server applications - use this if you will be playing locally against an AI</html>");
+        btnLaunchClientServer = new JButton(messages.getString("launchClientServer"));
+        btnLaunchClientServer.setToolTipText(messages.getString("launchClientServer.tooltip"));
         btnLaunchClientServer.setFont(font14);
         btnLaunchClientServer.setEnabled(false);
         btnLaunchClientServer.setForeground(Color.GRAY);
@@ -153,8 +159,8 @@ public class XMageLauncher implements Runnable {
         constraints.gridx = 2;
         mainPanel.add(btnLaunchClientServer, constraints);
 
-        btnLaunchServer = new JButton("<html><center>Launch<br>Server</html>");
-        btnLaunchServer.setToolTipText("<html>Launch Server application only - use this if you want run an XMage server.  Additional network configuration may be necessary to allow clients to connect.</html>");
+        btnLaunchServer = new JButton(messages.getString("launchServer"));
+        btnLaunchServer.setToolTipText(messages.getString("launchServer.tooltip"));
         btnLaunchServer.setFont(font14);
         btnLaunchServer.setEnabled(false);
         btnLaunchServer.setForeground(Color.GRAY);
@@ -169,7 +175,7 @@ public class XMageLauncher implements Runnable {
         constraints.gridx = 3;
         mainPanel.add(btnLaunchServer, constraints);
 
-        btnClose = new JButton("Close");
+        btnClose = new JButton(messages.getString("close"));
         btnClose.setFont(font14);
         btnClose.addActionListener(new ActionListener() {
             @Override
@@ -200,7 +206,7 @@ public class XMageLauncher implements Runnable {
         constraints.fill = GridBagConstraints.BOTH;
         mainPanel.add(scrollPane, constraints);
         
-        labelProgress = new JLabel("<html><b>Progress:</b></html>");
+        labelProgress = new JLabel(messages.getString("progress"));
         labelProgress.setFont(font12);
         labelProgress.setForeground(Color.WHITE);
         constraints.gridy = 2;
@@ -226,12 +232,12 @@ public class XMageLauncher implements Runnable {
     private void handleServer() {
         if (serverProcess == null) {
             serverProcess = Utilities.launchServerProcess(textArea);
-            btnLaunchServer.setText("Stop Server");
+            btnLaunchServer.setText(messages.getString("stopServer"));
         }
         else {
             Utilities.stopProcess(serverProcess);
             serverProcess = null;
-            btnLaunchServer.setText("Launch Server");
+            btnLaunchServer.setText(messages.getString("launchServer"));
         }
     }
     
@@ -258,7 +264,7 @@ public class XMageLauncher implements Runnable {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (serverProcess != null) {
-                    int response = JOptionPane.showConfirmDialog(frame, "XMage server is currently running.  Do you want to stop it?  If you don't then you will need to stop it manually.", "Server is running", JOptionPane.YES_NO_OPTION);
+                    int response = JOptionPane.showConfirmDialog(frame, messages.getString("serverRunning.message"), messages.getString("serverRunning.title"), JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         Utilities.stopProcess(serverProcess);
                     }
@@ -270,21 +276,21 @@ public class XMageLauncher implements Runnable {
         try {
             URL xmageUrl = new URL(Config.getXMageHome() + "/config.json");
             try {
-                textArea.append("Reading config from " + xmageUrl.toString() + "\n");
+                textArea.append(messages.getString("readingConfig") + xmageUrl.toString() + "\n");
                 config = Utilities.readJsonFromUrl(xmageUrl);
             } catch (IOException ex) {
                 logger.error("Error reading config from " + xmageUrl.toString(), ex);
-                textArea.append("Error reading config from " + xmageUrl.toString() + "\nPossible causes:  Site is offline or internet connection is unavailable.\n");
+                textArea.append(messages.getString("readingConfig.error") + xmageUrl.toString() + "\n" + messages.getString("readingConfig.error.causes") + "\n");
                 enableButtons();
                 return;
             } catch (JSONException ex) {
                 logger.error("Invalid config from " + xmageUrl.toString(), ex);
-                textArea.append("Invalid config from " + xmageUrl.toString() + "\n");
+                textArea.append(messages.getString("invalidConfig") + xmageUrl.toString() + "\n");
                 enableButtons();
                 return;
             }
             path = Utilities.getInstallPath();
-            textArea.append("XMage folder:  " + path.getAbsolutePath() + "\n");
+            textArea.append(messages.getString("folder") + path.getAbsolutePath() + "\n");
             CountDownLatch latch = new CountDownLatch(1);
             DownloadJavaTask java = new DownloadJavaTask(latch, progressBar);
             DownloadXMageTask xmage = new DownloadXMageTask(latch, progressBar);
@@ -292,7 +298,7 @@ public class XMageLauncher implements Runnable {
             xmage.execute();
         } catch (Exception ex) {
             logger.error("Error: ", ex);
-            textArea.append("Error: " + ex.getMessage());
+            textArea.append(messages.getString("error") + ex.getMessage());
         }        
               
     }
@@ -310,11 +316,11 @@ public class XMageLauncher implements Runnable {
                 btnLaunchServer.setForeground(Color.BLACK);
             }
             else {
-                textArea.append("XMage is not installed.  Unable to continue.");
+                textArea.append(messages.getString("noXMage"));
             }
         }
         else {
-            textArea.append("Java is not installed.  Unable to continue.");
+            textArea.append(messages.getString("noJava"));
         }
     }
     
@@ -333,39 +339,42 @@ public class XMageLauncher implements Runnable {
                 File javaFolder = new File(path.getAbsolutePath() + File.separator + "java");
                 String javaAvailableVersion = (String)config.getJSONObject("java").get(("version"));
                 String javaInstalledVersion = Config.getInstalledJavaVersion();
-                textArea.append("Java version installed:  " + javaInstalledVersion + "\n");
-                textArea.append("Java version available:  " + javaAvailableVersion + "\n");
+                textArea.append(messages.getString("java.installed") + javaInstalledVersion + "\n");
+                textArea.append(messages.getString("java.available") + javaAvailableVersion + "\n");
                 if (!javaAvailableVersion.equals(javaInstalledVersion)) {
                     String javaMessage = "";
+                    String javaTitle = "";
                     if (javaInstalledVersion.isEmpty()) {
-                        textArea.append("Java not found.\n");
-                        javaMessage = "It looks like this is the first time you are running the XMage Launcher.\nThe Launcher maintains it's own dedicated version of java.\nEven if you have already installed Java the Launcher needs to download it's own version.\n";
+                        textArea.append(messages.getString("java.none") + "\n");
+                        javaMessage = messages.getString("java.none.message");
+                        javaTitle = messages.getString("java.none");
                     }
                     else {
-                        textArea.append("New version of Java available.\n");
-                        javaMessage = "A newer version of Java is available.\n";
+                        textArea.append(messages.getString("java.new") + "\n");
+                        javaMessage = messages.getString("java.new.message");
+                        javaTitle = messages.getString("java.new");
                     }
-                    int response = JOptionPane.showConfirmDialog(frame, javaMessage + "Would you like to install it now?", "New Version Available", JOptionPane.YES_NO_OPTION);
+                    int response = JOptionPane.showConfirmDialog(frame, "<html>" + javaMessage + messages.getString("installNow") + "</html>", javaTitle, JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         if (javaFolder.isDirectory()) {  //remove existing install
-                            textArea.append("Removing previous versions ...\n");
+                            textArea.append(messages.getString("removing") + "\n");
                             removeJavaFiles(javaFolder);
                         }
                         javaFolder.mkdirs();
                         String javaRemoteLocation = (String)config.getJSONObject("java").get(("location"));
                         URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
-                        textArea.append("Downloading Java from " + java.toString() + "\n");
+                        textArea.append(messages.getString("java.downloading") + java.toString() + "\n");
 
                         download(java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
                         
                         File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
-                        textArea.append("Installing Java ...\n");
+                        textArea.append(messages.getString("java.installing") + "\n");
 
                         extract(from, javaFolder);
-                        textArea.append("Done\n");
+                        textArea.append(messages.getString("done") + "\n");
                         progressBar.setValue(0);
                         if (!from.delete()) {
-                            textArea.append("ERROR: could not cleanup temporary files\n");
+                            textArea.append(messages.getString("error.cleanup") + "\n");
                             logger.error("Error: could not cleanup temporary files");
                         }
                         Config.setInstalledJavaVersion(javaAvailableVersion);
@@ -420,31 +429,42 @@ public class XMageLauncher implements Runnable {
                 File xmageFolder = new File(path.getAbsolutePath() + File.separator + "xmage");
                 String xmageAvailableVersion = (String)config.getJSONObject("XMage").get(("version"));
                 String xmageInstalledVersion = Config.getInstalledXMageVersion();
-                textArea.append("XMage version installed:  " + xmageInstalledVersion + "\n");
-                textArea.append("XMage version available:  " + xmageAvailableVersion + "\n");                
+                textArea.append(messages.getString("xmage.installed") + xmageInstalledVersion + "\n");
+                textArea.append(messages.getString("xmage.available") + xmageAvailableVersion + "\n");                
                 if (!xmageAvailableVersion.equals(xmageInstalledVersion)) {
-                    textArea.append("New version of XMage available.  \n");
-                    int response = JOptionPane.showConfirmDialog(frame, "A newer version of XMage is available.\nWould you like to install it?", "New Version Available", JOptionPane.YES_NO_OPTION);
+                    String xmageMessage = "";
+                    String xmageTitle = "";
+                    if (xmageInstalledVersion.isEmpty()) {
+                        textArea.append(messages.getString("xmage.none") + "\n");
+                        xmageMessage = messages.getString("xmage.none.message");
+                        xmageTitle = messages.getString("xmage.none");
+                    }
+                    else {
+                        textArea.append(messages.getString("xmage.new") + "\n");
+                        xmageMessage = messages.getString("xmage.new.message");
+                        xmageTitle = messages.getString("xmage.new");
+                    }
+                    int response = JOptionPane.showConfirmDialog(frame, "<html>" + xmageMessage + messages.getString("installNow") + "</html>", xmageTitle, JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         if (xmageFolder.isDirectory()) {  //remove existing install
-                            textArea.append("Removing old files ...\n");
+                            textArea.append(messages.getString("removing") + "\n");
                             removeXMageFiles(xmageFolder);
                         }
                         xmageFolder.mkdirs();
                         String xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("location"));
                         URL xmage = new URL(xmageRemoteLocation);
-                        textArea.append("Downloading XMage from " + xmage.toString() + "\n");
+                        textArea.append(messages.getString("xmage.downloading") + xmage.toString() + "\n");
 
                         download(xmage, path.getAbsolutePath(), "");
 
                         File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
-                        textArea.append("Installing XMage ...\n");
+                        textArea.append(messages.getString("xmage.installing"));
 
                         unzip(from, xmageFolder);
-                        textArea.append("Done\n");
+                        textArea.append(messages.getString("done") + "\n");
                         progressBar.setValue(0);
                         if (!from.delete()) {
-                            textArea.append("ERROR: could not cleanup temporary files\n");
+                            textArea.append(messages.getString("error.cleanup") + "\n");
                             logger.error("Error: could not cleanup temporary files");
                         }
                         Config.setInstalledXMageVersion(xmageAvailableVersion);
