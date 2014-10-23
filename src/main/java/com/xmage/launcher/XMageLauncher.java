@@ -526,7 +526,7 @@ public class XMageLauncher implements Runnable {
             File[] files = xmageFolder.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(final File dir, final String name) {
-                    return !name.matches("images");
+                    return !name.matches("images|gameLogs|mageclient\\.log|mageserver\\.log");
                 }
             } );
             for (final File file : files) {
