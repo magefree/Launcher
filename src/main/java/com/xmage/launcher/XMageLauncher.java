@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
@@ -52,6 +53,7 @@ public class XMageLauncher implements Runnable {
     private static final String version = "1.0";
     
     private final ResourceBundle messages;
+    private final Locale locale;
     
     private final JFrame frame;
     private final JLabel mainPanel;
@@ -76,7 +78,11 @@ public class XMageLauncher implements Runnable {
     private XMageConsole clientConsole;
     
     private XMageLauncher() {
-        messages = ResourceBundle.getBundle("MessagesBundle");
+        locale = Locale.getDefault();
+        //locale = new Locale("it", "IT");
+        messages = ResourceBundle.getBundle("MessagesBundle", locale);
+        localize();
+        
         serverConsole = new XMageConsole("XMage Server console");
         clientConsole = new XMageConsole("XMage Server console");
         
@@ -285,6 +291,11 @@ public class XMageLauncher implements Runnable {
             btnLaunchServer.setText(messages.getString("launchServer"));
             btnLaunchClientServer.setEnabled(true);
         }
+    }
+    
+    private void localize() {
+        UIManager.put("OptionPane.yesButtonText", messages.getString("yes"));
+        UIManager.put("OptionPane.noButtonText", messages.getString("no"));
     }
     
     public static void main(String[] args) {
