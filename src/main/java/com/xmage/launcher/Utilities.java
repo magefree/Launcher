@@ -135,8 +135,6 @@ public class Utilities {
         pb.redirectErrorStream(true);
         try {
             Process p = pb.start();
-            StreamGobbler outGobbler = new StreamGobbler(p.getInputStream(), out);
-            outGobbler.start();
             return p;
         } catch (IOException ex) {
             logger.error("Error staring process", ex);
@@ -144,38 +142,4 @@ public class Utilities {
         return null;
     }
 
-}
-
-class StreamGobbler extends Thread
-{
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StreamGobbler.class);
-    
-    private final InputStream is;
-    private final JTextArea text;
-
-    public StreamGobbler(InputStream is, JTextArea text)
-    {
-        this.is = is;
-        this.text = text;
-    }
-
-    @Override
-    public void run()
-    {
-        try
-        {
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
-            while ( (line = br.readLine()) != null)
-            {
-                text.append(line + "\n"); // JTextArea.append is thread safe
-            }
-        }
-        catch (IOException ex)
-        {
-            text.append(ex.toString()); // note below
-            logger.error("Error processing stream", ex);
-        }
-    }
 }

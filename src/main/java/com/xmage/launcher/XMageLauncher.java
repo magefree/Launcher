@@ -72,9 +72,14 @@ public class XMageLauncher implements Runnable {
     private Point grabPoint;
 
     private Process serverProcess;
+    private XMageConsole serverConsole;
+    private XMageConsole clientConsole;
     
     private XMageLauncher() {
         messages = ResourceBundle.getBundle("MessagesBundle");
+        serverConsole = new XMageConsole("XMage Server console");
+        clientConsole = new XMageConsole("XMage Server console");
+        
         frame = new JFrame(messages.getString("frameTitle"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(800, 500));
@@ -164,7 +169,7 @@ public class XMageLauncher implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Utilities.launchClientProcess(textArea);
+                handleClient();
             }
         });      
 
@@ -183,7 +188,7 @@ public class XMageLauncher implements Runnable {
             public void actionPerformed(ActionEvent e)
             {
                 handleServer();
-                Utilities.launchClientProcess(textArea);
+                handleClient();
             }
         });      
 
@@ -260,15 +265,25 @@ public class XMageLauncher implements Runnable {
         frame.setLocation(dim.width/2 - frame.getSize().width/2, dim.height/2 - frame.getSize().height/2);
     }
     
+    private void handleClient() {
+        Process p = Utilities.launchClientProcess(textArea);
+        clientConsole.setVisible(true);
+        clientConsole.start(p);
+    }
+    
     private void handleServer() {
         if (serverProcess == null) {
             serverProcess = Utilities.launchServerProcess(textArea);
+            serverConsole.setVisible(true);
+            serverConsole.start(serverProcess);
             btnLaunchServer.setText(messages.getString("stopServer"));
+            btnLaunchClientServer.setEnabled(false);
         }
         else {
             Utilities.stopProcess(serverProcess);
             serverProcess = null;
             btnLaunchServer.setText(messages.getString("launchServer"));
+            btnLaunchClientServer.setEnabled(true);
         }
     }
     
