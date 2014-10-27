@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public class XMageLauncher implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
-    private static final String version = "1.0";
+    private static final String version = "0.1.0-beta";
     
     private final ResourceBundle messages;
     private final Locale locale;
