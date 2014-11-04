@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public class XMageLauncher implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
-    private static final String version = "0.1.0-beta";
+    private static final String version = "0.1.1-beta";
     
     private final ResourceBundle messages;
     private final Locale locale;
@@ -552,7 +552,7 @@ public class XMageLauncher implements Runnable {
             File[] files = xmageFolder.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(final File dir, final String name) {
-                    return !name.matches("images|gameLogs|mageclient\\.log|mageserver\\.log");
+                    return !name.matches("images|gameLogs|backgrounds|mageclient\\.log|mageserver\\.log|.*\\.dck");
                 }
             } );
             for (final File file : files) {
