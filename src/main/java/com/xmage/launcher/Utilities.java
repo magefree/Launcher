@@ -105,7 +105,7 @@ public class Utilities {
 
     public static Process launchServerProcess(JTextArea out) {
         
-        return launchProcess("mage.server.Main", "-Xms256M -Xmx512M -XX:MaxPermSize=384m", "mage-server", out);
+        return launchProcess("mage.server.Main", "-Xms256M -Xmx1G -XX:MaxPermSize=384m", "mage-server", out);
         
     }
     
@@ -116,7 +116,13 @@ public class Utilities {
     private static Process launchProcess(String main, String args, String path, JTextArea out) {
         
         File installPath = Utilities.getInstallPath();
-        File javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
+        File javaHome;
+        if (getOS() == OS.OSX) {
+            javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion() + ".jre/Contents/Home");
+        }
+        else {
+            javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
+        }
         File javaBin = new File(javaHome, "/bin/java");
         File xmagePath = new File(installPath, "/xmage/" + path);
         File classPath = new File(xmagePath, "/lib/*");
