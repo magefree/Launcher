@@ -6,8 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -15,15 +14,21 @@ import java.util.logging.Logger;
  */
 public class Config {
     private static final String PROPERTIES_FILE = "installed.properties";
-    
+    private static final String VERSION_FILE = "/version.properties";
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);    
     private static final Properties props = new Properties();
+    private static final String DEFAULT_URL = "http://xmage.info/xmage";
     
+    private static String version = "";
     private static String installedJavaVersion = "";
     private static String installedXMageVersion = "";
     private static String homeURL = "";
 
     static {
         try {
+            props.load(Config.class.getResourceAsStream(VERSION_FILE));
+            version = props.getProperty("xmage.launcher.version", "");
+
             File properties = new File(getInstallPath().getAbsolutePath(), PROPERTIES_FILE);
             if (!properties.isFile() && !properties.createNewFile()) {
                 throw new IOException("Error creating properties file: " + properties.getAbsolutePath());
@@ -33,9 +38,10 @@ public class Config {
             in.close();
             installedJavaVersion = props.getProperty("java.version", "");
             installedXMageVersion = props.getProperty("xmage.version", "");
-            homeURL = props.getProperty("xmage.home", "http://xmage.info/xmage");
+            homeURL = props.getProperty("xmage.home", DEFAULT_URL);
+        
         } catch (IOException ex) {
-            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error: ", ex);
         }
     }
 
@@ -49,6 +55,10 @@ public class Config {
 
     public static String getXMageHome() {
         return homeURL;
+    }
+
+    public static String getVersion() {
+        return version;
     }
 
     public static void setInstalledJavaVersion(String version) {
@@ -69,7 +79,7 @@ public class Config {
             props.store(out, "---Installed versions---");
             out.close();
         } catch (IOException ex) {
-            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error: ", ex);
         }
     }
     

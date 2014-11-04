@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 public class XMageLauncher implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
-    private static final String version = "0.1.1-beta";
     
     private final ResourceBundle messages;
     private final Locale locale;
@@ -84,7 +83,7 @@ public class XMageLauncher implements Runnable {
         localize();
         
         serverConsole = new XMageConsole("XMage Server console");
-        clientConsole = new XMageConsole("XMage Server console");
+        clientConsole = new XMageConsole("XMage Client console");
         
         frame = new JFrame(messages.getString("frameTitle"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -144,7 +143,7 @@ public class XMageLauncher implements Runnable {
         mainPanel.add(Box.createHorizontalStrut(250));
         mainPanel.add(Box.createVerticalStrut(50));
 
-        xmageInfo = new JLabel("<html><b>" + messages.getString("launcherVersion") + version + "</b></html>", JLabel.RIGHT);
+        xmageInfo = new JLabel("<html><b>" + messages.getString("launcherVersion") + Config.getVersion() + "</b></html>", JLabel.RIGHT);
         xmageInfo.setForeground(Color.WHITE);
         xmageInfo.setFont(font12);
         constraints.gridx = 4;
