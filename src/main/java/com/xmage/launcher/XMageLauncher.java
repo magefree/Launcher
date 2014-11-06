@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.concurrent.CountDownLatch;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -347,11 +346,10 @@ public class XMageLauncher implements Runnable {
             }
             path = Utilities.getInstallPath();
             textArea.append(messages.getString("folder") + path.getAbsolutePath() + "\n");
-            CountDownLatch latch = new CountDownLatch(1);
-            DownloadJavaTask java = new DownloadJavaTask(latch, progressBar);
-            DownloadXMageTask xmage = new DownloadXMageTask(latch, progressBar);
-            java.execute();
-            xmage.execute();
+            DownloadXMageTask xmage = new DownloadXMageTask(progressBar);            
+            DownloadJavaTask java = new DownloadJavaTask(xmage, progressBar);
+            DownloadLauncherTask launcher = new DownloadLauncherTask(java, progressBar);
+            launcher.execute();
         } catch (Exception ex) {
             logger.error("Error: ", ex);
             textArea.append(messages.getString("error") + ex.getMessage());
@@ -380,13 +378,101 @@ public class XMageLauncher implements Runnable {
         }
     }
     
+    private class DownloadLauncherTask extends DownloadTask {
+        
+        private final DownloadJavaTask java;
+        
+        public DownloadLauncherTask(DownloadJavaTask java, JProgressBar progressBar) {
+            super(progressBar);
+            this.java = java;
+        }
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                File launcherFolder = new File(path.getAbsolutePath());
+                String launcherAvailableVersion = (String)config.getJSONObject("XMage").getJSONObject("Launcher").get(("version"));
+                String launcherInstalledVersion = Config.getVersion();
+                textArea.append(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
+                textArea.append(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
+                removeOldLauncherFiles(launcherFolder, launcherInstalledVersion);
+                if (!launcherAvailableVersion.equals(launcherInstalledVersion)) {
+                    String launcherMessage = "";
+                    String launcherTitle = "";
+                    textArea.append(messages.getString("xmage.launcher.new") + "\n");
+                    launcherMessage = messages.getString("xmage.launcher.new.message");
+                    launcherTitle = messages.getString("xmage.launcher.new");
+                    int response = JOptionPane.showConfirmDialog(frame, "<html>" + launcherMessage + messages.getString("installNow") + "</html>", launcherTitle, JOptionPane.YES_NO_OPTION);
+                    if (response == JOptionPane.YES_OPTION) {
+                        String launcherRemoteLocation = (String)config.getJSONObject("XMage").getJSONObject("Launcher").get(("location"));
+                        URL launcher = new URL(launcherRemoteLocation);
+                        textArea.append(messages.getString("xmage.launcher.downloading") + launcher.toString() + "\n");
+
+                        download(launcher, path.getAbsolutePath(), "");
+
+                        File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
+                        textArea.append(messages.getString("xmage.launcher.installing"));
+                        File to = new File(launcherFolder, "XMageLauncher-" + launcherAvailableVersion + ".jar");
+                        from.renameTo(to);
+                        textArea.append(messages.getString("done") + "\n");
+                        progressBar.setValue(0);
+                        JOptionPane.showMessageDialog(frame, "<html>" + messages.getString("restartMessage") + "</html>", messages.getString("restartTitle"), JOptionPane.WARNING_MESSAGE);
+                        Utilities.restart(to);
+                    }
+                }
+            }
+            catch (IOException ex) {
+                progressBar.setValue(0);
+                this.cancel(true);
+                logger.error("Error: ", ex);
+            }
+            catch (JSONException ex) {
+                progressBar.setValue(0);
+                this.cancel(true);
+                logger.error("Error: ", ex);
+            }
+            return null;
+        }
+        
+        private void removeOldLauncherFiles(File xmageFolder, final String launcherVersion) {
+            File[] files = xmageFolder.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
+                    textArea.append(dir.getAbsolutePath() + name + "\n");
+                    if (name.matches("XMageLauncher.*\\.jar")) {
+                        if (name.equals("XMageLauncher-" + launcherVersion + ".jar")) {
+                            return false;
+                        }
+                        textArea.append("matched\n");
+                        return true;
+                    }
+                    return false;
+                }
+            } );
+            if (files.length > 0) {
+                textArea.append(messages.getString("removing") + "\n");
+                for (final File file : files) {
+                    if (!file.isDirectory() && !file.delete()) {
+                        logger.error("Can't remove " + file.getAbsolutePath());
+                   }
+                }
+            }
+        }
+                
+        @Override
+        public void done() {
+            java.execute();
+        }
+
+    }
+
     private class DownloadJavaTask extends DownloadTask {
         
-        private final CountDownLatch latch;
-
-        public DownloadJavaTask(CountDownLatch latch, JProgressBar progressBar) {
+        private final DownloadXMageTask xmage;
+        
+        public DownloadJavaTask(DownloadXMageTask xmage, JProgressBar progressBar) {
             super(progressBar);
-            this.latch = latch;
+            this.xmage = xmage;
         }
 
         @Override
@@ -447,7 +533,7 @@ public class XMageLauncher implements Runnable {
                 progressBar.setValue(0);
                 this.cancel(true);
                 logger.error("Error: ", ex);
-            }
+            } 
             return null;
         }
 
@@ -465,23 +551,19 @@ public class XMageLauncher implements Runnable {
         
         @Override
         public void done() {
-            latch.countDown();
+            xmage.execute();
         }
     }
     
     private class DownloadXMageTask extends DownloadTask {
         
-        private final CountDownLatch latch;
-
-        public DownloadXMageTask(CountDownLatch latch, JProgressBar progressBar) {
+        public DownloadXMageTask(JProgressBar progressBar) {
             super(progressBar);
-            this.latch = latch;
         }
 
         @Override
         protected Void doInBackground() {
             try {
-                latch.await();
                 File xmageFolder = new File(path.getAbsolutePath() + File.separator + "xmage");
                 String xmageAvailableVersion = (String)config.getJSONObject("XMage").get(("version"));
                 String xmageInstalledVersion = Config.getInstalledXMageVersion();
@@ -537,12 +619,7 @@ public class XMageLauncher implements Runnable {
                 progressBar.setValue(0);
                 this.cancel(true);
                 logger.error("Error: ", ex);
-            }
-            catch (InterruptedException ex) {
-                progressBar.setValue(0);
-                this.cancel(true);
-                logger.error("Error: ", ex);
-            }
+            } 
             return null;
         }
         

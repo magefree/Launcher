@@ -4,7 +4,7 @@
     
     <groupId>com.xmage</groupId>
     <artifactId>Launcher</artifactId>
-    <version>0.1.3-beta</version>
+    <version>0.2.0</version>
     <packaging>jar</packaging>
     
     <name>XMage Launcher</name>
@@ -74,7 +74,7 @@
                             <Built-By>XMage</Built-By>
                         </manifestEntries>
                    </archive>
-                   <finalName>XMageLauncher</finalName>
+                   <finalName>XMageLauncher-${project.version}</finalName>
                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>

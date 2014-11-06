@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class Utilities {
     private static final String OS_name = System.getProperty("os.name").toLowerCase();
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Utilities.class);
-    
+
     public enum OS {
         WIN,
         NIX,
@@ -147,5 +147,26 @@ public class Utilities {
         }
         return null;
     }
+
+    public static void restart(File launcherJar) {
+        File installPath = Utilities.getInstallPath();
+        String javaBin = System.getProperty("java.home") + "/bin/java";
+
+        ArrayList<String> command = new ArrayList<String>();
+        command.add(javaBin);
+        command.add("-jar");
+        command.add(launcherJar.getPath());
+
+        ProcessBuilder pb = new ProcessBuilder(command);
+        pb.environment().putAll(System.getenv());
+        pb.directory(installPath);
+        try {
+            pb.start();
+            System.exit(0);
+        } catch (IOException ex) {
+            logger.error("Error restarting launcher", ex);
+        }
+    }
+    
 
 }
