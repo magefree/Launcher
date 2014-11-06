@@ -438,12 +438,10 @@ public class XMageLauncher implements Runnable {
             File[] files = xmageFolder.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(final File dir, final String name) {
-                    textArea.append(dir.getAbsolutePath() + name + "\n");
                     if (name.matches("XMageLauncher.*\\.jar")) {
                         if (name.equals("XMageLauncher-" + launcherVersion + ".jar")) {
                             return false;
                         }
-                        textArea.append("matched\n");
                         return true;
                     }
                     return false;
