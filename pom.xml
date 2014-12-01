@@ -4,7 +4,7 @@
     
     <groupId>com.xmage</groupId>
     <artifactId>Launcher</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <packaging>jar</packaging>
     
     <name>XMage Launcher</name>
@@ -24,6 +24,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.turn</groupId>
+            <artifactId>ttorrent</artifactId>
+            <version>1.4</version>
         </dependency>
     </dependencies>
     
@@ -89,4 +94,11 @@
             </plugin>
         </plugins>
     </build>
+    <repositories>
+        <repository>
+            <id>unknown-jars-temp-repo</id>
+            <name>A temporary repository created by NetBeans for libraries and jars it could not identify. Please replace the dependencies in this repository with correct ones and delete this repository.</name>
+            <url>file:${project.basedir}/lib</url>
+        </repository>
+    </repositories>
 </project>

@@ -1,12 +1,15 @@
 
 package com.xmage.launcher;
 
+import com.turn.ttorrent.client.Client;
+import com.turn.ttorrent.client.SharedTorrent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
@@ -29,10 +32,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Void> {
     public DownloadTask(JProgressBar progressBar) {
         this.progressBar = progressBar;
     }
-    
-    @Override
-    protected abstract Void doInBackground();
-    
+        
     protected void download(URL downloadURL, String saveDirectory, String cookies) throws IOException {
         Downloader dl = new Downloader();
         dl.connect(downloadURL, cookies);
@@ -56,6 +56,23 @@ public abstract class DownloadTask extends SwingWorker<Void, Void> {
         dl.disconnect();
     }
 
+    public void torrent(File from, File to) throws IOException {
+        // First, instantiate the Client object.
+        SharedTorrent torrent = SharedTorrent.fromFile(from, to);
+        
+        Client client = new Client(InetAddress.getLocalHost(), torrent);
+
+        client.setMaxDownloadRate(0.0);
+        client.setMaxUploadRate(50.0);
+
+        client.download();
+        
+        while (!torrent.isComplete()) {
+            progressBar.setValue((int)torrent.getCompletion());
+        }
+
+    }
+    
     protected void extract(File from, File to) throws IOException {
         
         TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(from)));
