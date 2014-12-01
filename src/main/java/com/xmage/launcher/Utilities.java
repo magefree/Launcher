@@ -99,13 +99,13 @@ public class Utilities {
 
     public static Process launchClientProcess(JTextArea out) {
         
-        return launchProcess("mage.client.MageFrame", "-Xms256m -Xmx512m -XX:MaxPermSize=384m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled", "mage-client", out);
+        return launchProcess("mage.client.MageFrame", Config.getClientJavaOpts(), "mage-client", out);
         
     }
 
     public static Process launchServerProcess(JTextArea out) {
         
-        return launchProcess("mage.server.Main", "-Xms256M -Xmx1G -XX:MaxPermSize=384m", "mage-server", out);
+        return launchProcess("mage.server.Main", Config.getServerJavaOpts(), "mage-server", out);
         
     }
     

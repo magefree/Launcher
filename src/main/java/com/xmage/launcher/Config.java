@@ -18,11 +18,16 @@ public class Config {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);    
     private static final Properties props = new Properties();
     private static final String DEFAULT_URL = "http://xmage.info/xmage";
+    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xms256m -Xmx512m -XX:MaxPermSize=384m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled";
+    private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xms256M -Xmx1G -XX:MaxPermSize=384m";
     
     private static String version = "";
     private static String installedJavaVersion = "";
     private static String installedXMageVersion = "";
     private static String homeURL = "";
+    private static boolean useTorrent = false;
+    private static String clientJavaOpts = "";
+    private static String serverJavaOpts = "";
 
     static {
         try {
@@ -38,7 +43,10 @@ public class Config {
             in.close();
             installedJavaVersion = props.getProperty("java.version", "");
             installedXMageVersion = props.getProperty("xmage.version", "");
+            clientJavaOpts = props.getProperty("xmage.client.javaopts", DEFAULT_CLIENT_JAVA_OPTS);
+            serverJavaOpts = props.getProperty("xmage.server.javaopts", DEFAULT_SERVER_JAVA_OPTS);
             homeURL = props.getProperty("xmage.home", DEFAULT_URL);
+            useTorrent = Boolean.parseBoolean(props.getProperty("xmage.torrent.use", "False"));
         
         } catch (IOException ex) {
             logger.error("Error: ", ex);
@@ -61,12 +69,40 @@ public class Config {
         return version;
     }
 
+    public static String getClientJavaOpts() {
+        return clientJavaOpts;
+    }
+
+    public static String getServerJavaOpts() {
+        return serverJavaOpts;
+    }
+
+    public static boolean isUseTorrent() {
+        return useTorrent;
+    }
+
     public static void setInstalledJavaVersion(String version) {
         installedJavaVersion = version;
     }
 
     public static void setInstalledXMageVersion(String version) {
         installedXMageVersion = version;
+    }
+    
+    public static void setClientJavaOpts(String opts) {
+        clientJavaOpts = opts;
+    }
+    
+    public static void setServerJavaOpts(String opts) {
+        serverJavaOpts = opts;
+    }
+    
+    public static void setXMageHome(String url) {
+        homeURL = url;
+    }
+    
+    public static void setUseTorrent(boolean use) {
+        useTorrent = use;
     }
 
     public static void saveProperties() {
@@ -75,7 +111,10 @@ public class Config {
             FileOutputStream out = new FileOutputStream(properties);
             props.setProperty("java.version", installedJavaVersion);
             props.setProperty("xmage.version", installedXMageVersion);
+            props.setProperty("xmage.client.javaopts", clientJavaOpts);
+            props.setProperty("xmage.server.javaopts", serverJavaOpts);
             props.setProperty("xmage.home", homeURL);
+            props.setProperty("xmage.torrent.use", Boolean.toString(useTorrent));
             props.store(out, "---Installed versions---");
             out.close();
         } catch (IOException ex) {
