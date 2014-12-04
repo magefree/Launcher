@@ -425,6 +425,9 @@ public class XMageLauncher implements Runnable {
     }
 
     private void handleDownloadJava() {
+        disableButtons();
+        DownloadJavaTask java = new DownloadJavaTask(progressBar);
+        java.execute();
 //        try {
 //            TorrentClient.download(new File(path.getAbsolutePath() + File.separator + "1AFA61A32DB8B1F8DCCF9346F3B0016C4F2689AE.torrent"), new File(path.getAbsolutePath()), progressBar);
 //        } catch (IOException ex) {
@@ -433,11 +436,15 @@ public class XMageLauncher implements Runnable {
     }
     
     private void handleDownloadXMage() {
-        
+        disableButtons();
+        DownloadXMageTask xmage = new DownloadXMageTask(progressBar, false);
+        xmage.execute();
     }
 
     private void handleTorrentXMage() {
-        
+        disableButtons();
+        DownloadXMageTask xmage = new DownloadXMageTask(progressBar, true);
+        xmage.execute();
     }
 
     private void handleSeedXMage() {
@@ -600,6 +607,23 @@ public class XMageLauncher implements Runnable {
             textArea.append(messages.getString("noJava"));
         }
     }
+
+    private void disableButtons() {
+        btnLaunchClient.setEnabled(false);
+        btnLaunchClient.setForeground(Color.GRAY);
+        btnLaunchClientServer.setEnabled(false);
+        btnLaunchClientServer.setForeground(Color.GRAY);
+        btnLaunchServer.setEnabled(false);
+        btnLaunchServer.setForeground(Color.GRAY);
+        btnDownloadJava.setEnabled(false);
+        btnDownloadJava.setForeground(Color.GRAY);
+        btnDownloadXMage.setEnabled(false);
+        btnDownloadXMage.setForeground(Color.GRAY);
+        btnTorrentXMage.setEnabled(false);
+        btnTorrentXMage.setForeground(Color.GRAY);
+        btnSeedXMage.setEnabled(false);
+        btnSeedXMage.setForeground(Color.GRAY);
+    }
     
     private class DownloadLauncherTask extends DownloadTask {
                 
@@ -676,15 +700,18 @@ public class XMageLauncher implements Runnable {
                 }
             }
         }
+
+        @Override
+        public void done() {
+            enableButtons();
+        }
+
     }
 
     private class DownloadJavaTask extends DownloadTask {
-        
-        private final DownloadXMageTask xmage;
-        
-        public DownloadJavaTask(DownloadXMageTask xmage, JProgressBar progressBar) {
+                
+        public DownloadJavaTask(JProgressBar progressBar) {
             super(progressBar);
-            this.xmage = xmage;
         }
 
         @Override
@@ -692,49 +719,29 @@ public class XMageLauncher implements Runnable {
             try {
                 File javaFolder = new File(path.getAbsolutePath() + File.separator + "java");
                 String javaAvailableVersion = (String)config.getJSONObject("java").get(("version"));
-                String javaInstalledVersion = Config.getInstalledJavaVersion();
-                textArea.append(messages.getString("java.installed") + javaInstalledVersion + "\n");
-                textArea.append(messages.getString("java.available") + javaAvailableVersion + "\n");
-                if (!javaAvailableVersion.equals(javaInstalledVersion)) {
-                    String javaMessage = "";
-                    String javaTitle = "";
-                    if (javaInstalledVersion.isEmpty()) {
-                        textArea.append(messages.getString("java.none") + "\n");
-                        javaMessage = messages.getString("java.none.message");
-                        javaTitle = messages.getString("java.none");
-                    }
-                    else {
-                        textArea.append(messages.getString("java.new") + "\n");
-                        javaMessage = messages.getString("java.new.message");
-                        javaTitle = messages.getString("java.new");
-                    }
-                    int response = JOptionPane.showConfirmDialog(frame, "<html>" + javaMessage + "<br>" + messages.getString("installNow") + "</html>", javaTitle, JOptionPane.YES_NO_OPTION);
-                    if (response == JOptionPane.YES_OPTION) {
-                        if (javaFolder.isDirectory()) {  //remove existing install
-                            textArea.append(messages.getString("removing") + "\n");
-                            removeJavaFiles(javaFolder);
-                        }
-                        javaFolder.mkdirs();
-                        String javaRemoteLocation = (String)config.getJSONObject("java").get(("location"));
-                        URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
-                        textArea.append(messages.getString("java.downloading") + java.toString() + "\n");
-
-                        download(java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
-                        
-                        File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
-                        textArea.append(messages.getString("java.installing") + "\n");
-
-                        extract(from, javaFolder);
-                        textArea.append(messages.getString("done") + "\n");
-                        progressBar.setValue(0);
-                        if (!from.delete()) {
-                            textArea.append(messages.getString("error.cleanup") + "\n");
-                            logger.error("Error: could not cleanup temporary files");
-                        }
-                        Config.setInstalledJavaVersion(javaAvailableVersion);
-                        Config.saveProperties();
-                    }
+                if (javaFolder.isDirectory()) {  //remove existing install
+                    textArea.append(messages.getString("removing") + "\n");
+                    removeJavaFiles(javaFolder);
                 }
+                javaFolder.mkdirs();
+                String javaRemoteLocation = (String)config.getJSONObject("java").get(("location"));
+                URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
+                textArea.append(messages.getString("java.downloading") + java.toString() + "\n");
+
+                download(java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
+
+                File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
+                textArea.append(messages.getString("java.installing") + "\n");
+
+                extract(from, javaFolder);
+                textArea.append(messages.getString("done") + "\n");
+                progressBar.setValue(0);
+                if (!from.delete()) {
+                    textArea.append(messages.getString("error.cleanup") + "\n");
+                    logger.error("Error: could not cleanup temporary files");
+                }
+                Config.setInstalledJavaVersion(javaAvailableVersion);
+                Config.saveProperties();
             }
             catch (IOException ex) {
                 progressBar.setValue(0);
@@ -763,7 +770,7 @@ public class XMageLauncher implements Runnable {
         
         @Override
         public void done() {
-            xmage.execute();
+            enableButtons();
         }
     }
     
@@ -781,58 +788,39 @@ public class XMageLauncher implements Runnable {
             try {
                 File xmageFolder = new File(path.getAbsolutePath() + File.separator + "xmage");
                 String xmageAvailableVersion = (String)config.getJSONObject("XMage").get(("version"));
-                String xmageInstalledVersion = Config.getInstalledXMageVersion();
-                textArea.append(messages.getString("xmage.installed") + xmageInstalledVersion + "\n");
-                textArea.append(messages.getString("xmage.available") + xmageAvailableVersion + "\n");                
-                if (!xmageAvailableVersion.equals(xmageInstalledVersion)) {
-                    String xmageMessage = "";
-                    String xmageTitle = "";
-                    if (xmageInstalledVersion.isEmpty()) {
-                        textArea.append(messages.getString("xmage.none") + "\n");
-                        xmageMessage = messages.getString("xmage.none.message");
-                        xmageTitle = messages.getString("xmage.none");
-                    }
-                    else {
-                        textArea.append(messages.getString("xmage.new") + "\n");
-                        xmageMessage = messages.getString("xmage.new.message");
-                        xmageTitle = messages.getString("xmage.new");
-                    }
-                    int response = JOptionPane.showConfirmDialog(frame, "<html>" + xmageMessage + "<br>" + messages.getString("installNow") + "</html>", xmageTitle, JOptionPane.YES_NO_OPTION);
-                    if (response == JOptionPane.YES_OPTION) {
-                        if (xmageFolder.isDirectory()) {  //remove existing install
-                            textArea.append(messages.getString("removing") + "\n");
-                            removeXMageFiles(xmageFolder);
-                        }
-                        xmageFolder.mkdirs();
-                        String xmageRemoteLocation;
-                        if (useTorrent) {
-                            xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("torrent"));
-                        }
-                        else {
-                            xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("location"));
-                        }
-                        URL xmage = new URL(xmageRemoteLocation);
-                        textArea.append(messages.getString("xmage.downloading") + xmage.toString() + "\n");
-
-                        download(xmage, path.getAbsolutePath(), "");
-                        File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
-                        if (useTorrent) {
-                            torrent(from, xmageFolder);
-                        }
-
-                        textArea.append(messages.getString("xmage.installing"));
-
-                        unzip(from, xmageFolder);
-                        textArea.append(messages.getString("done") + "\n");
-                        progressBar.setValue(0);
-                        if (!from.delete()) {
-                            textArea.append(messages.getString("error.cleanup") + "\n");
-                            logger.error("Error: could not cleanup temporary files");
-                        }
-                        Config.setInstalledXMageVersion(xmageAvailableVersion);
-                        Config.saveProperties();
-                    }
+                if (xmageFolder.isDirectory()) {  //remove existing install
+                    textArea.append(messages.getString("removing") + "\n");
+                    removeXMageFiles(xmageFolder);
                 }
+                xmageFolder.mkdirs();
+                String xmageRemoteLocation;
+                if (useTorrent) {
+                    xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("torrent"));
+                }
+                else {
+                    xmageRemoteLocation = (String)config.getJSONObject("XMage").get(("location"));
+                    String[] otherLocations = (String[])config.getJSONObject("XMage").get(("other_locations"));
+                }
+                URL xmage = new URL(xmageRemoteLocation);
+                textArea.append(messages.getString("xmage.downloading") + xmage.toString() + "\n");
+
+                download(xmage, path.getAbsolutePath(), "");
+                File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
+                if (useTorrent) {
+                    torrent(from, xmageFolder);
+                }
+
+                textArea.append(messages.getString("xmage.installing"));
+
+                unzip(from, xmageFolder);
+                textArea.append(messages.getString("done") + "\n");
+                progressBar.setValue(0);
+                if (!from.delete()) {
+                    textArea.append(messages.getString("error.cleanup") + "\n");
+                    logger.error("Error: could not cleanup temporary files");
+                }
+                Config.setInstalledXMageVersion(xmageAvailableVersion);
+                Config.saveProperties();
             }
             catch (IOException ex) {
                 progressBar.setValue(0);
