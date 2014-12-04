@@ -62,8 +62,8 @@ public abstract class DownloadTask extends SwingWorker<Void, Void> {
         
         Client client = new Client(InetAddress.getLocalHost(), torrent);
 
-        client.setMaxDownloadRate(0.0);
-        client.setMaxUploadRate(50.0);
+        client.setMaxDownloadRate((double)Config.getTorrentDownRate());
+        client.setMaxUploadRate((double)Config.getTorrentUpRate());
 
         client.download();
         

@@ -26,6 +26,8 @@ public class Config {
     private static String installedXMageVersion = "";
     private static String homeURL = "";
     private static boolean useTorrent = false;
+    private static int torrentUpRate = 0;
+    private static int torrentDownRate = 0;
     private static String clientJavaOpts = "";
     private static String serverJavaOpts = "";
 
@@ -47,6 +49,8 @@ public class Config {
             serverJavaOpts = props.getProperty("xmage.server.javaopts", DEFAULT_SERVER_JAVA_OPTS);
             homeURL = props.getProperty("xmage.home", DEFAULT_URL);
             useTorrent = Boolean.parseBoolean(props.getProperty("xmage.torrent.use", "False"));
+            torrentUpRate = Integer.parseInt(props.getProperty("xmage.torrent.uprate", "50"));
+            torrentDownRate = Integer.parseInt(props.getProperty("xmage.torrent.downrate", "0"));
         
         } catch (IOException ex) {
             logger.error("Error: ", ex);
@@ -80,6 +84,14 @@ public class Config {
     public static boolean isUseTorrent() {
         return useTorrent;
     }
+    
+    public static int getTorrentUpRate() {
+        return torrentUpRate;
+    }
+
+    public static int getTorrentDownRate() {
+        return torrentDownRate;
+    }
 
     public static void setInstalledJavaVersion(String version) {
         installedJavaVersion = version;
@@ -105,6 +117,14 @@ public class Config {
         useTorrent = use;
     }
 
+    public static void setTorrentUpRate(int rate) {
+        torrentUpRate = rate;
+    }
+    
+    public static void setTorrentDownRate(int rate) {
+        torrentDownRate = rate;
+    }
+
     public static void saveProperties() {
         try {
             File properties = new File(getInstallPath(), PROPERTIES_FILE);
@@ -115,7 +135,9 @@ public class Config {
             props.setProperty("xmage.server.javaopts", serverJavaOpts);
             props.setProperty("xmage.home", homeURL);
             props.setProperty("xmage.torrent.use", Boolean.toString(useTorrent));
-            props.store(out, "---Installed versions---");
+            props.setProperty("xmage.torrent.uprate", Integer.toString(torrentUpRate));
+            props.setProperty("xmage.torrent.downrate", Integer.toString(torrentDownRate));
+            props.store(out, "---XMage Properties---");
             out.close();
         } catch (IOException ex) {
             logger.error("Error: ", ex);

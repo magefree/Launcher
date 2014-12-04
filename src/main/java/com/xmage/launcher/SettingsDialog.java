@@ -7,6 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -15,8 +17,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 
 /**
  *
@@ -28,54 +33,53 @@ public class SettingsDialog extends JDialog {
     private JPanel buttonPanel;
     private JPanel panel1;
     private JPanel panel2;
-    //private JPanel panel3;
+    private JPanel panel3;
     private JTextField txtClientJavaOpt;
     private JTextField txtServerJavaOpt;
     private JCheckBox chkUseTorrent;
     private JTextField txtXMageHome;
-
+    private JSpinner spnUpRate;
+    private JSpinner spnDownRate;
     
     public SettingsDialog() {
         setTitle("XMage Launcher Settings");
         setModalityType(ModalityType.APPLICATION_MODAL);
-	setSize(500, 200);
+	setSize(500, 300);
         setBackground(Color.gray);
         setLocationRelativeTo(null);
-
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                handleDone();
+            }
+        });
+                
 	setLayout(new BorderLayout());
 
-        // Java setting panel
+        GridBagLayout layout;
+        GridBagConstraints constraints;
+        JLabel label;
+        
+        // Downloads panel
         panel1 = new JPanel();
-        GridBagLayout layout = new GridBagLayout();
+        layout = new GridBagLayout();
         layout.columnWeights = new double[] {0, 1.0};
         panel1.setLayout(layout);
         
-        GridBagConstraints constraints = new GridBagConstraints();
+        constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
         
-        JLabel label = new JLabel( "Client java options:" );
+        label = new JLabel( "XMage Home:" );
         constraints.anchor = GridBagConstraints.EAST;
         panel1.add(label, constraints);
         
-        txtClientJavaOpt = new JTextField();
-        txtClientJavaOpt.setText(Config.getClientJavaOpts());
+        txtXMageHome = new JTextField();
+        txtXMageHome.setText(Config.getXMageHome());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
-        panel1.add(txtClientJavaOpt, constraints);
-        
-        label = new JLabel( "Server java options:" );
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.gridwidth = 1;
-        constraints.fill = GridBagConstraints.NONE;
-        panel1.add(label, constraints);
-        
-        txtServerJavaOpt = new JTextField();
-        txtServerJavaOpt.setText(Config.getServerJavaOpts());
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.fill = GridBagConstraints.BOTH;
-        panel1.add(txtServerJavaOpt, constraints);
+        panel1.add(txtXMageHome, constraints);
 
-        // Downloads panel
+        // Java settings panel
         panel2 = new JPanel();
         layout = new GridBagLayout();
         layout.columnWeights = new double[] {0, 1.0};
@@ -84,38 +88,90 @@ public class SettingsDialog extends JDialog {
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
         
-        label = new JLabel( "XMage Home:" );
+        label = new JLabel( "Client java options:" );
         constraints.anchor = GridBagConstraints.EAST;
         panel2.add(label, constraints);
         
-        txtXMageHome = new JTextField();
-        txtXMageHome.setText(Config.getXMageHome());
+        txtClientJavaOpt = new JTextField();
+        txtClientJavaOpt.setText(Config.getClientJavaOpts());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
-        panel2.add(txtXMageHome, constraints);
+        panel2.add(txtClientJavaOpt, constraints);
         
-        label = new JLabel( "Always use torrent:" );
+        label = new JLabel( "Server java options:" );
         constraints.anchor = GridBagConstraints.EAST;
         constraints.gridwidth = 1;
         constraints.fill = GridBagConstraints.NONE;
         panel2.add(label, constraints);
         
+        txtServerJavaOpt = new JTextField();
+        txtServerJavaOpt.setText(Config.getServerJavaOpts());
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.fill = GridBagConstraints.BOTH;
+        panel2.add(txtServerJavaOpt, constraints);
+        
+        // Torrent settings panel
+        panel3 = new JPanel();
+        layout = new GridBagLayout();
+        layout.columnWeights = new double[] {0, 1.0};
+        panel3.setLayout(layout);
+        
+        constraints = new GridBagConstraints();
+        constraints.insets = new Insets(10, 10, 10, 10);
+
+        label = new JLabel( "Always use torrent:" );
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel3.add(label, constraints);
+        
         chkUseTorrent = new JCheckBox();
         chkUseTorrent.setSelected(Config.isUseTorrent());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
-        panel2.add(chkUseTorrent, constraints);
+        panel3.add(chkUseTorrent, constraints);
         
+        label = new JLabel( "Upload Rate (KB/s):" );
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel3.add(label, constraints);
+        
+        SpinnerModel model = new SpinnerNumberModel(Config.getTorrentUpRate(), 0, 100, 1);
+        spnUpRate = new JSpinner(model);
+        constraints.gridwidth = 1;
+        constraints.anchor = GridBagConstraints.WEST;
+        panel3.add(spnUpRate, constraints);
+        
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        panel3.add(Box.createHorizontalBox(), constraints);
+
+        label = new JLabel( "Download Rate (KB/s):" );
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel3.add(label, constraints);
+        
+        model = new SpinnerNumberModel(Config.getTorrentDownRate(), 0, 100, 1);
+        spnDownRate = new JSpinner(model);
+        constraints.gridwidth = 1;
+        constraints.anchor = GridBagConstraints.WEST;
+       panel3.add(spnDownRate, constraints);
+        
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        panel3.add(Box.createHorizontalBox(), constraints);
+        
+        // Setup tabs
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Java Options", panel1);
-        tabbedPane.addTab("Downloads", panel2);
-        //tabbedPane.addTab("Page 3", panel3);
+        tabbedPane.addTab("XMage", panel1);
+        tabbedPane.addTab("Java", panel2);
+        tabbedPane.addTab("Torrent", panel3);
         add(tabbedPane, BorderLayout.CENTER);
         
         // Button panel
         buttonPanel = new javax.swing.JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         buttonPanel.add(Box.createHorizontalGlue());
 
         JButton btnDone = new JButton("Done");
@@ -137,6 +193,8 @@ public class SettingsDialog extends JDialog {
         Config.setServerJavaOpts(this.txtServerJavaOpt.getText());
         Config.setXMageHome(this.txtXMageHome.getText());
         Config.setUseTorrent(this.chkUseTorrent.isSelected());
+        Config.setTorrentUpRate((Integer)spnUpRate.getValue());
+        Config.setTorrentDownRate((Integer)spnDownRate.getValue());
         Config.saveProperties();
         dispose();
     }
