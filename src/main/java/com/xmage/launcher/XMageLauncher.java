@@ -697,6 +697,7 @@ public class XMageLauncher implements Runnable {
 
         private boolean updateJava() {
             try {
+                disableButtons();
                 File javaFolder = new File(path.getAbsolutePath() + File.separator + "java");
                 String javaAvailableVersion = (String)config.getJSONObject("java").get(("version"));
                 if (javaFolder.isDirectory()) {  //remove existing install
@@ -739,6 +740,7 @@ public class XMageLauncher implements Runnable {
         
         private boolean updateXMage() {
             try {
+                disableButtons();
                 File xmageFolder = new File(path.getAbsolutePath() + File.separator + "xmage");
                 String xmageAvailableVersion = (String)config.getJSONObject("XMage").get(("version"));
                 String xmageRemoteLocation;
