@@ -12,7 +12,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import javax.swing.JTextArea;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
@@ -97,15 +96,15 @@ public class Utilities {
         return sb.toString();
     }
 
-    public static Process launchClientProcess(JTextArea out) {
+    public static Process launchClientProcess() {
         
-        return launchProcess("mage.client.MageFrame", Config.getClientJavaOpts(), "mage-client", out);
+        return launchProcess("mage.client.MageFrame", Config.getClientJavaOpts(), "mage-client");
         
     }
 
-    public static Process launchServerProcess(JTextArea out) {
+    public static Process launchServerProcess() {
         
-        return launchProcess("mage.server.Main", Config.getServerJavaOpts(), "mage-server", out);
+        return launchProcess("mage.server.Main", Config.getServerJavaOpts(), "mage-server");
         
     }
     
@@ -113,7 +112,7 @@ public class Utilities {
         p.destroy();
     }
     
-    private static Process launchProcess(String main, String args, String path, JTextArea out) {
+    private static Process launchProcess(String main, String args, String path) {
         
         File installPath = Utilities.getInstallPath();
         File javaHome;

@@ -112,7 +112,7 @@ public class XMageLauncher implements Runnable {
         
         Random r = new Random();
         int imageNum = 1 + r.nextInt(17);
-        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + Integer.toString(imageNum) + ".jpg")).getImage().getScaledInstance(800, 500, Image.SCALE_SMOOTH));
+        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + Integer.toString(imageNum) + ".jpg")).getImage().getScaledInstance(800, 480, Image.SCALE_SMOOTH));
         mainPanel = new JLabel(background) {
             @Override
             public Dimension getPreferredSize() {
@@ -377,15 +377,15 @@ public class XMageLauncher implements Runnable {
     }
     
     private void handleClient() {
-        Process p = Utilities.launchClientProcess(textArea);
-        clientConsole.setVisible(true);
+        Process p = Utilities.launchClientProcess();
+        clientConsole.setVisible(Config.isShowClientConsole());
         clientConsole.start(p);
     }
     
     private void handleServer() {
         if (serverProcess == null) {
-            serverProcess = Utilities.launchServerProcess(textArea);
-            serverConsole.setVisible(true);
+            serverProcess = Utilities.launchServerProcess();
+            serverConsole.setVisible(Config.isShowServerConsole());
             serverConsole.start(serverProcess);
             btnLaunchServer.setText(messages.getString("stopServer"));
             btnLaunchClientServer.setEnabled(false);

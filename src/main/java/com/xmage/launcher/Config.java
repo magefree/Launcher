@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -30,6 +32,8 @@ public class Config {
     private static int torrentDownRate = 0;
     private static String clientJavaOpts = "";
     private static String serverJavaOpts = "";
+    private static boolean showClientConsole = true;
+    private static boolean showServerConsole = true;
 
     static {
         try {
@@ -51,6 +55,8 @@ public class Config {
             useTorrent = Boolean.parseBoolean(props.getProperty("xmage.torrent.use", "False"));
             torrentUpRate = Integer.parseInt(props.getProperty("xmage.torrent.uprate", "50"));
             torrentDownRate = Integer.parseInt(props.getProperty("xmage.torrent.downrate", "0"));
+            showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", "True"));
+            showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", "True"));
         
         } catch (IOException ex) {
             logger.error("Error: ", ex);
@@ -93,6 +99,14 @@ public class Config {
         return torrentDownRate;
     }
 
+    public static boolean isShowClientConsole() {
+        return showClientConsole;
+    }
+
+    public static boolean isShowServerConsole() {
+        return showServerConsole;
+    }
+
     public static void setInstalledJavaVersion(String version) {
         installedJavaVersion = version;
     }
@@ -124,6 +138,14 @@ public class Config {
     public static void setTorrentDownRate(int rate) {
         torrentDownRate = rate;
     }
+    
+    public static void setShowClientConsole(boolean show) {
+        showClientConsole = show;
+    }
+
+    public static void setShowServerConsole(boolean show) {
+        showServerConsole = show;
+    }
 
     public static void saveProperties() {
         try {
@@ -134,6 +156,8 @@ public class Config {
             props.setProperty("xmage.client.javaopts", clientJavaOpts);
             props.setProperty("xmage.server.javaopts", serverJavaOpts);
             props.setProperty("xmage.home", homeURL);
+            props.setProperty("xmage.client.console", Boolean.toString(showClientConsole));
+            props.setProperty("xmage.server.console", Boolean.toString(showServerConsole));
             props.setProperty("xmage.torrent.use", Boolean.toString(useTorrent));
             props.setProperty("xmage.torrent.uprate", Integer.toString(torrentUpRate));
             props.setProperty("xmage.torrent.downrate", Integer.toString(torrentDownRate));

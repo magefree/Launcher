@@ -39,6 +39,8 @@ public class SettingsDialog extends JDialog {
     private JTextField txtServerJavaOpt;
     private JCheckBox chkUseTorrent;
     private JTextField txtXMageHome;
+    private JCheckBox chkShowClientConsole;
+    private JCheckBox chkShowServerConsole;
     private JSpinner spnUpRate;
     private JSpinner spnDownRate;
     
@@ -82,6 +84,30 @@ public class SettingsDialog extends JDialog {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(txtXMageHome, constraints);
+
+        label = new JLabel("Show Client Console:");
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel1.add(label, constraints);
+        
+        chkShowClientConsole = new JCheckBox();
+        chkShowClientConsole.setSelected(Config.isShowClientConsole());
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.fill = GridBagConstraints.BOTH;
+        panel1.add(chkShowClientConsole, constraints);
+
+        label = new JLabel("Show Server Console:");
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel1.add(label, constraints);
+        
+        chkShowServerConsole = new JCheckBox();
+        chkShowServerConsole.setSelected(Config.isShowServerConsole());
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.fill = GridBagConstraints.BOTH;
+        panel1.add(chkShowServerConsole, constraints);
 
         // Java settings panel
         panel2 = new JPanel();
@@ -196,6 +222,8 @@ public class SettingsDialog extends JDialog {
         Config.setClientJavaOpts(this.txtClientJavaOpt.getText());
         Config.setServerJavaOpts(this.txtServerJavaOpt.getText());
         Config.setXMageHome(this.txtXMageHome.getText());
+        Config.setShowClientConsole(this.chkShowClientConsole.isSelected());
+        Config.setShowServerConsole(this.chkShowServerConsole.isSelected());
         Config.setUseTorrent(this.chkUseTorrent.isSelected());
         Config.setTorrentUpRate((Integer)spnUpRate.getValue());
         Config.setTorrentDownRate((Integer)spnDownRate.getValue());
