@@ -18,6 +18,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -26,6 +28,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 public abstract class DownloadTask extends SwingWorker<Void, Void> {
 
     private static final int BUFFER_SIZE = 4096;
+    private static final Logger logger = LoggerFactory.getLogger(DownloadTask.class);    
     
     private final JProgressBar progressBar;
     
@@ -33,27 +36,36 @@ public abstract class DownloadTask extends SwingWorker<Void, Void> {
         this.progressBar = progressBar;
     }
         
-    protected void download(URL downloadURL, String saveDirectory, String cookies) throws IOException {
-        Downloader dl = new Downloader();
-        dl.connect(downloadURL, cookies);
+    protected boolean download(URL downloadURL, String saveDirectory, String cookies) throws IOException {
+        try {
+            Downloader dl = new Downloader();
+            dl.connect(downloadURL, cookies);
 
-        BufferedInputStream in = dl.getInputStream();
+            BufferedInputStream in = dl.getInputStream();
 
-        File temp = new File(saveDirectory + File.separator + "xmage.dl");
-        FileOutputStream fout = new FileOutputStream(temp);
+            File temp = new File(saveDirectory + File.separator + "xmage.dl");
+            FileOutputStream fout = new FileOutputStream(temp);
 
-        final byte data[] = new byte[BUFFER_SIZE];
-        int count;
-        long total = 0;
-        long size = dl.getSize();
-        progressBar.setValue(0);
-        while ((count = in.read(data, 0, BUFFER_SIZE)) != -1) {
-            fout.write(data, 0, count);
-            total += count;
-            progressBar.setValue((int)((total * 100)/size));
+            final byte data[] = new byte[BUFFER_SIZE];
+            int count;
+            long total = 0;
+            long size = dl.getSize();
+            progressBar.setValue(0);
+            while ((count = in.read(data, 0, BUFFER_SIZE)) != -1) {
+                fout.write(data, 0, count);
+                total += count;
+                progressBar.setValue((int)((total * 100)/size));
+            }
+            fout.close();
+            dl.disconnect();
+            return true;
         }
-        fout.close();
-        dl.disconnect();
+        catch (IOException ex) {
+            progressBar.setValue(0);
+            this.cancel(true);
+            logger.error("Error: ", ex);
+            return false;
+        }
     }
 
     public void torrent(File from, File to) throws IOException {
