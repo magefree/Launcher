@@ -19,10 +19,11 @@ import javax.swing.JLabel;
 public class AboutDialog extends JDialog {
     
     public AboutDialog() {
+        ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
+        this.setIconImage(icon.getImage());
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         setModalityType(ModalityType.APPLICATION_MODAL);
-        setTitle("About XMage");
-        //setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setTitle("About XMage Launcher");
         setLocationRelativeTo(null);
         setSize(300, 200);    
 
@@ -35,7 +36,7 @@ public class AboutDialog extends JDialog {
 
         add(Box.createRigidArea(new Dimension(0, 10)));
 
-        JLabel name = new JLabel("XMage Version " + Config.getVersion());
+        JLabel name = new JLabel("XMage Launcher Version " + Config.getVersion());
         name.setFont(new Font("Serif", Font.BOLD, 13));
         name.setAlignmentX(0.5f);
         add(name);

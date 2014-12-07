@@ -12,6 +12,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -42,6 +43,9 @@ public class SettingsDialog extends JDialog {
     private JSpinner spnDownRate;
     
     public SettingsDialog() {
+        ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
+        this.setIconImage(icon.getImage());
+
         setTitle("XMage Launcher Settings");
         setModalityType(ModalityType.APPLICATION_MODAL);
 	setSize(500, 300);
@@ -69,7 +73,7 @@ public class SettingsDialog extends JDialog {
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
         
-        label = new JLabel( "XMage Home:" );
+        label = new JLabel("XMage Home:");
         constraints.anchor = GridBagConstraints.EAST;
         panel1.add(label, constraints);
         
@@ -88,7 +92,7 @@ public class SettingsDialog extends JDialog {
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
         
-        label = new JLabel( "Client java options:" );
+        label = new JLabel("Client java options:");
         constraints.anchor = GridBagConstraints.EAST;
         panel2.add(label, constraints);
         
@@ -98,7 +102,7 @@ public class SettingsDialog extends JDialog {
         constraints.fill = GridBagConstraints.BOTH;
         panel2.add(txtClientJavaOpt, constraints);
         
-        label = new JLabel( "Server java options:" );
+        label = new JLabel("Server java options:");
         constraints.anchor = GridBagConstraints.EAST;
         constraints.gridwidth = 1;
         constraints.fill = GridBagConstraints.NONE;
@@ -119,7 +123,7 @@ public class SettingsDialog extends JDialog {
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
 
-        label = new JLabel( "Always use torrent:" );
+        label = new JLabel("Always use torrent:");
         constraints.anchor = GridBagConstraints.EAST;
         constraints.gridwidth = 1;
         constraints.fill = GridBagConstraints.NONE;
@@ -131,7 +135,7 @@ public class SettingsDialog extends JDialog {
         constraints.fill = GridBagConstraints.BOTH;
         panel3.add(chkUseTorrent, constraints);
         
-        label = new JLabel( "Upload Rate (KB/s):" );
+        label = new JLabel("Upload Rate (KB/s):");
         constraints.anchor = GridBagConstraints.EAST;
         constraints.gridwidth = 1;
         constraints.fill = GridBagConstraints.NONE;
@@ -146,7 +150,7 @@ public class SettingsDialog extends JDialog {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         panel3.add(Box.createHorizontalBox(), constraints);
 
-        label = new JLabel( "Download Rate (KB/s):" );
+        label = new JLabel("Download Rate (KB/s):");
         constraints.anchor = GridBagConstraints.EAST;
         constraints.gridwidth = 1;
         constraints.fill = GridBagConstraints.NONE;
