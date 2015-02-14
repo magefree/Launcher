@@ -21,6 +21,8 @@ public class Downloader {
         conn.setAllowUserInteraction(false);
         conn.setInstanceFollowRedirects(true);
         conn.setRequestProperty("Cookie", cookies);
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+
         while (true) {
             int status = conn.getResponseCode();
             if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM || status == HttpURLConnection.HTTP_SEE_OTHER) {
