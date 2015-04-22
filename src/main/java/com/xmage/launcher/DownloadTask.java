@@ -183,6 +183,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Void> {
             if (zipEntry.isDirectory()) {
                 destPath.mkdirs();
             } else {
+                destPath.mkdirs();
                 destPath.createNewFile();
                 byte data[] = new byte[BUFFER_SIZE];
                 BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destPath), BUFFER_SIZE);

@@ -4,7 +4,7 @@
     
     <groupId>com.xmage</groupId>
     <artifactId>Launcher</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.2</version>
     <packaging>jar</packaging>
     
     <name>XMage Launcher</name>
