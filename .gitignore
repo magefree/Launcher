@@ -1,1 +1,13 @@
 /target/
+nbactions.xml
+nbactions-*.xml
+nb-configuration.xml
+
+releases
+Utils/author.txt
+.metadata
+.project
+.settings
+.idea
+syntax: regexp
+.log
