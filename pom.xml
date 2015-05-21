@@ -4,7 +4,7 @@
     
     <groupId>com.xmage</groupId>
     <artifactId>Launcher</artifactId>
-    <version>0.3.3</version>
+    <version>0.3.4</version>
     <packaging>jar</packaging>
     
     <name>XMage Launcher</name>
@@ -57,7 +57,7 @@
                             <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <url>xmage.info</url>
+                            <url>xmage.de</url>
                             <Built-By>XMage</Built-By>
                         </manifestEntries>
                     </archive>
@@ -75,7 +75,7 @@
                             <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <url>xmage.info</url>
+                            <url>xmage.de</url>
                             <Built-By>XMage</Built-By>
                         </manifestEntries>
                    </archive>

@@ -354,7 +354,7 @@ public class XMageLauncher implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                openWebpage("http://xmage.info");
+                openWebpage("http://xmage.de");
             }
         });
         toolBar.add(toolbarButton);

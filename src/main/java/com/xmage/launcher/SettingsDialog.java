@@ -30,19 +30,19 @@ import javax.swing.SpinnerNumberModel;
  */
 public class SettingsDialog extends JDialog {
 
-    private JTabbedPane tabbedPane;
-    private JPanel buttonPanel;
-    private JPanel panel1;
-    private JPanel panel2;
-    private JPanel panel3;
-    private JTextField txtClientJavaOpt;
-    private JTextField txtServerJavaOpt;
-    private JCheckBox chkUseTorrent;
-    private JTextField txtXMageHome;
-    private JCheckBox chkShowClientConsole;
-    private JCheckBox chkShowServerConsole;
-    private JSpinner spnUpRate;
-    private JSpinner spnDownRate;
+    private final JTabbedPane tabbedPane;
+    private final JPanel buttonPanel;
+    private final JPanel panel1;
+    private final JPanel panel2;
+    private final JPanel panel3;
+    private final JTextField txtClientJavaOpt;
+    private final JTextField txtServerJavaOpt;
+    private final JCheckBox chkUseTorrent;
+    private final JTextField txtXMageHome;
+    private final JCheckBox chkShowClientConsole;
+    private final JCheckBox chkShowServerConsole;
+    private final JSpinner spnUpRate;
+    private final JSpinner spnDownRate;
     
     public SettingsDialog() {
         ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
