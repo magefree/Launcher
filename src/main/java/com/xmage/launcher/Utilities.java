@@ -1,4 +1,3 @@
-
 package com.xmage.launcher;
 
 import java.io.BufferedReader;
@@ -21,16 +20,18 @@ import org.slf4j.LoggerFactory;
  * @author BetaSteward
  */
 public class Utilities {
+
     private static final String OS_name = System.getProperty("os.name").toLowerCase();
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Utilities.class);
 
     public enum OS {
+
         WIN,
         NIX,
         OSX,
         UNKNOWN
     }
-    
+
     public static File getInstallPath() {
         File path = null;
         try {
@@ -40,24 +41,27 @@ public class Utilities {
         }
         return path;
     }
-        
+
     public static OS getOS() {
-        if (OS_name.contains("win")) 
+        if (OS_name.contains("win")) {
             return OS.WIN;
-        if (OS_name.contains("mac")) 
+        }
+        if (OS_name.contains("mac")) {
             return OS.OSX;
-        if (OS_name.contains("nix") || OS_name.contains("nux")) 
+        }
+        if (OS_name.contains("nix") || OS_name.contains("nux")) {
             return OS.NIX;
+        }
         return OS.UNKNOWN;
     }
-    
+
     public static String getArch() {
         String arch = System.getenv("PROCESSOR_ARCHITECTURE");
         String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
 
         return arch.endsWith("64") || wow64Arch != null && wow64Arch.endsWith("64") ? "64" : "32";
     }
-    
+
     public static String getOSandArch() {
         String OS_arch = "windows-i586";
         switch (getOS()) {
@@ -74,7 +78,7 @@ public class Utilities {
         }
         return OS_arch;
     }
-    
+
     //thanks to Roland Illig - http://stackoverflow.com/questions/4308554/simplest-way-to-read-json-from-a-url-in-java
     public static JSONObject readJsonFromUrl(URL url) throws IOException, JSONException {
         InputStream is = url.openStream();
@@ -97,34 +101,38 @@ public class Utilities {
     }
 
     public static Process launchClientProcess() {
-        
+
         return launchProcess("mage.client.MageFrame", Config.getClientJavaOpts(), "mage-client");
-        
+
     }
 
     public static Process launchServerProcess() {
-        
-        return launchProcess("mage.server.Main", Config.getServerJavaOpts(), "mage-server");
-        
+
+        return launchProcess("mage.server.ServerMain", Config.getServerJavaOpts(), "mage-server");
+
     }
-    
+
     public static void stopProcess(Process p) {
         p.destroy();
     }
-    
+
     private static Process launchProcess(String main, String args, String path) {
-        
+
         File installPath = Utilities.getInstallPath();
         File javaHome;
         if (getOS() == OS.OSX) {
             javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion() + ".jre/Contents/Home");
-        }
-        else {
+        } else {
             javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
         }
         File javaBin = new File(javaHome, "/bin/java");
         File xmagePath = new File(installPath, "/xmage/" + path);
         File classPath = new File(xmagePath, "/lib/*");
+
+        logger.info("Launching Process:");
+        logger.info("Java bin: " + javaBin.toString());
+        logger.info("XMage Path: " + xmagePath.toString());
+        logger.info("Class Path: " + classPath.toString());
 
         ArrayList<String> command = new ArrayList<String>();
         command.add(javaBin.getAbsolutePath());
@@ -166,6 +174,5 @@ public class Utilities {
             logger.error("Error restarting launcher", ex);
         }
     }
-    
 
 }
