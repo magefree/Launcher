@@ -50,7 +50,8 @@ public class SettingsDialog extends JDialog {
 
         setTitle("XMage Launcher Settings");
         setModalityType(ModalityType.APPLICATION_MODAL);
-	setSize(500, 300);
+        pack();
+        setSize(500, 300);
         setBackground(Color.gray);
         setLocationRelativeTo(null);
         this.addWindowListener(new WindowAdapter() {
@@ -60,7 +61,7 @@ public class SettingsDialog extends JDialog {
             }
         });
                 
-	setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         GridBagLayout layout;
         GridBagConstraints constraints;
@@ -186,7 +187,7 @@ public class SettingsDialog extends JDialog {
         spnDownRate = new JSpinner(model);
         constraints.gridwidth = 1;
         constraints.anchor = GridBagConstraints.WEST;
-       panel3.add(spnDownRate, constraints);
+        panel3.add(spnDownRate, constraints);
         
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         panel3.add(Box.createHorizontalBox(), constraints);
