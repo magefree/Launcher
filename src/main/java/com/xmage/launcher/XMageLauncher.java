@@ -45,6 +45,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -603,7 +604,9 @@ public class XMageLauncher implements Runnable {
                             textArea.append(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
                             textArea.append(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
                             removeOldLauncherFiles(launcherFolder, launcherInstalledVersion);
-                            if (!launcherAvailableVersion.equals(launcherInstalledVersion)) {
+                            DefaultArtifactVersion launcherInstalledVersionArtifact = new DefaultArtifactVersion(launcherInstalledVersion);
+                            DefaultArtifactVersion launcherAvailableVersionArtifact = new DefaultArtifactVersion(launcherAvailableVersion);
+                            if (launcherAvailableVersionArtifact.compareTo(launcherInstalledVersionArtifact) > 0) {
                                 String launcherMessage = "";
                                 String launcherTitle = "";
                                 textArea.append(messages.getString("xmage.launcher.new") + "\n");
