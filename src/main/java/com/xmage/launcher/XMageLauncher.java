@@ -21,6 +21,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -590,43 +591,65 @@ public class XMageLauncher implements Runnable {
         @Override
         protected Void doInBackground() {
             try {
-                File launcherFolder = new File(path.getAbsolutePath());
-                String launcherAvailableVersion = (String) config.getJSONObject("XMage").getJSONObject("Launcher").get(("version"));
-                String launcherInstalledVersion = Config.getVersion();
-                textArea.append(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
-                textArea.append(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
-                removeOldLauncherFiles(launcherFolder, launcherInstalledVersion);
-                if (!launcherAvailableVersion.equals(launcherInstalledVersion)) {
-                    String launcherMessage = "";
-                    String launcherTitle = "";
-                    textArea.append(messages.getString("xmage.launcher.new") + "\n");
-                    launcherMessage = messages.getString("xmage.launcher.new.message");
-                    launcherTitle = messages.getString("xmage.launcher.new");
-                    int response = JOptionPane.showConfirmDialog(frame, "<html>" + launcherMessage + "  " + messages.getString("installNow") + "</html>", launcherTitle, JOptionPane.YES_NO_OPTION);
-                    if (response == JOptionPane.YES_OPTION) {
-                        String launcherRemoteLocation = (String) config.getJSONObject("XMage").getJSONObject("Launcher").get(("location"));
-                        URL launcher = new URL(launcherRemoteLocation);
-                        textArea.append(messages.getString("xmage.launcher.downloading") + launcher.toString() + "\n");
+                SwingUtilities.invokeAndWait(new Runnable() {
 
-                        download(launcher, path.getAbsolutePath(), "");
+                    @Override
+                    public void run() {
+                        try {
+                            File launcherFolder = new File(path.getAbsolutePath());
+                            String launcherAvailableVersion = (String) config.getJSONObject("XMage").getJSONObject("Launcher")
+                                    .get(("version"));
+                            String launcherInstalledVersion = Config.getVersion();
+                            textArea.append(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
+                            textArea.append(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
+                            removeOldLauncherFiles(launcherFolder, launcherInstalledVersion);
+                            if (!launcherAvailableVersion.equals(launcherInstalledVersion)) {
+                                String launcherMessage = "";
+                                String launcherTitle = "";
+                                textArea.append(messages.getString("xmage.launcher.new") + "\n");
+                                launcherMessage = messages.getString("xmage.launcher.new.message");
+                                launcherTitle = messages.getString("xmage.launcher.new");
+                                int response = JOptionPane.showConfirmDialog(frame,
+                                        "<html>" + launcherMessage + "  " + messages.getString("installNow") + "</html>", launcherTitle,
+                                        JOptionPane.YES_NO_OPTION);
+                                if (response == JOptionPane.YES_OPTION) {
+                                    String launcherRemoteLocation = (String) config.getJSONObject("XMage").getJSONObject("Launcher")
+                                            .get(("location"));
+                                    URL launcher = new URL(launcherRemoteLocation);
+                                    textArea.append(messages.getString("xmage.launcher.downloading") + launcher.toString() + "\n");
 
-                        File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
-                        textArea.append(messages.getString("xmage.launcher.installing"));
-                        File to = new File(launcherFolder, "XMageLauncher-" + launcherAvailableVersion + ".jar");
-                        from.renameTo(to);
-                        textArea.append(messages.getString("done") + "\n");
-                        progressBar.setValue(0);
-                        JOptionPane.showMessageDialog(frame, "<html>" + messages.getString("restartMessage") + "</html>", messages.getString("restartTitle"), JOptionPane.WARNING_MESSAGE);
-                        Utilities.restart(to);
+                                    download(launcher, path.getAbsolutePath(), "");
+
+                                    File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
+                                    textArea.append(messages.getString("xmage.launcher.installing"));
+                                    File to = new File(launcherFolder, "XMageLauncher-" + launcherAvailableVersion + ".jar");
+                                    from.renameTo(to);
+                                    textArea.append(messages.getString("done") + "\n");
+                                    progressBar.setValue(0);
+                                    JOptionPane.showMessageDialog(frame, "<html>" + messages.getString("restartMessage") + "</html>",
+                                            messages.getString("restartTitle"), JOptionPane.WARNING_MESSAGE);
+                                    Utilities.restart(to);
+                                }
+                            }
+
+                        } catch (IOException ex) {
+                            progressBar.setValue(0);
+                            DownloadLauncherTask.this.cancel(true);
+                            logger.error("Error: ", ex);
+                        } catch (JSONException ex) {
+                            progressBar.setValue(0);
+                            DownloadLauncherTask.this.cancel(true);
+                            logger.error("Error: ", ex);
+                        }
                     }
-                }
-            } catch (IOException ex) {
+                });
+            } catch (InvocationTargetException ex) {
                 progressBar.setValue(0);
-                this.cancel(true);
+                DownloadLauncherTask.this.cancel(true);
                 logger.error("Error: ", ex);
-            } catch (JSONException ex) {
+            } catch (InterruptedException ex) {
                 progressBar.setValue(0);
-                this.cancel(true);
+                DownloadLauncherTask.this.cancel(true);
                 logger.error("Error: ", ex);
             }
             return null;
