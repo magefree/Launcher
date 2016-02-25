@@ -108,7 +108,7 @@ public class Utilities {
 
     public static Process launchServerProcess() {
 
-        return launchProcess("mage.server.ServerMain", Config.getServerJavaOpts(), "mage-server");
+        return launchProcess("mage.server.Main", Config.getServerJavaOpts(), "mage-server");
 
     }
 
