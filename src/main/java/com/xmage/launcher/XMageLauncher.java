@@ -635,7 +635,6 @@ public class XMageLauncher implements Runnable {
                 String launcherInstalledVersion = Config.getVersion();
                 publish(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
                 publish(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
-                removeOldLauncherFiles(launcherFolder, launcherInstalledVersion);
                 DefaultArtifactVersion launcherInstalledVersionArtifact = new DefaultArtifactVersion(launcherInstalledVersion);
                 DefaultArtifactVersion launcherAvailableVersionArtifact = new DefaultArtifactVersion(launcherAvailableVersion);
                 if (launcherAvailableVersionArtifact.compareTo(launcherInstalledVersionArtifact) > 0) {
@@ -654,6 +653,7 @@ public class XMageLauncher implements Runnable {
 
                         download(launcher, path.getAbsolutePath(), "");
 
+                        removeOldLauncherFiles(launcherFolder, launcherInstalledVersion);
                         File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
                         publish(messages.getString("xmage.launcher.installing"));
                         File to = new File(launcherFolder, "XMageLauncher-" + launcherAvailableVersion + ".jar");
