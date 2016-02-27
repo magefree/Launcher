@@ -122,7 +122,7 @@ public class SettingsDialog extends JDialog {
         constraints.fill = GridBagConstraints.NONE;
         panel1.add(label, constraints);
 
-        SpinnerModel guiSizemodel = new SpinnerNumberModel(Config.getTorrentUpRate(), 10, 50, 1);
+        SpinnerModel guiSizemodel = new SpinnerNumberModel(Config.getGuiSize(), 10, 50, 1);
         spnGuiSize = new JSpinner(guiSizemodel);
         spnGuiSize.setValue(Config.getGuiSize());
 //        Component mySpinnerEditor = spnGuiSize.getEditor();
