@@ -689,7 +689,7 @@ public class XMageLauncher implements Runnable {
                 }
             });
             if (files.length > 0) {
-                textArea.append(messages.getString("removing") + "\n");
+                publish(messages.getString("removing") + "\n");
                 for (final File file : files) {
                     if (!file.isDirectory() && !file.delete()) {
                         logger.error("Can't remove " + file.getAbsolutePath());
@@ -752,7 +752,7 @@ public class XMageLauncher implements Runnable {
                 publish(messages.getString("done") + "\n");
                 publish(0);
                 if (!from.delete()) {
-                    textArea.append(messages.getString("error.cleanup") + "\n");
+                    publish(messages.getString("error.cleanup") + "\n");
                     logger.error("Error: could not cleanup temporary files");
                 }
                 Config.setInstalledJavaVersion(javaAvailableVersion);

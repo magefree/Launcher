@@ -17,7 +17,7 @@ import javax.swing.JLabel;
  * @author BetaSteward
  */
 public class AboutDialog extends JDialog {
-    
+
     public AboutDialog() {
         ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
         this.setIconImage(icon.getImage());
@@ -25,7 +25,8 @@ public class AboutDialog extends JDialog {
         setModalityType(ModalityType.APPLICATION_MODAL);
         setTitle("About XMage Launcher");
         setLocationRelativeTo(null);
-        setSize(300, 200);    
+        pack();
+        setSize(300, 200);
 
         add(Box.createRigidArea(new Dimension(0, 10)));
 
@@ -55,5 +56,5 @@ public class AboutDialog extends JDialog {
         add(close);
 
     }
-    
+
 }
