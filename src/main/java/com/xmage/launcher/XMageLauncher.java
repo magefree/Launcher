@@ -92,6 +92,7 @@ public class XMageLauncher implements Runnable {
     private boolean noXMage = false;
 
     private XMageLauncher() {
+        setDefaultFonts();
         locale = Locale.getDefault();
         //locale = new Locale("it", "IT");
         messages = ResourceBundle.getBundle("MessagesBundle", locale);
@@ -102,7 +103,9 @@ public class XMageLauncher implements Runnable {
 
         frame = new JFrame(messages.getString("frameTitle") + " " + Config.getVersion());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(800, 500));
+        final int width = 700 + Config.getGuiSize() * 20;
+        final int height = 430 + Config.getGuiSize() * 12;
+        frame.setPreferredSize(new Dimension(width, height));
         frame.setResizable(false);
 
         createToolbar();
@@ -112,7 +115,7 @@ public class XMageLauncher implements Runnable {
 
         Random r = new Random();
         int imageNum = 1 + r.nextInt(17);
-        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + Integer.toString(imageNum) + ".jpg")).getImage().getScaledInstance(800, 480, Image.SCALE_SMOOTH));
+        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + Integer.toString(imageNum) + ".jpg")).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
         mainPanel = new JLabel(background) {
             @Override
             public Dimension getPreferredSize() {
@@ -153,9 +156,9 @@ public class XMageLauncher implements Runnable {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
 
-        Font font16 = new Font("Arial", Font.BOLD, 16);
-        Font font12 = new Font("Arial", Font.PLAIN, 12);
-        Font font12b = new Font("Arial", Font.BOLD, 12);
+        Font fontBig = new Font("SansSerif", Font.BOLD, Config.getGuiSize() + 2);
+        Font fontSmall = new Font("SansSerif", Font.PLAIN, Config.getGuiSize() - 2);
+        Font fontSmallBold = new Font("SansSerif", Font.BOLD, Config.getGuiSize() - 2);
 
         mainPanel.add(Box.createRigidArea(new Dimension(250, 50)));
 
@@ -185,7 +188,7 @@ public class XMageLauncher implements Runnable {
         mainPanel.add(scrollPane, constraints);
 
         labelProgress = new JLabel(messages.getString("progress"));
-        labelProgress.setFont(font12);
+        labelProgress.setFont(fontSmall);
         labelProgress.setForeground(Color.WHITE);
         constraints.gridy = 2;
         constraints.weightx = 0.0;
@@ -195,6 +198,7 @@ public class XMageLauncher implements Runnable {
         mainPanel.add(labelProgress, constraints);
 
         progressBar = new JProgressBar(0, 100);
+        progressBar.setPreferredSize(new Dimension((int) progressBar.getPreferredSize().getWidth(), Config.getGuiSize()));
         constraints.gridx = 3;
         constraints.weightx = 1.0;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -212,10 +216,10 @@ public class XMageLauncher implements Runnable {
 
         btnLaunchClient = new JButton(messages.getString("launchClient"));
         btnLaunchClient.setToolTipText(messages.getString("launchClient.tooltip"));
-        btnLaunchClient.setFont(font16);
+        btnLaunchClient.setFont(fontBig);
         btnLaunchClient.setForeground(Color.GRAY);
         btnLaunchClient.setEnabled(false);
-        btnLaunchClient.setPreferredSize(new Dimension(180, 60));
+//        btnLaunchClient.setPreferredSize(new Dimension(180, 60));
         btnLaunchClient.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -231,10 +235,10 @@ public class XMageLauncher implements Runnable {
 
         btnLaunchClientServer = new JButton(messages.getString("launchClientServer"));
         btnLaunchClientServer.setToolTipText(messages.getString("launchClientServer.tooltip"));
-        btnLaunchClientServer.setFont(font12b);
+        btnLaunchClientServer.setFont(fontSmallBold);
         btnLaunchClientServer.setEnabled(false);
         btnLaunchClientServer.setForeground(Color.GRAY);
-        btnLaunchClientServer.setPreferredSize(new Dimension(80, 40));
+//        btnLaunchClientServer.setPreferredSize(new Dimension(80, 40));
         btnLaunchClientServer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -248,10 +252,10 @@ public class XMageLauncher implements Runnable {
 
         btnLaunchServer = new JButton(messages.getString("launchServer"));
         btnLaunchServer.setToolTipText(messages.getString("launchServer.tooltip"));
-        btnLaunchServer.setFont(font12b);
+        btnLaunchServer.setFont(fontSmallBold);
         btnLaunchServer.setEnabled(false);
         btnLaunchServer.setForeground(Color.GRAY);
-        btnLaunchServer.setPreferredSize(new Dimension(80, 40));
+//        btnLaunchServer.setPreferredSize(new Dimension(80, 40));
         btnLaunchServer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -263,9 +267,9 @@ public class XMageLauncher implements Runnable {
 
         btnUpdate = new JButton(messages.getString("update.xmage"));
         btnUpdate.setToolTipText(messages.getString("update.xmage.tooltip"));
-        btnUpdate.setFont(font12b);
+        btnUpdate.setFont(fontSmallBold);
         btnUpdate.setForeground(Color.BLACK);
-        btnUpdate.setPreferredSize(new Dimension(80, 40));
+//        btnUpdate.setPreferredSize(new Dimension(80, 40));
         btnUpdate.setEnabled(true);
 
         btnUpdate.addActionListener(new ActionListener() {
@@ -279,9 +283,9 @@ public class XMageLauncher implements Runnable {
 
         btnCheck = new JButton(messages.getString("check.xmage"));
         btnCheck.setToolTipText(messages.getString("check.xmage.tooltip"));
-        btnCheck.setFont(font12b);
+        btnCheck.setFont(fontSmallBold);
         btnCheck.setForeground(Color.BLACK);
-        btnCheck.setPreferredSize(new Dimension(80, 40));
+//        btnCheck.setPreferredSize(new Dimension(80, 40));
         btnCheck.setEnabled(true);
 
         btnCheck.addActionListener(new ActionListener() {
@@ -297,6 +301,41 @@ public class XMageLauncher implements Runnable {
         frame.pack();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+    }
+
+    private void setDefaultFonts() {
+        Font defaultFont = new Font("SansSerif", 0, Config.getGuiSize());
+        UIManager.put("Button.font", defaultFont);
+        UIManager.put("ToggleButton.font", defaultFont);
+        UIManager.put("RadioButton.font", defaultFont);
+        UIManager.put("CheckBox.font", defaultFont);
+        UIManager.put("ColorChooser.font", defaultFont);
+        UIManager.put("ComboBox.font", defaultFont);
+        UIManager.put("Label.font", defaultFont);
+        UIManager.put("List.font", defaultFont);
+        UIManager.put("MenuBar.font", defaultFont);
+        UIManager.put("MenuItem.font", defaultFont);
+        UIManager.put("RadioButtonMenuItem.font", defaultFont);
+        UIManager.put("CheckBoxMenuItem.font", defaultFont);
+        UIManager.put("Menu.font", defaultFont);
+        UIManager.put("PopupMenu.font", defaultFont);
+        UIManager.put("OptionPane.font", defaultFont);
+        UIManager.put("Panel.font", defaultFont);
+        UIManager.put("ProgressBar.font", defaultFont);
+        UIManager.put("ScrollPane.font", defaultFont);
+        UIManager.put("Viewport.font", defaultFont);
+        UIManager.put("TabbedPane.font", defaultFont);
+        UIManager.put("Table.font", defaultFont);
+        UIManager.put("TableHeader.font", defaultFont);
+        UIManager.put("TextField.font", defaultFont);
+        UIManager.put("PasswordField.font", defaultFont);
+        UIManager.put("TextArea.font", defaultFont);
+        UIManager.put("TextPane.font", defaultFont);
+        UIManager.put("EditorPane.font", defaultFont);
+        UIManager.put("TitledBorder.font", defaultFont);
+        UIManager.put("ToolBar.font", defaultFont);
+        UIManager.put("ToolTip.font", defaultFont);
+        UIManager.put("Tree.font", defaultFont);
     }
 
     private void createToolbar() {

@@ -13,14 +13,15 @@ import org.slf4j.LoggerFactory;
  * @author BetaSteward
  */
 public class Config {
+
     private static final String PROPERTIES_FILE = "installed.properties";
     private static final String VERSION_FILE = "/version.properties";
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);    
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);
     private static final Properties props = new Properties();
     private static final String DEFAULT_URL = "http://xmage.de/xmage";
     private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xms256m -Xmx512m -XX:MaxPermSize=384m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled";
     private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xms256M -Xmx1G -XX:MaxPermSize=384m";
-    
+
     private static String version = "";
     private static String installedJavaVersion = "";
     private static String installedXMageVersion = "";
@@ -30,6 +31,7 @@ public class Config {
     private static int torrentDownRate = 0;
     private static String clientJavaOpts = "";
     private static String serverJavaOpts = "";
+    private static int guiSize = 0;
     private static boolean showClientConsole = true;
     private static boolean showServerConsole = true;
 
@@ -49,13 +51,14 @@ public class Config {
             installedXMageVersion = props.getProperty("xmage.version", "");
             clientJavaOpts = props.getProperty("xmage.client.javaopts", DEFAULT_CLIENT_JAVA_OPTS);
             serverJavaOpts = props.getProperty("xmage.server.javaopts", DEFAULT_SERVER_JAVA_OPTS);
+            guiSize = Integer.parseInt(props.getProperty("xmage.launcher.guisize", "16"));
             homeURL = props.getProperty("xmage.home", DEFAULT_URL);
             useTorrent = Boolean.parseBoolean(props.getProperty("xmage.torrent.use", "False"));
             torrentUpRate = Integer.parseInt(props.getProperty("xmage.torrent.uprate", "50"));
             torrentDownRate = Integer.parseInt(props.getProperty("xmage.torrent.downrate", "0"));
             showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", "True"));
             showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", "True"));
-        
+
         } catch (IOException ex) {
             logger.error("Error: ", ex);
         }
@@ -88,9 +91,13 @@ public class Config {
     public static boolean isUseTorrent() {
         return useTorrent;
     }
-    
+
     public static int getTorrentUpRate() {
         return torrentUpRate;
+    }
+
+    public static int getGuiSize() {
+        return guiSize;
     }
 
     public static int getTorrentDownRate() {
@@ -112,19 +119,19 @@ public class Config {
     public static void setInstalledXMageVersion(String version) {
         installedXMageVersion = version;
     }
-    
+
     public static void setClientJavaOpts(String opts) {
         clientJavaOpts = opts;
     }
-    
+
     public static void setServerJavaOpts(String opts) {
         serverJavaOpts = opts;
     }
-    
+
     public static void setXMageHome(String url) {
         homeURL = url;
     }
-    
+
     public static void setUseTorrent(boolean use) {
         useTorrent = use;
     }
@@ -132,11 +139,15 @@ public class Config {
     public static void setTorrentUpRate(int rate) {
         torrentUpRate = rate;
     }
-    
+
+    public static void setGuiSize(int size) {
+        guiSize = size;
+    }
+
     public static void setTorrentDownRate(int rate) {
         torrentDownRate = rate;
     }
-    
+
     public static void setShowClientConsole(boolean show) {
         showClientConsole = show;
     }
@@ -153,6 +164,7 @@ public class Config {
             props.setProperty("xmage.version", installedXMageVersion);
             props.setProperty("xmage.client.javaopts", clientJavaOpts);
             props.setProperty("xmage.server.javaopts", serverJavaOpts);
+            props.setProperty("xmage.launcher.guisize", Integer.toString(guiSize));
             props.setProperty("xmage.home", homeURL);
             props.setProperty("xmage.client.console", Boolean.toString(showClientConsole));
             props.setProperty("xmage.server.console", Boolean.toString(showServerConsole));
@@ -165,5 +177,5 @@ public class Config {
             logger.error("Error: ", ex);
         }
     }
-    
+
 }
