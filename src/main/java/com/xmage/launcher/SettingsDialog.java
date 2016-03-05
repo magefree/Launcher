@@ -47,7 +47,7 @@ public class SettingsDialog extends JDialog {
 
     private final JSpinner spnUpRate;
     private final JSpinner spnDownRate;
-	private JComboBox<XMageBranch> cmbXMageBranch;
+    private JComboBox<XMageBranch> cmbXMageBranch;
 
     public SettingsDialog() {
         ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
@@ -91,19 +91,19 @@ public class SettingsDialog extends JDialog {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(cmbXMageBranch, constraints);
-		cmbXMageBranch.addActionListener(new ActionListener() {
+        cmbXMageBranch.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String url = ((XMageBranch) cmbXMageBranch.getSelectedItem()).url;
-				if (url != null) {
-					txtXMageHome.setText(url);
-					txtXMageHome.setEnabled(false);
-				} else {
-					txtXMageHome.setEnabled(true);
-				}
-			}
-		});
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String url = ((XMageBranch) cmbXMageBranch.getSelectedItem()).url;
+                if (url != null) {
+                    txtXMageHome.setText(url);
+                    txtXMageHome.setEnabled(false);
+                } else {
+                    txtXMageHome.setEnabled(true);
+                }
+            }
+        });
 
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
@@ -117,7 +117,7 @@ public class SettingsDialog extends JDialog {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(txtXMageHome, constraints);
-		txtXMageHome.setEnabled(false);
+        txtXMageHome.setEnabled(false);
         handleHomeChange();
 
         label = new JLabel("Show Client Console:");
@@ -292,8 +292,8 @@ public class SettingsDialog extends JDialog {
     }
 
     private void handleHomeChange() {
-    	String url = txtXMageHome.getText();
-    	cmbXMageBranch.setSelectedItem(Config.getXMageBranchByUrl(url));
+        String url = txtXMageHome.getText();
+        cmbXMageBranch.setSelectedItem(Config.getXMageBranchByUrl(url));
     }
-    
+
 }

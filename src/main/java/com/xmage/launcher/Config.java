@@ -37,10 +37,10 @@ public class Config {
     private static int guiSize = 0;
     private static boolean showClientConsole = true;
     private static boolean showServerConsole = true;
-	private static XMageBranch[] xMageBranches = new XMageBranch[] { new XMageBranch("Stable", DEFAULT_URL),
-			new XMageBranch("Beta", BETA_URL), new XMageBranch("Custom", null) };
-	private static Map<String, XMageBranch> branchMap = new HashMap<String, XMageBranch>();
-	
+    private static XMageBranch[] xMageBranches = new XMageBranch[] { new XMageBranch("Stable", DEFAULT_URL), new XMageBranch("Beta", BETA_URL),
+            new XMageBranch("Custom", null) };
+    private static Map<String, XMageBranch> branchMap = new HashMap<String, XMageBranch>();
+
     static {
         try {
             props.load(Config.class.getResourceAsStream(VERSION_FILE));
@@ -64,11 +64,11 @@ public class Config {
             torrentDownRate = Integer.parseInt(props.getProperty("xmage.torrent.downrate", "0"));
             showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", "True"));
             showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", "True"));
-			for (XMageBranch xMageBranch : xMageBranches) {
-				if (xMageBranch.url != null) {
-					branchMap.put(xMageBranch.url, xMageBranch);
-				}
-			}
+            for (XMageBranch xMageBranch : xMageBranches) {
+                if (xMageBranch.url != null) {
+                    branchMap.put(xMageBranch.url, xMageBranch);
+                }
+            }
         } catch (IOException ex) {
             logger.error("Error: ", ex);
         }
@@ -188,16 +188,16 @@ public class Config {
         }
     }
 
-	public static XMageBranch[] getXMageBranches() {
-		return xMageBranches;
-	}
+    public static XMageBranch[] getXMageBranches() {
+        return xMageBranches;
+    }
 
-	public static XMageBranch getXMageBranchByUrl(String url) {
-		XMageBranch xMageBranch = branchMap.get(url);
-		if (xMageBranch == null) {
-			return xMageBranches[xMageBranches.length - 1]; // custom
-		}
-		return xMageBranch;
-	}
-	
+    public static XMageBranch getXMageBranchByUrl(String url) {
+        XMageBranch xMageBranch = branchMap.get(url);
+        if (xMageBranch == null) {
+            return xMageBranches[xMageBranches.length - 1]; // custom
+        }
+        return xMageBranch;
+    }
+
 }

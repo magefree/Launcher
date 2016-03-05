@@ -936,8 +936,8 @@ public class XMageLauncher implements Runnable {
         }
 
     }
-    
-    private int compareVersions(String ver1, String ver2){
+
+    private int compareVersions(String ver1, String ver2) {
         DefaultArtifactVersion version1 = new DefaultArtifactVersion(ver1);
         DefaultArtifactVersion version2 = new DefaultArtifactVersion(ver2);
         return version1.compareTo(version2);
