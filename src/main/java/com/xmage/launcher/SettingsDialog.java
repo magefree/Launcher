@@ -16,6 +16,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,6 +47,7 @@ public class SettingsDialog extends JDialog {
 
     private final JSpinner spnUpRate;
     private final JSpinner spnDownRate;
+	private JComboBox<XMageBranch> cmbXMageBranch;
 
     public SettingsDialog() {
         ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
@@ -81,6 +83,31 @@ public class SettingsDialog extends JDialog {
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
 
+        label = new JLabel("Branch:");
+        constraints.anchor = GridBagConstraints.EAST;
+        panel1.add(label, constraints);
+
+        cmbXMageBranch = new JComboBox<XMageBranch>(Config.getXMageBranches());
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.fill = GridBagConstraints.BOTH;
+        panel1.add(cmbXMageBranch, constraints);
+		cmbXMageBranch.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String url = ((XMageBranch) cmbXMageBranch.getSelectedItem()).url;
+				if (url != null) {
+					txtXMageHome.setText(url);
+					txtXMageHome.setEnabled(false);
+				} else {
+					txtXMageHome.setEnabled(true);
+				}
+			}
+		});
+
+        constraints = new GridBagConstraints();
+        constraints.insets = new Insets(10, 10, 10, 10);
+
         label = new JLabel("XMage Home:");
         constraints.anchor = GridBagConstraints.EAST;
         panel1.add(label, constraints);
@@ -90,6 +117,8 @@ public class SettingsDialog extends JDialog {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(txtXMageHome, constraints);
+		txtXMageHome.setEnabled(false);
+        handleHomeChange();
 
         label = new JLabel("Show Client Console:");
         constraints.anchor = GridBagConstraints.EAST;
@@ -262,4 +291,9 @@ public class SettingsDialog extends JDialog {
         dispose();
     }
 
+    private void handleHomeChange() {
+    	String url = txtXMageHome.getText();
+    	cmbXMageBranch.setSelectedItem(Config.getXMageBranchByUrl(url));
+    }
+    
 }

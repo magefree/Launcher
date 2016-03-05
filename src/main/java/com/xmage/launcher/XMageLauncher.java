@@ -541,7 +541,7 @@ public class XMageLauncher implements Runnable {
             textArea.append(messages.getString("java.available") + javaAvailableVersion + "\n");
             noJava = false;
             newJava = false;
-            if (!javaAvailableVersion.equals(javaInstalledVersion)) {
+            if (compareVersions(javaAvailableVersion, javaInstalledVersion) > 0) {
                 newJava = true;
                 String javaMessage = "";
                 String javaTitle = "";
@@ -570,7 +570,7 @@ public class XMageLauncher implements Runnable {
             textArea.append(messages.getString("xmage.available") + xmageAvailableVersion + "\n");
             noXMage = false;
             newXMage = false;
-            if (!xmageAvailableVersion.equals(xmageInstalledVersion)) {
+            if (compareVersions(xmageAvailableVersion, xmageInstalledVersion) > 0) {
                 newXMage = true;
                 String xmageMessage = "";
                 String xmageTitle = "";
@@ -635,9 +635,7 @@ public class XMageLauncher implements Runnable {
                 String launcherInstalledVersion = Config.getVersion();
                 publish(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
                 publish(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
-                DefaultArtifactVersion launcherInstalledVersionArtifact = new DefaultArtifactVersion(launcherInstalledVersion);
-                DefaultArtifactVersion launcherAvailableVersionArtifact = new DefaultArtifactVersion(launcherAvailableVersion);
-                if (launcherAvailableVersionArtifact.compareTo(launcherInstalledVersionArtifact) > 0) {
+                if (compareVersions(launcherAvailableVersion, launcherInstalledVersion) > 0) {
                     String launcherMessage = "";
                     String launcherTitle = "";
                     publish(messages.getString("xmage.launcher.new") + "\n");
@@ -937,6 +935,12 @@ public class XMageLauncher implements Runnable {
             enableButtons();
         }
 
+    }
+    
+    private int compareVersions(String ver1, String ver2){
+        DefaultArtifactVersion version1 = new DefaultArtifactVersion(ver1);
+        DefaultArtifactVersion version2 = new DefaultArtifactVersion(ver2);
+        return version1.compareTo(version2);
     }
 
 }
