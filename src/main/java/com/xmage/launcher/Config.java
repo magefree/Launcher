@@ -1,6 +1,7 @@
 package com.xmage.launcher;
 
 import static com.xmage.launcher.Utilities.getInstallPath;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -57,7 +58,7 @@ public class Config {
             installedXMageVersion = props.getProperty("xmage.version", "");
             clientJavaOpts = props.getProperty("xmage.client.javaopts", DEFAULT_CLIENT_JAVA_OPTS);
             serverJavaOpts = props.getProperty("xmage.server.javaopts", DEFAULT_SERVER_JAVA_OPTS);
-            guiSize = Integer.parseInt(props.getProperty("xmage.launcher.guisize", "16"));
+            guiSize = Integer.parseInt(props.getProperty("xmage.launcher.guisize", String.valueOf(Toolkit.getDefaultToolkit().getScreenResolution() / 6)));
             homeURL = props.getProperty("xmage.home", DEFAULT_URL);
             useTorrent = Boolean.parseBoolean(props.getProperty("xmage.torrent.use", "False"));
             torrentUpRate = Integer.parseInt(props.getProperty("xmage.torrent.uprate", "50"));
