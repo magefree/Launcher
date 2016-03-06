@@ -90,6 +90,7 @@ public class XMageLauncher implements Runnable {
     private boolean noJava = false;
     private boolean newXMage = false;
     private boolean noXMage = false;
+    private boolean downgradeXMage = false;
 
     private XMageLauncher() {
         setDefaultFonts();
@@ -433,6 +434,10 @@ public class XMageLauncher implements Runnable {
 
     private void handleUpdate() {
         disableButtons();
+        if (!getConfig()) {
+            return;
+        }
+        checkXMage(); // handle branch changes
         if (!newJava && !newXMage) {
             int response = JOptionPane.showConfirmDialog(frame, messages.getString("force.update.message"), messages.getString("force.update.title"), JOptionPane.YES_NO_OPTION);
             if (response == JOptionPane.YES_OPTION) {
@@ -570,7 +575,9 @@ public class XMageLauncher implements Runnable {
             textArea.append(messages.getString("xmage.available") + xmageAvailableVersion + "\n");
             noXMage = false;
             newXMage = false;
-            if (compareVersions(xmageAvailableVersion, xmageInstalledVersion) > 0) {
+            downgradeXMage = false;
+            int compared = compareVersions(xmageAvailableVersion, xmageInstalledVersion);
+            if (compared > 0) {
                 newXMage = true;
                 String xmageMessage = "";
                 String xmageTitle = "";
@@ -587,6 +594,9 @@ public class XMageLauncher implements Runnable {
                 if (!noJava && !noXMage) {
                     JOptionPane.showMessageDialog(frame, xmageMessage, xmageTitle, JOptionPane.INFORMATION_MESSAGE);
                 }
+            }
+            if (compared < 0) { // handle downgrade
+                downgradeXMage = true;
             }
         } catch (JSONException ex) {
             logger.error("Error: ", ex);
@@ -718,7 +728,7 @@ public class XMageLauncher implements Runnable {
 
         @Override
         protected Void doInBackground() {
-            if (force || noJava || newJava) {
+            if (!downgradeXMage && (force || noJava || newJava)) { // only update java on force update to the same version
                 updateJava();
             }
             if (force || noXMage || newXMage) {
