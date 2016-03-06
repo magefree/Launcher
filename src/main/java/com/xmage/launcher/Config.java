@@ -2,10 +2,12 @@ package com.xmage.launcher;
 
 import static com.xmage.launcher.Utilities.getInstallPath;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -58,7 +60,9 @@ public class Config {
             installedXMageVersion = props.getProperty("xmage.version", "");
             clientJavaOpts = props.getProperty("xmage.client.javaopts", DEFAULT_CLIENT_JAVA_OPTS);
             serverJavaOpts = props.getProperty("xmage.server.javaopts", DEFAULT_SERVER_JAVA_OPTS);
-            guiSize = Integer.parseInt(props.getProperty("xmage.launcher.guisize", String.valueOf(Toolkit.getDefaultToolkit().getScreenResolution() / 6)));
+            int screenResolution = getScreenDPI();
+            logger.info("Detected screen DPI: " + screenResolution);
+            guiSize = Integer.parseInt(props.getProperty("xmage.launcher.guisize", String.valueOf(screenResolution / 6)));
             homeURL = props.getProperty("xmage.home", DEFAULT_URL);
             useTorrent = Boolean.parseBoolean(props.getProperty("xmage.torrent.use", "False"));
             torrentUpRate = Integer.parseInt(props.getProperty("xmage.torrent.uprate", "50"));
@@ -77,6 +81,38 @@ public class Config {
 
     public static String getInstalledJavaVersion() {
         return installedJavaVersion;
+    }
+
+    private static int getScreenDPI() {
+        int result = 0;
+        if (System.getProperty("os.name").toLowerCase().equals("linux")) { // on Linux the default method always return 96 or 93
+            ProcessBuilder processBuilder = new ProcessBuilder("xrdb", "-q");
+            Process process;
+            try {
+                process = processBuilder.start();
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line = null;
+                    while ((line = br.readLine()) != null) {
+                        if (line.startsWith("Xft.dpi:")) {
+                            String dpi = line.replaceAll("[^\\d]*(\\d*)$", "$1");
+                            try {
+                                result = Integer.valueOf(dpi);
+                            } catch (NumberFormatException e) {
+                                // do nothing, something's wrong, resorting to the default method
+                            }
+                            break;
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                logger.warn("Can't get DPI via xrdb!");
+                e.printStackTrace();
+            }
+            if (result > 0) {
+                return result;
+            }
+        }
+        return Toolkit.getDefaultToolkit().getScreenResolution();
     }
 
     public static String getInstalledXMageVersion() {
