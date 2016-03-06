@@ -437,7 +437,7 @@ public class XMageLauncher implements Runnable {
         if (!getConfig()) {
             return;
         }
-        checkXMage(); // handle branch changes
+        checkXMage(true); // handle branch changes
         if (!newJava && !newXMage) {
             int response = JOptionPane.showConfirmDialog(frame, messages.getString("force.update.message"), messages.getString("force.update.title"), JOptionPane.YES_NO_OPTION);
             if (response == JOptionPane.YES_OPTION) {
@@ -463,7 +463,7 @@ public class XMageLauncher implements Runnable {
 
     private void checkUpdates() {
         checkJava();
-        checkXMage();
+        checkXMage(false);
         enableButtons();
     }
 
@@ -567,7 +567,7 @@ public class XMageLauncher implements Runnable {
         }
     }
 
-    private void checkXMage() {
+    private void checkXMage(boolean silent) {
         try {
             String xmageAvailableVersion = (String) config.getJSONObject("XMage").get(("version"));
             String xmageInstalledVersion = Config.getInstalledXMageVersion();
@@ -591,7 +591,7 @@ public class XMageLauncher implements Runnable {
                     xmageMessage = messages.getString("xmage.new.message");
                     xmageTitle = messages.getString("xmage.new");
                 }
-                if (!noJava && !noXMage) {
+                if (!silent && !noJava && !noXMage) {
                     JOptionPane.showMessageDialog(frame, xmageMessage, xmageTitle, JOptionPane.INFORMATION_MESSAGE);
                 }
             }
