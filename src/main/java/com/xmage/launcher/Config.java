@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.slf4j.LoggerFactory;
+import com.xmage.launcher.Utilities.OS;
 
 /**
  *
@@ -85,7 +86,7 @@ public class Config {
 
     private static int getScreenDPI() {
         int result = 0;
-        if (System.getProperty("os.name").toLowerCase().equals("linux")) { // on Linux the default method always return 96 or 93
+        if (Utilities.getOS() == OS.NIX) { // on Linux the default method always return 96 or 93
             ProcessBuilder processBuilder = new ProcessBuilder("xrdb", "-q");
             Process process;
             try {
