@@ -417,13 +417,14 @@ public class XMageLauncher implements Runnable {
     private void handleServer() {
         if (serverProcess == null) {
             serverProcess = Utilities.launchServerProcess();
-            if (serverProcess.isAlive()) {
+            try {
+                int exitValue = serverProcess.exitValue();
+                logger.error("Problem during launch of server process. exit value = " + exitValue);
+            } catch (IllegalThreadStateException e) {
                 serverConsole.setVisible(Config.isShowServerConsole());
                 serverConsole.start(serverProcess);
                 btnLaunchServer.setText(messages.getString("stopServer"));
                 btnLaunchClientServer.setEnabled(false);
-            } else {
-                logger.error("Problem during launch of server process. exit value = " + serverProcess.exitValue());
             }
         } else {
             Utilities.stopProcess(serverProcess);
