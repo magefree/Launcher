@@ -302,6 +302,7 @@ public class XMageLauncher implements Runnable {
         frame.pack();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+        removeOldLauncherFiles();
     }
 
     private void setDefaultFonts() {
@@ -661,7 +662,6 @@ public class XMageLauncher implements Runnable {
 
                         download(launcher, path.getAbsolutePath(), "");
 
-                        removeOldLauncherFiles(launcherFolder, launcherInstalledVersion);
                         File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
                         publish(messages.getString("xmage.launcher.installing"));
                         File to = new File(launcherFolder, "XMageLauncher-" + launcherAvailableVersion + ".jar");
@@ -684,26 +684,6 @@ public class XMageLauncher implements Runnable {
                 logger.error("Error: ", ex);
             }
             return null;
-        }
-
-        private void removeOldLauncherFiles(File xmageFolder, final String launcherVersion) {
-            File[] files = xmageFolder.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(final File dir, final String name) {
-                    if (name.matches("XMageLauncher.*\\.jar")) {
-                        return !name.equals("XMageLauncher-" + launcherVersion + ".jar");
-                    }
-                    return false;
-                }
-            });
-            if (files.length > 0) {
-                publish(messages.getString("removing") + "\n");
-                for (final File file : files) {
-                    if (!file.isDirectory() && !file.delete()) {
-                        logger.error("Can't remove " + file.getAbsolutePath());
-                    }
-                }
-            }
         }
 
         @Override
@@ -951,6 +931,28 @@ public class XMageLauncher implements Runnable {
         DefaultArtifactVersion version1 = new DefaultArtifactVersion(ver1);
         DefaultArtifactVersion version2 = new DefaultArtifactVersion(ver2);
         return version1.compareTo(version2);
+    }
+
+    private void removeOldLauncherFiles() {
+        File launcherFolder = new File(Utilities.getInstallPath().getAbsolutePath());
+        final String launcherInstalledVersion = Config.getVersion();
+        File[] files = launcherFolder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(final File dir, final String name) {
+                if (name.matches("XMageLauncher.*\\.jar")) {
+                    return !name.equals("XMageLauncher-" + launcherInstalledVersion + ".jar");
+                }
+                return false;
+            }
+        });
+        if (files.length > 0) {
+            textArea.append(messages.getString("removing") + "\n");
+            for (final File file : files) {
+                if (!file.isDirectory() && !file.delete()) {
+                    logger.error("Can't remove " + file.getAbsolutePath());
+                }
+            }
+        }
     }
 
 }
