@@ -11,3 +11,4 @@ Utils/author.txt
 .idea
 syntax: regexp
 .log
+*.iml
