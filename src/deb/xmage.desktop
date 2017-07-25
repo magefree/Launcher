@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=XMage
+Exec=xmage
+Comment=XMage allows you to play Magic against one or more online players or computer opponents
+Icon=icon-mage.png
+Type=Application
+Categories=Game;CardGame;

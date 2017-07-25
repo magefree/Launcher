@@ -8,6 +8,7 @@
     <packaging>jar</packaging>
 
     <name>XMage Launcher</name>
+    <description>XMage allows you to play Magic against one or more online players or computer opponents</description>
 
     <dependencies>
         <dependency>
@@ -51,6 +52,67 @@
             </resource>
         </resources>
         <plugins>
+			<plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jdeb</goal>
+                        </goals>
+                        <configuration>
+                            <!--Our deb-related stuff is in src/deb-->
+
+                            <!--The control dir (which contains the .deb installer metadata) is in the control subdirectory-->
+                            <controlDir>${basedir}/src/deb/control</controlDir>
+
+                            <dataSet>
+
+                                <!--The main jar file goes in /usr/share/xmage because it's not intended for use by other programs-->
+                                <data>
+                                  <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                  <type>file</type>
+                                  <mapper>
+                                    <type>perm</type>
+                                    <prefix>/usr/share/xmage</prefix>
+                                  </mapper>
+                                </data>
+
+                                <!--Make a symlink in the bin directory so we can run xmage from the command line-->
+                                <data>
+                                  <type>link</type>
+                                  <linkName>/usr/bin/xmage</linkName>
+                                  <linkTarget>/usr/share/xmage/${project.build.finalName}.jar</linkTarget>
+                                  <symlink>true</symlink>
+                                </data>
+
+                                <!--Make a desktop file so it can be run as an application from the GUI-->
+                                <data>
+                                  <src>${basedir}/src/deb/xmage.desktop</src>
+                                  <type>file</type>
+                                  <mapper>
+                                    <type>perm</type>
+                                    <prefix>/usr/share/applications</prefix>
+                                  </mapper>
+                                </data>
+
+                                <!--Make an icon which will be used for XMage in the GUI-->
+                                <data>
+                                  <src>${basedir}/src/main/resources/icon-mage.png</src>
+                                  <type>file</type>
+                                  <mapper>
+                                    <type>perm</type>
+                                    <prefix>/usr/share/pixmaps</prefix>
+                                  </mapper>
+                                </data>
+
+                            </dataSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
