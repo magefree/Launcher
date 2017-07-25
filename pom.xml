@@ -39,6 +39,7 @@
     </dependencies>
 
     <properties>
+        <finalproject.name>XMageLauncher-${project.version}</finalproject.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
@@ -70,9 +71,21 @@
 
                             <dataSet>
 
+                                <!--The /usr/share/xmage directory is where all the xmage data (java, the client) will go-->
+                                <data>
+                                  <type>template</type>
+                                  <mapper>
+                                    <filemode>777</filemode>
+                                    <type>perm</type>
+                                  </mapper>
+                                  <paths>
+                                    <path>/usr/share/xmage</path>
+                                  </paths>
+                                </data>
+
                                 <!--The main jar file goes in /usr/share/xmage because it's not intended for use by other programs-->
                                 <data>
-                                  <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                  <src>${project.build.directory}/${finalproject.name}.jar</src>
                                   <type>file</type>
                                   <mapper>
                                     <filemode>775</filemode>
@@ -85,7 +98,7 @@
                                 <data>
                                   <type>link</type>
                                   <linkName>/usr/bin/xmage</linkName>
-                                  <linkTarget>/usr/share/xmage/${project.build.finalName}.jar</linkTarget>
+                                  <linkTarget>/usr/share/xmage/${finalproject.name}.jar</linkTarget>
                                   <mapper>
                                     <type>perm</type>
                                     <filemode>775</filemode>
@@ -151,7 +164,7 @@
                             <Built-By>XMage</Built-By>
                         </manifestEntries>
                     </archive>
-                    <finalName>XMageLauncher-${project.version}</finalName>
+                    <finalName>${finalproject.name}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
