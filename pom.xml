@@ -75,6 +75,7 @@
                                   <src>${project.build.directory}/${project.build.finalName}.jar</src>
                                   <type>file</type>
                                   <mapper>
+                                    <filemode>775</filemode>
                                     <type>perm</type>
                                     <prefix>/usr/share/xmage</prefix>
                                   </mapper>
@@ -85,6 +86,10 @@
                                   <type>link</type>
                                   <linkName>/usr/bin/xmage</linkName>
                                   <linkTarget>/usr/share/xmage/${project.build.finalName}.jar</linkTarget>
+                                  <mapper>
+                                    <type>perm</type>
+                                    <filemode>775</filemode>
+                                  </mapper>
                                   <symlink>true</symlink>
                                 </data>
 
