@@ -2,6 +2,6 @@
 Name=XMage
 Exec=xmage
 Comment=XMage allows you to play Magic against one or more online players or computer opponents
-Icon=icon-mage.png
+Icon=icon-mage-flashed.png
 Type=Application
 Categories=Game;CardGame;
