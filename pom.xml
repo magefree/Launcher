@@ -53,7 +53,7 @@
             </resource>
         </resources>
         <plugins>
-			<plugin>
+            <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
                 <version>1.5</version>
@@ -71,7 +71,8 @@
 
                             <dataSet>
 
-                                <!--The /usr/share/xmage directory is where all the xmage data (java, the client) will go-->
+                                <!--The /opt/xmage directory is where all the xmage data (java, the client) will go.
+                                    Also needs write permissions so the launcher can install the client-->
                                 <data>
                                   <type>template</type>
                                   <mapper>
@@ -79,18 +80,18 @@
                                     <type>perm</type>
                                   </mapper>
                                   <paths>
-                                    <path>/usr/share/xmage</path>
+                                    <path>/opt/xmage</path>
                                   </paths>
                                 </data>
 
-                                <!--The main jar file goes in /usr/share/xmage because it's not intended for use by other programs-->
+                                <!--The main jar file goes in /opt/xmage-->
                                 <data>
                                   <src>${project.build.directory}/${finalproject.name}.jar</src>
                                   <type>file</type>
                                   <mapper>
                                     <filemode>775</filemode>
                                     <type>perm</type>
-                                    <prefix>/usr/share/xmage</prefix>
+                                    <prefix>/opt/xmage</prefix>
                                   </mapper>
                                 </data>
 
@@ -98,7 +99,7 @@
                                 <data>
                                   <type>link</type>
                                   <linkName>/usr/bin/xmage</linkName>
-                                  <linkTarget>/usr/share/xmage/${finalproject.name}.jar</linkTarget>
+                                  <linkTarget>/opt/xmage/${finalproject.name}.jar</linkTarget>
                                   <mapper>
                                     <type>perm</type>
                                     <filemode>775</filemode>
@@ -118,7 +119,7 @@
 
                                 <!--Make an icon which will be used for XMage in the GUI-->
                                 <data>
-                                  <src>${basedir}/src/main/resources/icon-mage.png</src>
+                                  <src>${basedir}/src/main/resources/icon-mage-flashed.png</src>
                                   <type>file</type>
                                   <mapper>
                                     <type>perm</type>

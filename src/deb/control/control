@@ -3,6 +3,6 @@ Version: [[version]]
 Section: misc
 Priority: low
 Architecture: all
-Depends: default-jre (>= 1.7) | jarwrapper
+Depends: default-jre (>= 1.7), jarwrapper
 Description: [[description]]
 Maintainer: michael.r.milton@gmail.com
