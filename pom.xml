@@ -54,15 +54,85 @@
         </resources>
         <plugins>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <url>xmage.de</url>
+                            <Built-By>XMage</Built-By>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.5</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <url>xmage.de</url>
+                            <Built-By>XMage</Built-By>
+                        </manifestEntries>
+                    </archive>
+                    <finalName>${finalproject.name}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!--Package with native installers-->
 			<plugin>
 				<groupId>com.zenjava</groupId>
 				<artifactId>javafx-maven-plugin</artifactId>
-				<version>8.8.3</version>
+				<version>8.6.0</version>
 				<configuration>
+					<bundleArguments>
+						<!--Don't package the runtime, since we'll install our own Java later on-->
+						<runtime />
+					</bundleArguments>
 					<vendor>XMage</vendor>
 					<mainClass>com.xmage.launcher.XMageLauncher</mainClass>
+					<needShortcut>true</needShortcut>
+					<needMenu>true</needMenu>
 				</configuration>
+				<executions>
+					<execution>
+						<!-- required before build-native -->
+						<id>create-jfxjar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>build-jar</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>create-native</id>
+						<phase>package</phase>
+						<goals>
+							<goal>build-native</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
             <plugin>
@@ -141,56 +211,6 @@
 
                             </dataSet>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-					<bundleArguments>
-						<!--Don't package the runtime, since we'll install our own Java later on-->
-						<runtime />
-					<bundleArguments>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <url>xmage.de</url>
-                            <Built-By>XMage</Built-By>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.5</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <url>xmage.de</url>
-                            <Built-By>XMage</Built-By>
-                        </manifestEntries>
-                    </archive>
-                    <finalName>${finalproject.name}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
