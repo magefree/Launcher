@@ -102,49 +102,49 @@
             </plugin>
 
             <!--Package for Windows using the javafx bundler-->
-			<plugin>
-				<groupId>com.zenjava</groupId>
-				<artifactId>javafx-maven-plugin</artifactId>
-				<version>8.8.3</version>
-				<configuration>
+            <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>8.8.3</version>
+                <configuration>
                     <appName>XMageLauncher</appName>
                     <nativeReleaseVersion>${version}</nativeReleaseVersion>
                     <nativeOutputDir>${project.build.directory}</nativeOutputDir>
-					<bundler>msi</bundler>
-					<bundleArguments>
+                    <bundler>msi</bundler>
+                    <bundleArguments>
 
                         <!--Path to the license file (which we're using as a readme), relative to the additionalAppResources dir-->
                         <!-- <licenseFile>readme.txt</licenseFile> -->
                         <!-- <additionalAppResources>src/main/resources</additionalAppResources> -->
 
-						<!--Don't package the runtime, since we'll install our own Java later on-->
-						<runtime />
-					</bundleArguments>
-					<vendor>XMage</vendor>
-					<mainClass>com.xmage.launcher.XMageLauncher</mainClass>
-					<needShortcut>true</needShortcut>
-					<needMenu>true</needMenu>
-				</configuration>
-				<executions>
-					<execution>
-						<!-- required before build-native -->
-						<id>create-jfxjar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>build-jar</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>create-native</id>
-						<phase>package</phase>
-						<goals>
-							<goal>build-native</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+                        <!--Don't package the runtime, since we'll install our own Java later on-->
+                        <runtime />
+                    </bundleArguments>
+                    <vendor>XMage</vendor>
+                    <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
+                    <needShortcut>true</needShortcut>
+                    <needMenu>true</needMenu>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- required before build-native -->
+                        <id>create-jfxjar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build-jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-native</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build-native</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<!--Package for Ubuntu/Debian Linux using the (crossplatform) jdeb plugin-->
+            <!--Package for Ubuntu/Debian Linux using the (crossplatform) jdeb plugin-->
             <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
