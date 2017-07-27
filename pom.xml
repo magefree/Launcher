@@ -4,10 +4,10 @@
 
     <groupId>com.xmage</groupId>
     <artifactId>Launcher</artifactId>
-    <version>0.3.8</version>
     <packaging>jar</packaging>
-
+    <version>${version}</version>
     <name>XMage Launcher</name>
+    <description>XMage allows you to play Magic against one or more online players or computer opponents</description>
 
     <dependencies>
         <dependency>
@@ -38,6 +38,8 @@
     </dependencies>
 
     <properties>
+        <finalproject.name>XMageLauncher-${project.version}</finalproject.name>
+        <version>0.3.8</version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
@@ -51,6 +53,7 @@
             </resource>
         </resources>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -84,7 +87,7 @@
                             <Built-By>XMage</Built-By>
                         </manifestEntries>
                     </archive>
-                    <finalName>XMageLauncher-${project.version}</finalName>
+                    <finalName>${finalproject.name}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
@@ -94,6 +97,130 @@
                         <goals>
                             <goal>single</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--Package for Windows using the javafx bundler-->
+            <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>8.8.3</version>
+                <configuration>
+                    <appName>XMageLauncher</appName>
+                    <nativeReleaseVersion>${version}</nativeReleaseVersion>
+                    <nativeOutputDir>${project.build.directory}</nativeOutputDir>
+                    <bundler>msi</bundler>
+                    <bundleArguments>
+
+                        <!--Path to the license file (which we're using as a readme), relative to the additionalAppResources dir-->
+                        <!-- <licenseFile>readme.txt</licenseFile> -->
+                        <!-- <additionalAppResources>src/main/resources</additionalAppResources> -->
+
+                        <!--Don't package the runtime, since we'll install our own Java later on-->
+                        <runtime />
+                    </bundleArguments>
+                    <vendor>XMage</vendor>
+                    <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
+                    <needShortcut>true</needShortcut>
+                    <needMenu>true</needMenu>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- required before build-native -->
+                        <id>create-jfxjar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build-jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-native</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build-native</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--Package for Ubuntu/Debian Linux using the (crossplatform) jdeb plugin-->
+            <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jdeb</goal>
+                        </goals>
+                        <configuration>
+                            <!--Our deb-related stuff is in src/deb-->
+
+                            <!--The control dir (which contains the .deb installer metadata) is in the control subdirectory-->
+                            <controlDir>${basedir}/src/deb/control</controlDir>
+
+                            <dataSet>
+
+                                <!--The /opt/xmage directory is where all the xmage data (java, the client) will go.
+                                    Also needs write permissions so the launcher can install the client-->
+                                <data>
+                                  <type>template</type>
+                                  <mapper>
+                                    <filemode>777</filemode>
+                                    <type>perm</type>
+                                  </mapper>
+                                  <paths>
+                                    <path>/opt/xmage</path>
+                                  </paths>
+                                </data>
+
+                                <!--The main jar file goes in /opt/xmage-->
+                                <data>
+                                  <src>${project.build.directory}/${finalproject.name}.jar</src>
+                                  <type>file</type>
+                                  <mapper>
+                                    <filemode>775</filemode>
+                                    <type>perm</type>
+                                    <prefix>/opt/xmage</prefix>
+                                  </mapper>
+                                </data>
+
+                                <!--Make a symlink in the bin directory so we can run xmage from the command line-->
+                                <data>
+                                  <type>link</type>
+                                  <linkName>/usr/bin/xmage</linkName>
+                                  <linkTarget>/opt/xmage/${finalproject.name}.jar</linkTarget>
+                                  <mapper>
+                                    <type>perm</type>
+                                    <filemode>775</filemode>
+                                  </mapper>
+                                  <symlink>true</symlink>
+                                </data>
+
+                                <!--Make a desktop file so it can be run as an application from the GUI-->
+                                <data>
+                                  <src>${basedir}/src/deb/xmage.desktop</src>
+                                  <type>file</type>
+                                  <mapper>
+                                    <type>perm</type>
+                                    <prefix>/usr/share/applications</prefix>
+                                  </mapper>
+                                </data>
+
+                                <!--Make an icon which will be used for XMage in the GUI-->
+                                <data>
+                                  <src>${basedir}/src/main/resources/icon-mage-flashed.png</src>
+                                  <type>file</type>
+                                  <mapper>
+                                    <type>perm</type>
+                                    <prefix>/usr/share/pixmaps</prefix>
+                                  </mapper>
+                                </data>
+
+                            </dataSet>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
