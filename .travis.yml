@@ -15,3 +15,6 @@ deploy:
   on:
     branch: packaging
 script: mvn package
+branches:
+  except:
+  - travis_build
