@@ -12,3 +12,5 @@ Utils/author.txt
 syntax: regexp
 .log
 *.iml
+
+.DS_Store
