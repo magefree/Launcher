@@ -1,0 +1,16 @@
+language: java
+os: osx
+before_deploy:
+  - mvn package appbundle:bundle
+deploy:
+  provider: releases
+  api_key:
+    secure: j9/fJLM5dgEh+9Zs/VEg3vYjerRQJzmMrPG08RUzufZpY2f2NEI/K9MwTI3ycuIeBhKfkt90vDqTQiZmCX5qE2Z8d2Il6utoMNJHdjRU+zj0mO4BciIPlVYpzoZ4xNQfLs1fBRxizpZFBriZNeA9+ipI9T19Gh9bP+dDQV2P0CwdZENgP9MPUUs6pzuYesH7rgeDIRZpxKOd8KMtC4pz1b2or8HZKty9keXVRN1dzCx3nhSnza9NgTTMWu5vLpP/fd/DxJqhvGBngOy9eTVZan7aYntKe0PvT0BVCOvLVdykI5pIku7LA1PBjF8OlaLDZB4HWcCGAZ1Oz6XiwLSXoyCfiIihJnv36a4lQkU7TpeVxOtpBxKW8jgWc6WFATP29aaf54a0W1SM6Ou7Konbbca8Abvf8fPDJlYIiDtEHDmvI8tcYXZThtZPGgxWd4SbNLMiNzgYMBazPZE1Yr0xHd/6OOHuZmEzVpQNzeDQWN1mZTWgEPtC6NdCD0HnT16VV1n2CwC9HwMcaTv7+rIugKhtCiRB+/c1DkVg5jk9amUdQKihrTq8Mp7IZGF4RtbSAfA46qUBG5pA/Kg1MulT28upuC+tF1IdaqXd2lhYmkhrpq0m2/N6LSgZqL82fjN+yJuTjtkjumIiIwgYo9M50p073X5wO+kMrv8hO74e6xM=
+  file:
+    - target/Launcher-*.dmg
+    - target/Launcher_*_all.deb
+  skip_cleanup: true
+  file_glob: true
+  on:
+    repo: vayan/MageLauncher
+    tags: true

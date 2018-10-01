@@ -224,6 +224,28 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!--Package for MacOS using the appbundle plugin-->
+            <plugin>
+                <groupId>sh.tak.appbundler</groupId>
+                <artifactId>appbundle-maven-plugin</artifactId>
+                <version>1.2.0</version>
+                <configuration>
+                    <bundleName>XMage Launcher</bundleName>
+                    <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
+                    <iconFile>src/main/resources/osx/icon-mage.icns</iconFile>
+                    <generateDiskImageFile>true</generateDiskImageFile>
+                    <includeApplicationsSymlink>true</includeApplicationsSymlink>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <repositories>
