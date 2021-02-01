@@ -1,22 +1,17 @@
 package com.xmage.launcher;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
- *
  * @author BetaSteward
  */
 public class Utilities {
@@ -81,13 +76,8 @@ public class Utilities {
 
     //thanks to Roland Illig - http://stackoverflow.com/questions/4308554/simplest-way-to-read-json-from-a-url-in-java
     public static JSONObject readJsonFromUrl(URL url) throws IOException, JSONException {
-        InputStream is = url.openStream();
-        try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            JSONObject json = new JSONObject(readAll(rd));
-            return json;
-        } finally {
-            is.close();
+        try (BufferedReader rd = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+            return new JSONObject(readAll(rd));
         }
     }
 
@@ -102,13 +92,19 @@ public class Utilities {
 
     public static Process launchClientProcess() {
 
-        return launchProcess("mage.client.MageFrame", Config.getClientJavaOpts(), "mage-client");
+        return launchProcess("mage.client.MageFrame",
+                "",
+                "mage-client",
+                Config.getInstance().getClientJavaOpts());
 
     }
 
     public static Process launchServerProcess() {
 
-        return launchProcess("mage.server.Main", Config.getServerJavaOpts(), "mage-server");
+        return launchProcess("mage.server.Main",
+                Config.getInstance().isServerTestMode() ? "-testMode=true" : "",
+                "mage-server",
+                Config.getInstance().getServerJavaOpts());
 
     }
 
@@ -116,30 +112,37 @@ public class Utilities {
         p.destroy();
     }
 
-    private static Process launchProcess(String main, String args, String path) {
+    private static Process launchProcess(String main, String args, String path, String javaOpts) {
 
         File installPath = Utilities.getInstallPath();
         File javaHome;
-        if (getOS() == OS.OSX) {
-            javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion() + ".jre/Contents/Home");
+        if (Config.getInstance().useSystemJava()) {
+            javaHome = new File(System.getProperty("java.home"));
+        } else if (getOS() == OS.OSX) {
+            javaHome = new File(installPath, "/java/jre" + Config.getInstance().getInstalledJavaVersion() + ".jre/Contents/Home");
         } else {
-            javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
+            javaHome = new File(installPath, "/java/jre" + Config.getInstance().getInstalledJavaVersion());
         }
         File javaBin = new File(javaHome, "/bin/java");
         File xmagePath = new File(installPath, "/xmage/" + path);
         File classPath = new File(xmagePath, "/lib/*");
 
-        logger.info("Launching Process:");
-        logger.info("Java bin: " + javaBin.toString());
-        logger.info("XMage Path: " + xmagePath.toString());
-        logger.info("Class Path: " + classPath.toString());
+        if (!javaBin.getParentFile().exists() || !xmagePath.isDirectory()) {
+            return null;
+        }
 
-        ArrayList<String> command = new ArrayList<String>();
+        logger.info("Launching Process:");
+        logger.info("Java bin: " + javaBin);
+        logger.info("XMage Path: " + xmagePath);
+        logger.info("Class Path: " + classPath);
+
+        ArrayList<String> command = new ArrayList<>();
         command.add(javaBin.getAbsolutePath());
-        command.addAll(Arrays.asList(args.split(" ")));
+        command.addAll(Arrays.asList(javaOpts.split(" ")));
         command.add("-cp");
         command.add(classPath.getAbsolutePath());
         command.add(main);
+        command.addAll(Arrays.asList(args.split(" ")));
 
         ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[command.size()]));
         pb.environment().putAll(System.getenv());
@@ -147,8 +150,7 @@ public class Utilities {
         pb.directory(xmagePath);
         pb.redirectErrorStream(true);
         try {
-            Process p = pb.start();
-            return p;
+            return pb.start();
         } catch (IOException ex) {
             logger.error("Error staring process", ex);
         }
@@ -159,7 +161,7 @@ public class Utilities {
         File installPath = Utilities.getInstallPath();
         String javaBin = System.getProperty("java.home") + "/bin/java";
 
-        ArrayList<String> command = new ArrayList<String>();
+        ArrayList<String> command = new ArrayList<>();
         command.add(javaBin);
         command.add("-jar");
         command.add(launcherJar.getPath());

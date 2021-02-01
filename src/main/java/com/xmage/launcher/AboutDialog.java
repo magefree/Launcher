@@ -1,19 +1,11 @@
 package com.xmage.launcher;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 
 /**
- *
  * @author BetaSteward
  */
 public class AboutDialog extends JDialog {
@@ -37,7 +29,7 @@ public class AboutDialog extends JDialog {
 
         add(Box.createRigidArea(new Dimension(0, 10)));
 
-        JLabel name = new JLabel("XMage Launcher Version " + Config.getVersion());
+        JLabel name = new JLabel("XMage Launcher Version " + Config.getInstance().getVersion());
         name.setFont(new Font("Serif", Font.BOLD, 13));
         name.setAlignmentX(0.5f);
         add(name);

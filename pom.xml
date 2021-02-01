@@ -5,7 +5,7 @@
     <groupId>com.xmage</groupId>
     <artifactId>Launcher</artifactId>
     <packaging>jar</packaging>
-    <version>${version}</version>
+    <version>0.4.0</version>
     <name>XMage Launcher</name>
     <description>XMage allows you to play Magic against one or more online players or computer opponents</description>
 
@@ -23,26 +23,22 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.12</version>
-        </dependency>
-        <dependency>
-            <groupId>com.turn</groupId>
-            <artifactId>ttorrent</artifactId>
-            <version>1.4</version>
+            <version>1.7.33</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
-            <version>3.0.3</version>
+            <version>3.8.1</version>
         </dependency>
     </dependencies>
 
     <properties>
+        <java.version>1.8</java.version>
         <finalproject.name>XMageLauncher-${project.version}</finalproject.name>
-        <version>0.3.8</version>
+        <version>0.4.0</version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <build>
@@ -223,6 +219,15 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

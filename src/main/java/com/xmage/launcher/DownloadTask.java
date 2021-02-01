@@ -1,21 +1,6 @@
-
 package com.xmage.launcher;
 
-import com.turn.ttorrent.client.Client;
-import com.turn.ttorrent.client.SharedTorrent;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URL;
-import java.util.List;
-
-import javax.swing.JProgressBar;
-import javax.swing.JTextArea;
-import javax.swing.SwingWorker;
+import com.xmage.launcher.DownloadTask.Progress;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -23,10 +8,13 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.xmage.launcher.DownloadTask.Progress;
+
+import javax.swing.*;
+import java.io.*;
+import java.net.URL;
+import java.util.List;
 
 /**
- *
  * @author BetaSteward
  */
 public abstract class DownloadTask extends SwingWorker<Void, Progress> {
@@ -48,8 +36,8 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
     }
 
     private static final int BUFFER_SIZE = 4096;
-    private static final Logger logger = LoggerFactory.getLogger(DownloadTask.class);    
-    
+    private static final Logger logger = LoggerFactory.getLogger(DownloadTask.class);
+
     private final JProgressBar progressBar;
     private final JTextArea textArea;
 
@@ -68,7 +56,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
             File temp = new File(saveDirectory + File.separator + "xmage.dl");
             FileOutputStream fout = new FileOutputStream(temp);
 
-            final byte data[] = new byte[BUFFER_SIZE];
+            final byte[] data = new byte[BUFFER_SIZE];
             int count;
             long total = 0;
             long size = dl.getSize();
@@ -109,23 +97,6 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
         }
     }
 
-    public void torrent(File from, File to) throws IOException {
-        // First, instantiate the Client object.
-        SharedTorrent torrent = SharedTorrent.fromFile(from, to);
-
-        Client client = new Client(InetAddress.getLocalHost(), torrent);
-
-        client.setMaxDownloadRate((double) Config.getTorrentDownRate());
-        client.setMaxUploadRate((double) Config.getTorrentUpRate());
-
-        client.download();
-
-        while (!torrent.isComplete()) {
-            publish((int) torrent.getCompletion());
-        }
-
-    }
-
     protected void extract(File from, File to) throws IOException {
 
         TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(from)));
@@ -149,7 +120,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
                 destPath.mkdirs();
             } else {
                 destPath.createNewFile();
-                byte data[] = new byte[BUFFER_SIZE];
+                byte[] data = new byte[BUFFER_SIZE];
                 BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destPath), BUFFER_SIZE);
                 int count;
                 while ((count = tarIn.read(data, 0, BUFFER_SIZE)) != -1) {
@@ -221,7 +192,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
                 File pathFile = new File(destPath.getAbsolutePath().substring(0, destPath.getAbsolutePath().lastIndexOf(File.separator)));
                 pathFile.mkdirs();
                 destPath.createNewFile();
-                byte data[] = new byte[BUFFER_SIZE];
+                byte[] data = new byte[BUFFER_SIZE];
                 BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destPath), BUFFER_SIZE);
                 int count;
                 while ((count = zipIn.read(data, 0, BUFFER_SIZE)) != -1) {

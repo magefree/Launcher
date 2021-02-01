@@ -1,4 +1,3 @@
-
 package com.xmage.launcher;
 
 import java.io.BufferedInputStream;
@@ -7,17 +6,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- *
  * @author BetaSteward
  */
 public class Downloader {
-        
+
     private BufferedInputStream in;
     private HttpURLConnection conn;
     private int size;
-   
+
     public void connect(URL url, String cookies) throws IOException {
-        conn = (HttpURLConnection)url.openConnection();
+        conn = (HttpURLConnection) url.openConnection();
         conn.setAllowUserInteraction(false);
         conn.setInstanceFollowRedirects(true);
         conn.setRequestProperty("Cookie", cookies);
@@ -29,24 +27,23 @@ public class Downloader {
                 String newUrl = conn.getHeaderField("Location");
                 conn = (HttpURLConnection) new URL(newUrl).openConnection();
                 conn.setRequestProperty("Cookie", cookies);
-            }
-            else {
+            } else {
                 break;
             }
         }
         size = conn.getContentLength();
         in = new BufferedInputStream(conn.getInputStream());
     }
-    
+
     public BufferedInputStream getInputStream() {
         return in;
     }
-    
+
     public void disconnect() throws IOException {
         in.close();
         conn.disconnect();
     }
-    
+
     public int getSize() {
         return size;
     }
