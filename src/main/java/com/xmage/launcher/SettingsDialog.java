@@ -43,6 +43,7 @@ public class SettingsDialog extends JDialog {
     private final JTextField txtXMageHome;
     private final JCheckBox chkShowClientConsole;
     private final JCheckBox chkShowServerConsole;
+    private final JCheckBox chkUseSystemJava;
     private final JSpinner spnGuiSize;
 
     private final JSpinner spnUpRate;
@@ -53,7 +54,7 @@ public class SettingsDialog extends JDialog {
         ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
         this.setIconImage(icon.getImage());
 
-        Font defaultFont = new Font("SansSerif", 0, Config.getGuiSize());
+        Font defaultFont = new Font("SansSerif", Font.PLAIN, Config.getGuiSize());
 
         setTitle("XMage Launcher Settings");
         setModalityType(ModalityType.APPLICATION_MODAL);
@@ -87,7 +88,7 @@ public class SettingsDialog extends JDialog {
         constraints.anchor = GridBagConstraints.EAST;
         panel1.add(label, constraints);
 
-        cmbXMageBranch = new JComboBox<XMageBranch>(Config.getXMageBranches());
+        cmbXMageBranch = new JComboBox<>(Config.getXMageBranches());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(cmbXMageBranch, constraints);
@@ -173,6 +174,19 @@ public class SettingsDialog extends JDialog {
 
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
+
+        label = new JLabel("Use system Java:");
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel2.add(label, constraints);
+
+        chkUseSystemJava = new JCheckBox();
+        chkUseSystemJava.setFont(defaultFont);
+        chkUseSystemJava.setSelected(Config.useSystemJava());
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.fill = GridBagConstraints.BOTH;
+        panel2.add(chkUseSystemJava, constraints);
 
         label = new JLabel("Client java options:");
         constraints.anchor = GridBagConstraints.EAST;
@@ -287,6 +301,7 @@ public class SettingsDialog extends JDialog {
         Config.setUseTorrent(this.chkUseTorrent.isSelected());
         Config.setTorrentUpRate((Integer) spnUpRate.getValue());
         Config.setTorrentDownRate((Integer) spnDownRate.getValue());
+        Config.setUseSystemJava(this.chkUseSystemJava.isSelected());
         Config.saveProperties();
         dispose();
     }
