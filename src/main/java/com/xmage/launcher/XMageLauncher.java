@@ -116,7 +116,7 @@ public class XMageLauncher implements Runnable {
 
         Random r = new Random();
         int imageNum = 1 + r.nextInt(17);
-        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + Integer.toString(imageNum) + ".jpg")).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
+        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + imageNum + ".jpg")).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
         mainPanel = new JLabel(background) {
             @Override
             public Dimension getPreferredSize() {
@@ -306,7 +306,7 @@ public class XMageLauncher implements Runnable {
     }
 
     private void setDefaultFonts() {
-        Font defaultFont = new Font("SansSerif", 0, Config.getGuiSize());
+        Font defaultFont = new Font("SansSerif", Font.PLAIN, Config.getGuiSize());
         UIManager.put("Button.font", defaultFont);
         UIManager.put("ToggleButton.font", defaultFont);
         UIManager.put("RadioButton.font", defaultFont);
@@ -400,15 +400,14 @@ public class XMageLauncher implements Runnable {
         if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
             try {
                 desktop.browse(new URI(uri));
-            } catch (URISyntaxException ex) {
-                logger.error("Error: ", ex);
-            } catch (IOException ex) {
+            } catch (URISyntaxException | IOException ex) {
                 logger.error("Error: ", ex);
             }
         }
     }
 
     private void handleClient() {
+        checkJava();
         Process p = Utilities.launchClientProcess();
         clientConsole.setVisible(Config.isShowClientConsole());
         clientConsole.start(p);
@@ -416,6 +415,7 @@ public class XMageLauncher implements Runnable {
 
     private void handleServer() {
         if (serverProcess == null) {
+            checkJava();
             serverProcess = Utilities.launchServerProcess();
             try {
                 int exitValue = serverProcess.exitValue();
@@ -479,13 +479,7 @@ public class XMageLauncher implements Runnable {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             XMageLauncher gui = new XMageLauncher();
             SwingUtilities.invokeLater(gui);
-        } catch (ClassNotFoundException ex) {
-            logger.error("Error: ", ex);
-        } catch (InstantiationException ex) {
-            logger.error("Error: ", ex);
-        } catch (IllegalAccessException ex) {
-            logger.error("Error: ", ex);
-        } catch (UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             logger.error("Error: ", ex);
         }
     }
@@ -540,7 +534,27 @@ public class XMageLauncher implements Runnable {
         return false;
     }
 
+    private boolean checkJavaFX() {
+        try {
+            Class.forName("javafx.application.Platform");
+            return true;
+        } catch( ClassNotFoundException e ) {
+            return false;
+        }
+    }
+
     private void checkJava() {
+        if (Config.useSystemJava()) {
+            textArea.append(messages.getString("java.installed") + System.getProperty("java.home") + "\n");
+            if (checkJavaFX()) {
+                return;
+            }
+            JOptionPane.showMessageDialog(frame, messages.getString("java.system.nojavafx.message"),
+                    messages.getString("java.system.nojavafx"),
+                    JOptionPane.ERROR_MESSAGE);
+            Config.setUseSystemJava(false);
+            Config.saveProperties();
+        }
         try {
             String javaAvailableVersion = (String) config.getJSONObject("java").get(("version"));
             String javaInstalledVersion = Config.getInstalledJavaVersion();
@@ -562,7 +576,25 @@ public class XMageLauncher implements Runnable {
                     javaMessage = messages.getString("java.new.message");
                     javaTitle = messages.getString("java.new");
                 }
-                JOptionPane.showMessageDialog(frame, javaMessage, javaTitle, JOptionPane.INFORMATION_MESSAGE);
+                int result = JOptionPane.showOptionDialog(frame, javaMessage, javaTitle, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                        new String[]{
+                                messages.getString("java.system.choice"),
+                                "OK"
+                        }, 1);
+                if (result == 1 || result == JOptionPane.CLOSED_OPTION) {
+                    Config.setUseSystemJava(false);
+                } else if (result == 0) {
+                    // check if JavaFX is available
+                    if (checkJavaFX()) {
+                        Config.setUseSystemJava(true);
+                    } else {
+                        JOptionPane.showMessageDialog(frame, messages.getString("java.system.nojavafx.message"),
+                                messages.getString("java.system.nojavafx"),
+                                JOptionPane.ERROR_MESSAGE);
+                        Config.setUseSystemJava(false);
+                    }
+                }
+                Config.saveProperties();
             }
         } catch (JSONException ex) {
             logger.error("Error: ", ex);
@@ -675,11 +707,7 @@ public class XMageLauncher implements Runnable {
                     }
                 }
 
-            } catch (IOException ex) {
-                publish(0);
-                cancel(true);
-                logger.error("Error: ", ex);
-            } catch (JSONException ex) {
+            } catch (IOException | JSONException ex) {
                 publish(0);
                 cancel(true);
                 logger.error("Error: ", ex);
@@ -719,42 +747,43 @@ public class XMageLauncher implements Runnable {
         }
 
         private boolean updateJava() {
-            try {
-                disableButtons();
-                File javaFolder = new File(path.getAbsolutePath() + File.separator + "java");
-                String javaAvailableVersion = (String) config.getJSONObject("java").get(("version"));
-                if (javaFolder.isDirectory()) { // remove existing install
-                    publish(messages.getString("removing") + "\n");
-                    removeJavaFiles(javaFolder);
-                }
-                javaFolder.mkdirs();
-                String javaRemoteLocation = (String) config.getJSONObject("java").get(("location"));
-                URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
-                publish(messages.getString("java.downloading") + java.toString() + "\n");
-
-                download(java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
-
-                File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
-                publish(messages.getString("java.installing"));
-
-                extract(from, javaFolder);
-                publish(messages.getString("done") + "\n");
-                publish(0);
-                if (!from.delete()) {
-                    publish(messages.getString("error.cleanup") + "\n");
-                    logger.error("Error: could not cleanup temporary files");
-                }
-                Config.setInstalledJavaVersion(javaAvailableVersion);
-                Config.saveProperties();
+            if (Config.useSystemJava()) {
+                publish(messages.getString("java.system.message") + " " + System.getProperty("java.home") + "\n");
                 return true;
-            } catch (IOException ex) {
-                publish(0);
-                cancel(true);
-                logger.error("Error: ", ex);
-            } catch (JSONException ex) {
-                publish(0);
-                cancel(true);
-                logger.error("Error: ", ex);
+            } else {
+                try {
+                    disableButtons();
+                    File javaFolder = new File(path.getAbsolutePath() + File.separator + "java");
+                    String javaAvailableVersion = (String) config.getJSONObject("java").get(("version"));
+                    if (javaFolder.isDirectory()) { // remove existing install
+                        publish(messages.getString("removing") + "\n");
+                        removeJavaFiles(javaFolder);
+                    }
+                    javaFolder.mkdirs();
+                    String javaRemoteLocation = (String) config.getJSONObject("java").get(("location"));
+                    URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
+                    publish(messages.getString("java.downloading") + java.toString() + "\n");
+
+                    download(java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
+
+                    File from = new File(path.getAbsolutePath() + File.separator + "xmage.dl");
+                    publish(messages.getString("java.installing"));
+
+                    extract(from, javaFolder);
+                    publish(messages.getString("done") + "\n");
+                    publish(0);
+                    if (!from.delete()) {
+                        publish(messages.getString("error.cleanup") + "\n");
+                        logger.error("Error: could not cleanup temporary files");
+                    }
+                    Config.setInstalledJavaVersion(javaAvailableVersion);
+                    Config.saveProperties();
+                    return true;
+                } catch (IOException | JSONException ex) {
+                    publish(0);
+                    cancel(true);
+                    logger.error("Error: ", ex);
+                }
             }
             return false;
         }
@@ -806,11 +835,7 @@ public class XMageLauncher implements Runnable {
                     Config.saveProperties();
                     return true;
                 }
-            } catch (IOException ex) {
-                publish(0);
-                cancel(true);
-                logger.error("Error: ", ex);
-            } catch (JSONException ex) {
+            } catch (IOException | JSONException ex) {
                 publish(0);
                 cancel(true);
                 logger.error("Error: ", ex);
@@ -892,11 +917,7 @@ public class XMageLauncher implements Runnable {
                     Config.setInstalledXMageVersion(xmageAvailableVersion);
                     Config.saveProperties();
                 }
-            } catch (IOException ex) {
-                publish(0);
-                cancel(true);
-                logger.error("Error: ", ex);
-            } catch (JSONException ex) {
+            } catch (IOException | JSONException ex) {
                 publish(0);
                 cancel(true);
                 logger.error("Error: ", ex);
