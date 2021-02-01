@@ -25,7 +25,7 @@ public class Config {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);
     private static final Properties props = new Properties();
     private static final String DEFAULT_URL = "http://xmage.de/xmage";
-    private static final String BETA_URL = "http://rkfg.me/xmage";
+    private static final String BETA_URL = "http://xmage.today";
     private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xms256m -Xmx512m -XX:MaxPermSize=384m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled";
     private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xms256M -Xmx1G -XX:MaxPermSize=384m";
 
@@ -41,9 +41,10 @@ public class Config {
     private static int guiSize = 0;
     private static boolean showClientConsole = true;
     private static boolean showServerConsole = true;
-    private static XMageBranch[] xMageBranches = new XMageBranch[] { new XMageBranch("Stable", DEFAULT_URL), new XMageBranch("Beta", BETA_URL),
+    private static final XMageBranch[] xMageBranches = new XMageBranch[] { new XMageBranch("Stable", DEFAULT_URL), new XMageBranch("Beta", BETA_URL),
             new XMageBranch("Custom", null) };
-    private static Map<String, XMageBranch> branchMap = new HashMap<String, XMageBranch>();
+    private static final Map<String, XMageBranch> branchMap = new HashMap<>();
+    private static boolean useSystemJava;
 
     static {
         try {
@@ -70,6 +71,7 @@ public class Config {
             torrentDownRate = Integer.parseInt(props.getProperty("xmage.torrent.downrate", "0"));
             showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", "True"));
             showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", "True"));
+            useSystemJava = Boolean.parseBoolean(props.getProperty("xmage.java.usesystem", "False"));
             for (XMageBranch xMageBranch : xMageBranches) {
                 if (xMageBranch.url != null) {
                     branchMap.put(xMageBranch.url, xMageBranch);
@@ -92,12 +94,12 @@ public class Config {
             try {
                 process = processBuilder.start();
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line = null;
+                    String line;
                     while ((line = br.readLine()) != null) {
                         if (line.startsWith("Xft.dpi:")) {
                             String dpi = line.replaceAll("[^\\d]*(\\d*)$", "$1");
                             try {
-                                result = Integer.valueOf(dpi);
+                                result = Integer.parseInt(dpi);
                             } catch (NumberFormatException e) {
                                 // do nothing, something's wrong, resorting to the default method
                             }
@@ -219,6 +221,7 @@ public class Config {
             props.setProperty("xmage.torrent.use", Boolean.toString(useTorrent));
             props.setProperty("xmage.torrent.uprate", Integer.toString(torrentUpRate));
             props.setProperty("xmage.torrent.downrate", Integer.toString(torrentDownRate));
+            props.setProperty("xmage.java.usesystem", Boolean.toString(useSystemJava));
             props.store(out, "---XMage Properties---");
             out.close();
         } catch (IOException ex) {
@@ -238,4 +241,9 @@ public class Config {
         return xMageBranch;
     }
 
+    public static void setUseSystemJava(boolean b) {
+        Config.useSystemJava = b;
+    }
+
+    public static boolean useSystemJava() { return useSystemJava; }
 }
