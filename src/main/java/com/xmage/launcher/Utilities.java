@@ -120,7 +120,9 @@ public class Utilities {
 
         File installPath = Utilities.getInstallPath();
         File javaHome;
-        if (getOS() == OS.OSX) {
+        if (Config.useSystemJava()) {
+            javaHome = new File(System.getProperty("java.home"));
+        } else if (getOS() == OS.OSX) {
             javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion() + ".jre/Contents/Home");
         } else {
             javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
@@ -159,7 +161,7 @@ public class Utilities {
         File installPath = Utilities.getInstallPath();
         String javaBin = System.getProperty("java.home") + "/bin/java";
 
-        ArrayList<String> command = new ArrayList<String>();
+        ArrayList<String> command = new ArrayList<>();
         command.add(javaBin);
         command.add("-jar");
         command.add(launcherJar.getPath());
