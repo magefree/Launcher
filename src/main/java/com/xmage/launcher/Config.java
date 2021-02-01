@@ -26,8 +26,8 @@ public class Config {
     private static final Properties props = new Properties();
     private static final String DEFAULT_URL = "http://xmage.de/xmage";
     private static final String BETA_URL = "http://xmage.today";
-    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xms256m -Xmx512m -XX:MaxPermSize=384m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled";
-    private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xms256M -Xmx1G -XX:MaxPermSize=384m";
+    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xms256m -Xmx1024m";
+    private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xms256M -Xmx1G";
 
     private static String version = "";
     private static String installedJavaVersion = "";
