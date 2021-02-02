@@ -33,9 +33,6 @@ public class Config {
     private static String installedJavaVersion = "";
     private static String installedXMageVersion = "";
     private static String homeURL = "";
-    private static boolean useTorrent = false;
-    private static int torrentUpRate = 0;
-    private static int torrentDownRate = 0;
     private static String clientJavaOpts = "";
     private static String serverJavaOpts = "";
     private static int guiSize = 0;
@@ -66,9 +63,6 @@ public class Config {
             logger.info("Detected screen DPI: " + screenResolution);
             guiSize = Integer.parseInt(props.getProperty("xmage.launcher.guisize", String.valueOf(screenResolution / 6)));
             homeURL = props.getProperty("xmage.home", DEFAULT_URL);
-            useTorrent = Boolean.parseBoolean(props.getProperty("xmage.torrent.use", "False"));
-            torrentUpRate = Integer.parseInt(props.getProperty("xmage.torrent.uprate", "50"));
-            torrentDownRate = Integer.parseInt(props.getProperty("xmage.torrent.downrate", "0"));
             showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", "True"));
             showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", "True"));
             useSystemJava = Boolean.parseBoolean(props.getProperty("xmage.java.usesystem", "False"));
@@ -138,20 +132,8 @@ public class Config {
         return serverJavaOpts;
     }
 
-    public static boolean isUseTorrent() {
-        return useTorrent;
-    }
-
-    public static int getTorrentUpRate() {
-        return torrentUpRate;
-    }
-
     public static int getGuiSize() {
         return guiSize;
-    }
-
-    public static int getTorrentDownRate() {
-        return torrentDownRate;
     }
 
     public static boolean isShowClientConsole() {
@@ -182,20 +164,8 @@ public class Config {
         homeURL = url;
     }
 
-    public static void setUseTorrent(boolean use) {
-        useTorrent = use;
-    }
-
-    public static void setTorrentUpRate(int rate) {
-        torrentUpRate = rate;
-    }
-
     public static void setGuiSize(int size) {
         guiSize = size;
-    }
-
-    public static void setTorrentDownRate(int rate) {
-        torrentDownRate = rate;
     }
 
     public static void setShowClientConsole(boolean show) {
@@ -218,9 +188,6 @@ public class Config {
             props.setProperty("xmage.home", homeURL);
             props.setProperty("xmage.client.console", Boolean.toString(showClientConsole));
             props.setProperty("xmage.server.console", Boolean.toString(showServerConsole));
-            props.setProperty("xmage.torrent.use", Boolean.toString(useTorrent));
-            props.setProperty("xmage.torrent.uprate", Integer.toString(torrentUpRate));
-            props.setProperty("xmage.torrent.downrate", Integer.toString(torrentDownRate));
             props.setProperty("xmage.java.usesystem", Boolean.toString(useSystemJava));
             props.store(out, "---XMage Properties---");
             out.close();
