@@ -102,13 +102,13 @@ public class Utilities {
 
     public static Process launchClientProcess() {
 
-        return launchProcess("mage.client.MageFrame", Config.getClientJavaOpts(), "mage-client");
+        return launchProcess("mage.client.MageFrame", "", "mage-client", Config.getClientJavaOpts());
 
     }
 
     public static Process launchServerProcess() {
 
-        return launchProcess("mage.server.Main", Config.getServerJavaOpts(), "mage-server");
+        return launchProcess("mage.server.Main", Config.isServerTestMode() ? "-testMode=true" : "", "mage-server", Config.getServerJavaOpts());
 
     }
 
@@ -116,7 +116,7 @@ public class Utilities {
         p.destroy();
     }
 
-    private static Process launchProcess(String main, String args, String path) {
+    private static Process launchProcess(String main, String args, String path, String javaOpts) {
 
         File installPath = Utilities.getInstallPath();
         File javaHome;
@@ -138,10 +138,11 @@ public class Utilities {
 
         ArrayList<String> command = new ArrayList<String>();
         command.add(javaBin.getAbsolutePath());
-        command.addAll(Arrays.asList(args.split(" ")));
+        command.addAll(Arrays.asList(javaOpts.split(" ")));
         command.add("-cp");
         command.add(classPath.getAbsolutePath());
         command.add(main);
+        command.add(args);
 
         ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[command.size()]));
         pb.environment().putAll(System.getenv());

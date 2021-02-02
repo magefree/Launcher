@@ -26,8 +26,8 @@ public class Config {
     private static final Properties props = new Properties();
     private static final String DEFAULT_URL = "http://xmage.de/xmage";
     private static final String BETA_URL = "http://xmage.today";
-    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xms256m -Xmx1024m";
-    private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xms256M -Xmx1G";
+    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xmx1024m";
+    private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xmx2G";
 
     private static String version = "";
     private static String installedJavaVersion = "";
@@ -41,7 +41,9 @@ public class Config {
     private static final XMageBranch[] xMageBranches = new XMageBranch[] { new XMageBranch("Stable", DEFAULT_URL), new XMageBranch("Beta", BETA_URL),
             new XMageBranch("Custom", null) };
     private static final Map<String, XMageBranch> branchMap = new HashMap<>();
-    private static boolean useSystemJava;
+    private static boolean useSystemJava = false;
+
+    private static boolean serverTestMode = false;
 
     static {
         try {
@@ -66,6 +68,7 @@ public class Config {
             showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", "True"));
             showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", "True"));
             useSystemJava = Boolean.parseBoolean(props.getProperty("xmage.java.usesystem", "False"));
+            serverTestMode = Boolean.parseBoolean(props.getProperty("xmage.server.testmode", "False"));
             for (XMageBranch xMageBranch : xMageBranches) {
                 if (xMageBranch.url != null) {
                     branchMap.put(xMageBranch.url, xMageBranch);
@@ -189,6 +192,7 @@ public class Config {
             props.setProperty("xmage.client.console", Boolean.toString(showClientConsole));
             props.setProperty("xmage.server.console", Boolean.toString(showServerConsole));
             props.setProperty("xmage.java.usesystem", Boolean.toString(useSystemJava));
+            props.setProperty("xmage.server.testmode", Boolean.toString(serverTestMode));
             props.store(out, "---XMage Properties---");
             out.close();
         } catch (IOException ex) {
@@ -213,4 +217,12 @@ public class Config {
     }
 
     public static boolean useSystemJava() { return useSystemJava; }
+
+    public static boolean isServerTestMode() {
+        return serverTestMode;
+    }
+
+    public static void setServerTestMode(boolean serverTestMode) {
+        Config.serverTestMode = serverTestMode;
+    }
 }

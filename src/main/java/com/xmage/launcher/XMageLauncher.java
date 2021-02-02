@@ -416,6 +416,9 @@ public class XMageLauncher implements Runnable {
     private void handleServer() {
         if (serverProcess == null) {
             checkJava();
+            if (Config.isServerTestMode()) {
+                textArea.append(messages.getString("launchServer.testMode.message") + "\n");
+            }
             serverProcess = Utilities.launchServerProcess();
             try {
                 int exitValue = serverProcess.exitValue();

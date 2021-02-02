@@ -43,6 +43,7 @@ public class SettingsDialog extends JDialog {
     private final JCheckBox chkShowClientConsole;
     private final JCheckBox chkShowServerConsole;
     private final JCheckBox chkUseSystemJava;
+    private final JCheckBox chkServerTestMode;
     private final JSpinner spnGuiSize;
 
     private final JComboBox<XMageBranch> cmbXMageBranch;
@@ -143,6 +144,21 @@ public class SettingsDialog extends JDialog {
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(chkShowServerConsole, constraints);
 
+        label = new JLabel("Server test mode:");
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel1.add(label, constraints);
+
+        chkServerTestMode = new JCheckBox();
+        chkServerTestMode.setToolTipText("Test mode allows you to quickly create a game with AI and customize any " +
+                        "game situations and combos (use the cheat button on the player panel)");
+        chkServerTestMode.setFont(defaultFont);
+        chkServerTestMode.setSelected(Config.isServerTestMode());
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.fill = GridBagConstraints.BOTH;
+        panel1.add(chkServerTestMode, constraints);
+
         label = new JLabel("GUI Size:");
         constraints.anchor = GridBagConstraints.EAST;
         constraints.gridwidth = 1;
@@ -242,6 +258,7 @@ public class SettingsDialog extends JDialog {
         Config.setShowServerConsole(this.chkShowServerConsole.isSelected());
         Config.setGuiSize((Integer) this.spnGuiSize.getValue());
         Config.setUseSystemJava(this.chkUseSystemJava.isSelected());
+        Config.setServerTestMode(this.chkServerTestMode.isSelected());
         Config.saveProperties();
         dispose();
     }
