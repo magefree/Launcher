@@ -547,6 +547,7 @@ public class XMageLauncher implements Runnable {
         if (Config.useSystemJava()) {
             textArea.append(messages.getString("java.installed") + System.getProperty("java.home") + "\n");
             if (checkJavaFX()) {
+                noJava = false;
                 return;
             }
             JOptionPane.showMessageDialog(frame, messages.getString("java.system.nojavafx.message"),
@@ -586,6 +587,8 @@ public class XMageLauncher implements Runnable {
                 } else if (result == 0) {
                     // check if JavaFX is available
                     if (checkJavaFX()) {
+                        textArea.append(messages.getString("java.installed") + System.getProperty("java.home") + "\n");
+                        noJava = false;
                         Config.setUseSystemJava(true);
                     } else {
                         JOptionPane.showMessageDialog(frame, messages.getString("java.system.nojavafx.message"),
