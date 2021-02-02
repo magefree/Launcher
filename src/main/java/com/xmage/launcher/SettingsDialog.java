@@ -187,6 +187,8 @@ public class SettingsDialog extends JDialog {
 
         label = new JLabel("Client java options:");
         constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
         panel2.add(label, constraints);
 
         txtClientJavaOpt = new JTextField();
