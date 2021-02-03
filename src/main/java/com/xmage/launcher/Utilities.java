@@ -102,13 +102,19 @@ public class Utilities {
 
     public static Process launchClientProcess() {
 
-        return launchProcess("mage.client.MageFrame", "", "mage-client", Config.getClientJavaOpts());
+        return launchProcess("mage.client.MageFrame",
+                "",
+                "mage-client",
+                Config.getInstance().getClientJavaOpts());
 
     }
 
     public static Process launchServerProcess() {
 
-        return launchProcess("mage.server.Main", Config.isServerTestMode() ? "-testMode=true" : "", "mage-server", Config.getServerJavaOpts());
+        return launchProcess("mage.server.Main",
+                Config.getInstance().isServerTestMode() ? "-testMode=true" : "",
+                "mage-server",
+                Config.getInstance().getServerJavaOpts());
 
     }
 
@@ -120,12 +126,12 @@ public class Utilities {
 
         File installPath = Utilities.getInstallPath();
         File javaHome;
-        if (Config.useSystemJava()) {
+        if (Config.getInstance().useSystemJava()) {
             javaHome = new File(System.getProperty("java.home"));
         } else if (getOS() == OS.OSX) {
-            javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion() + ".jre/Contents/Home");
+            javaHome = new File(installPath, "/java/jre" + Config.getInstance().getInstalledJavaVersion() + ".jre/Contents/Home");
         } else {
-            javaHome = new File(installPath, "/java/jre" + Config.getInstalledJavaVersion());
+            javaHome = new File(installPath, "/java/jre" + Config.getInstance().getInstalledJavaVersion());
         }
         File javaBin = new File(javaHome, "/bin/java");
         File xmagePath = new File(installPath, "/xmage/" + path);

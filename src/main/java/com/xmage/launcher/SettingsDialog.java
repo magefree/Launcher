@@ -37,6 +37,7 @@ public class SettingsDialog extends JDialog {
     private final JPanel buttonPanel;
     private final JPanel panel1;
     private final JPanel panel2;
+    private final JPanel panel3;
     private final JTextField txtClientJavaOpt;
     private final JTextField txtServerJavaOpt;
     private final JTextField txtXMageHome;
@@ -45,19 +46,19 @@ public class SettingsDialog extends JDialog {
     private final JCheckBox chkUseSystemJava;
     private final JCheckBox chkServerTestMode;
     private final JSpinner spnGuiSize;
-
     private final JComboBox<XMageBranch> cmbXMageBranch;
+
 
     public SettingsDialog() {
         ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
         this.setIconImage(icon.getImage());
 
-        Font defaultFont = new Font("SansSerif", Font.PLAIN, Config.getGuiSize());
+        Font defaultFont = new Font("SansSerif", Font.PLAIN, Config.getInstance().getGuiSize());
 
         setTitle("XMage Launcher Settings");
         setModalityType(ModalityType.APPLICATION_MODAL);
         pack();
-        setSize(400 + Config.getGuiSize() * 20, 230 + Config.getGuiSize() * 12);
+        setSize(400 + Config.getInstance().getGuiSize() * 20, 230 + Config.getInstance().getGuiSize() * 12);
         setBackground(Color.gray);
         setLocationRelativeTo(null);
         this.addWindowListener(new WindowAdapter() {
@@ -86,7 +87,7 @@ public class SettingsDialog extends JDialog {
         constraints.anchor = GridBagConstraints.EAST;
         panel1.add(label, constraints);
 
-        cmbXMageBranch = new JComboBox<>(Config.getXMageBranches());
+        cmbXMageBranch = new JComboBox<>(Config.getInstance().getXMageBranches());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(cmbXMageBranch, constraints);
@@ -112,7 +113,7 @@ public class SettingsDialog extends JDialog {
         panel1.add(label, constraints);
 
         txtXMageHome = new JTextField();
-        txtXMageHome.setText(Config.getXMageHome());
+        txtXMageHome.setText(Config.getInstance().getXMageHome());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(txtXMageHome, constraints);
@@ -126,7 +127,7 @@ public class SettingsDialog extends JDialog {
         panel1.add(label, constraints);
 
         chkShowClientConsole = new JCheckBox();
-        chkShowClientConsole.setSelected(Config.isShowClientConsole());
+        chkShowClientConsole.setSelected(Config.getInstance().isShowClientConsole());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(chkShowClientConsole, constraints);
@@ -139,7 +140,7 @@ public class SettingsDialog extends JDialog {
 
         chkShowServerConsole = new JCheckBox();
         chkShowServerConsole.setFont(defaultFont);
-        chkShowServerConsole.setSelected(Config.isShowServerConsole());
+        chkShowServerConsole.setSelected(Config.getInstance().isShowServerConsole());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(chkShowServerConsole, constraints);
@@ -154,7 +155,7 @@ public class SettingsDialog extends JDialog {
         chkServerTestMode.setToolTipText("Test mode allows you to quickly create a game with AI and customize any " +
                         "game situations and combos (use the cheat button on the player panel)");
         chkServerTestMode.setFont(defaultFont);
-        chkServerTestMode.setSelected(Config.isServerTestMode());
+        chkServerTestMode.setSelected(Config.getInstance().isServerTestMode());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(chkServerTestMode, constraints);
@@ -165,9 +166,9 @@ public class SettingsDialog extends JDialog {
         constraints.fill = GridBagConstraints.NONE;
         panel1.add(label, constraints);
 
-        SpinnerModel guiSizemodel = new SpinnerNumberModel(Config.getGuiSize(), 10, 50, 1);
+        SpinnerModel guiSizemodel = new SpinnerNumberModel(Config.getInstance().getGuiSize(), 10, 50, 1);
         spnGuiSize = new JSpinner(guiSizemodel);
-        spnGuiSize.setValue(Config.getGuiSize());
+        spnGuiSize.setValue(Config.getInstance().getGuiSize());
 //        Component mySpinnerEditor = spnGuiSize.getEditor();
 //        JFormattedTextField jftf = ((JSpinner.DefaultEditor) mySpinnerEditor).getTextField();
 //        jftf.setColumns(10);
@@ -196,7 +197,7 @@ public class SettingsDialog extends JDialog {
 
         chkUseSystemJava = new JCheckBox();
         chkUseSystemJava.setFont(defaultFont);
-        chkUseSystemJava.setSelected(Config.useSystemJava());
+        chkUseSystemJava.setSelected(Config.getInstance().useSystemJava());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel2.add(chkUseSystemJava, constraints);
@@ -208,7 +209,7 @@ public class SettingsDialog extends JDialog {
         panel2.add(label, constraints);
 
         txtClientJavaOpt = new JTextField();
-        txtClientJavaOpt.setText(Config.getClientJavaOpts());
+        txtClientJavaOpt.setText(Config.getInstance().getClientJavaOpts());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel2.add(txtClientJavaOpt, constraints);
@@ -220,15 +221,43 @@ public class SettingsDialog extends JDialog {
         panel2.add(label, constraints);
 
         txtServerJavaOpt = new JTextField();
-        txtServerJavaOpt.setText(Config.getServerJavaOpts());
+        txtServerJavaOpt.setText(Config.getInstance().getServerJavaOpts());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel2.add(txtServerJavaOpt, constraints);
+
+        // Launcher settings panel
+        panel3 = new JPanel();
+        layout = new GridBagLayout();
+        layout.columnWeights = new double[]{0, 1.0};
+        panel3.setLayout(layout);
+
+        constraints = new GridBagConstraints();
+        constraints.insets = new Insets(10, 10, 10, 10);
+
+        label = new JLabel("Reset all settings:");
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel3.add(label, constraints);
+
+        final JButton resetBtn = new JButton("RESET");
+        resetBtn.setFont(defaultFont);
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.NONE;
+        panel3.add(resetBtn, constraints);
+        resetBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleReset();
+            }
+        });
 
         // Setup tabs
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("XMage", panel1);
         tabbedPane.addTab("Java", panel2);
+        tabbedPane.addTab("Other", panel3);
         add(tabbedPane, BorderLayout.CENTER);
 
         // Button panel
@@ -246,26 +275,33 @@ public class SettingsDialog extends JDialog {
         });
         buttonPanel.add(btnDone);
 
+
         add(buttonPanel, BorderLayout.PAGE_END);
 
     }
 
+    private void handleReset() {
+        Config.resetInstance();
+        Config.getInstance().saveProperties();
+        dispose();
+    }
+
     private void handleDone() {
-        Config.setClientJavaOpts(this.txtClientJavaOpt.getText());
-        Config.setServerJavaOpts(this.txtServerJavaOpt.getText());
-        Config.setXMageHome(this.txtXMageHome.getText());
-        Config.setShowClientConsole(this.chkShowClientConsole.isSelected());
-        Config.setShowServerConsole(this.chkShowServerConsole.isSelected());
-        Config.setGuiSize((Integer) this.spnGuiSize.getValue());
-        Config.setUseSystemJava(this.chkUseSystemJava.isSelected());
-        Config.setServerTestMode(this.chkServerTestMode.isSelected());
-        Config.saveProperties();
+        Config.getInstance().setClientJavaOpts(this.txtClientJavaOpt.getText());
+        Config.getInstance().setServerJavaOpts(this.txtServerJavaOpt.getText());
+        Config.getInstance().setXMageHome(this.txtXMageHome.getText());
+        Config.getInstance().setShowClientConsole(this.chkShowClientConsole.isSelected());
+        Config.getInstance().setShowServerConsole(this.chkShowServerConsole.isSelected());
+        Config.getInstance().setGuiSize((Integer) this.spnGuiSize.getValue());
+        Config.getInstance().setUseSystemJava(this.chkUseSystemJava.isSelected());
+        Config.getInstance().setServerTestMode(this.chkServerTestMode.isSelected());
+        Config.getInstance().saveProperties();
         dispose();
     }
 
     private void handleHomeChange() {
         String url = txtXMageHome.getText();
-        cmbXMageBranch.setSelectedItem(Config.getXMageBranchByUrl(url));
+        cmbXMageBranch.setSelectedItem(Config.getInstance().getXMageBranchByUrl(url));
     }
 
 }

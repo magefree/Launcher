@@ -1,6 +1,7 @@
 package com.xmage.launcher;
 
 import static com.xmage.launcher.Utilities.getInstallPath;
+
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,70 +9,81 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
+
 import org.slf4j.LoggerFactory;
 import com.xmage.launcher.Utilities.OS;
 
 /**
- *
- * @author BetaSteward
+ * @author BetaSteward, ldeluigi
  */
 public class Config {
-
     private static final String PROPERTIES_FILE = "installed.properties";
     private static final String VERSION_FILE = "/version.properties";
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);
-    private static final Properties props = new Properties();
     private static final String DEFAULT_URL = "http://xmage.de/xmage";
     private static final String BETA_URL = "http://xmage.today";
     private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xmx1024m";
     private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xmx2G";
 
-    private static String version = "";
-    private static String installedJavaVersion = "";
-    private static String installedXMageVersion = "";
-    private static String homeURL = "";
-    private static String clientJavaOpts = "";
-    private static String serverJavaOpts = "";
-    private static int guiSize = 0;
-    private static boolean showClientConsole = true;
-    private static boolean showServerConsole = true;
-    private static final XMageBranch[] xMageBranches = new XMageBranch[] { new XMageBranch("Stable", DEFAULT_URL), new XMageBranch("Beta", BETA_URL),
-            new XMageBranch("Custom", null) };
-    private static final Map<String, XMageBranch> branchMap = new HashMap<>();
-    private static boolean useSystemJava = false;
+    // Singleton
+    private static Config currentConfig = new Config(false);
 
-    private static boolean serverTestMode = false;
+    // Static methods
+    public static Config getInstance() {
+        return Config.currentConfig;
+    }
 
-    static {
+    public static void resetInstance() {
+        Config.currentConfig = new Config(true);
+    }
+
+    // Configs
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);
+    private final XMageBranch[] xMageBranches = new XMageBranch[]{
+            new XMageBranch("Stable", DEFAULT_URL),
+            new XMageBranch("Beta", BETA_URL),
+            new XMageBranch("Custom", null)
+    };
+
+    private String version = "";
+    private String installedJavaVersion = "";
+    private String installedXMageVersion = "";
+    private String homeURL = DEFAULT_URL;
+    private String clientJavaOpts = DEFAULT_CLIENT_JAVA_OPTS;
+    private String serverJavaOpts = DEFAULT_SERVER_JAVA_OPTS;
+    private int guiSize = getScreenDPI() / 6;
+    private boolean showClientConsole = true;
+    private boolean showServerConsole = true;
+    private boolean useSystemJava = false;
+    private boolean serverTestMode = false;
+
+    private final Properties props = new Properties();
+
+
+    private Config(boolean reset) {
         try {
             props.load(Config.class.getResourceAsStream(VERSION_FILE));
-            version = props.getProperty("xmage.launcher.version", "");
-
-            File properties = new File(getInstallPath().getAbsolutePath(), PROPERTIES_FILE);
+            this.version = props.getProperty("xmage.launcher.version", this.version);
+            final File properties = new File(getInstallPath().getAbsolutePath(), PROPERTIES_FILE);
             if (!properties.isFile() && !properties.createNewFile()) {
                 throw new IOException("Error creating properties file: " + properties.getAbsolutePath());
             }
-            FileInputStream in = new FileInputStream(properties);
-            props.load(in);
-            in.close();
-            installedJavaVersion = props.getProperty("java.version", "");
-            installedXMageVersion = props.getProperty("xmage.version", "");
-            clientJavaOpts = props.getProperty("xmage.client.javaopts", DEFAULT_CLIENT_JAVA_OPTS);
-            serverJavaOpts = props.getProperty("xmage.server.javaopts", DEFAULT_SERVER_JAVA_OPTS);
-            int screenResolution = getScreenDPI();
-            logger.info("Detected screen DPI: " + screenResolution);
-            guiSize = Integer.parseInt(props.getProperty("xmage.launcher.guisize", String.valueOf(screenResolution / 6)));
-            homeURL = props.getProperty("xmage.home", DEFAULT_URL);
-            showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", "True"));
-            showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", "True"));
-            useSystemJava = Boolean.parseBoolean(props.getProperty("xmage.java.usesystem", "False"));
-            serverTestMode = Boolean.parseBoolean(props.getProperty("xmage.server.testmode", "False"));
-            for (XMageBranch xMageBranch : xMageBranches) {
-                if (xMageBranch.url != null) {
-                    branchMap.put(xMageBranch.url, xMageBranch);
+            try (FileInputStream in = new FileInputStream(properties)) {
+                props.load(in);
+                this.installedJavaVersion = props.getProperty("java.version", this.installedJavaVersion);
+                this.installedXMageVersion = props.getProperty("xmage.version", this.installedJavaVersion);
+                if (!reset) {
+                    this.clientJavaOpts = props.getProperty("xmage.client.javaopts", this.clientJavaOpts);
+                    this.serverJavaOpts = props.getProperty("xmage.server.javaopts", this.serverJavaOpts);
+                    int screenResolution = getScreenDPI();
+                    this.logger.info("Detected screen DPI: " + screenResolution);
+                    this.guiSize = Integer.parseInt(props.getProperty("xmage.launcher.guisize", String.valueOf(this.guiSize)));
+                    this.guiSize = Math.max(this.guiSize, 10);
+                    this.homeURL = props.getProperty("xmage.home", this.homeURL);
+                    this.showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", Boolean.toString(this.showClientConsole)));
+                    this.showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", Boolean.toString(this.showServerConsole)));
+                    this.useSystemJava = Boolean.parseBoolean(props.getProperty("xmage.java.usesystem", Boolean.toString(this.useSystemJava)));
+                    this.serverTestMode = Boolean.parseBoolean(props.getProperty("xmage.server.testmode", Boolean.toString(this.serverTestMode)));
                 }
             }
         } catch (IOException ex) {
@@ -79,11 +91,13 @@ public class Config {
         }
     }
 
-    public static String getInstalledJavaVersion() {
-        return installedJavaVersion;
+    // Getters
+
+    public String getInstalledJavaVersion() {
+        return this.installedJavaVersion;
     }
 
-    private static int getScreenDPI() {
+    private int getScreenDPI() {
         int result = 0;
         if (Utilities.getOS() == OS.NIX) { // on Linux the default method always return 96 or 93
             ProcessBuilder processBuilder = new ProcessBuilder("xrdb", "-q");
@@ -115,74 +129,104 @@ public class Config {
         return Toolkit.getDefaultToolkit().getScreenResolution();
     }
 
-    public static String getInstalledXMageVersion() {
-        return installedXMageVersion;
+    public String getInstalledXMageVersion() {
+        return this.installedXMageVersion;
     }
 
-    public static String getXMageHome() {
-        return homeURL;
+    public String getXMageHome() {
+        return this.homeURL;
     }
 
-    public static String getVersion() {
-        return version;
+    public String getVersion() {
+        return this.version;
     }
 
-    public static String getClientJavaOpts() {
-        return clientJavaOpts;
+    public String getClientJavaOpts() {
+        return this.clientJavaOpts;
     }
 
-    public static String getServerJavaOpts() {
-        return serverJavaOpts;
+    public String getServerJavaOpts() {
+        return this.serverJavaOpts;
     }
 
-    public static int getGuiSize() {
-        return guiSize;
+    public int getGuiSize() {
+        return this.guiSize;
     }
 
-    public static boolean isShowClientConsole() {
-        return showClientConsole;
+    public boolean isShowClientConsole() {
+        return this.showClientConsole;
     }
 
-    public static boolean isShowServerConsole() {
-        return showServerConsole;
+    public boolean isShowServerConsole() {
+        return this.showServerConsole;
     }
 
-    public static void setInstalledJavaVersion(String version) {
-        installedJavaVersion = version;
+    public XMageBranch[] getXMageBranches() {
+        return this.xMageBranches;
     }
 
-    public static void setInstalledXMageVersion(String version) {
-        installedXMageVersion = version;
+    public XMageBranch getXMageBranchByUrl(String url) {
+        for (XMageBranch b : this.xMageBranches) {
+            if (b.url != null && b.url.equals(url)) {
+                return b;
+            }
+        }
+        return this.xMageBranches[this.xMageBranches.length - 1]; // Custom
     }
 
-    public static void setClientJavaOpts(String opts) {
-        clientJavaOpts = opts;
+    public boolean useSystemJava() {
+        return this.useSystemJava;
     }
 
-    public static void setServerJavaOpts(String opts) {
-        serverJavaOpts = opts;
+    public boolean isServerTestMode() {
+        return this.serverTestMode;
     }
 
-    public static void setXMageHome(String url) {
-        homeURL = url;
+    // Setters
+
+    public void setInstalledJavaVersion(String version) {
+        this.installedJavaVersion = version;
     }
 
-    public static void setGuiSize(int size) {
-        guiSize = size;
+    public void setInstalledXMageVersion(String version) {
+        this.installedXMageVersion = version;
     }
 
-    public static void setShowClientConsole(boolean show) {
-        showClientConsole = show;
+    public void setClientJavaOpts(String opts) {
+        this.clientJavaOpts = opts;
     }
 
-    public static void setShowServerConsole(boolean show) {
-        showServerConsole = show;
+    public void setServerJavaOpts(String opts) {
+        this.serverJavaOpts = opts;
     }
 
-    public static void saveProperties() {
-        try {
-            File properties = new File(getInstallPath(), PROPERTIES_FILE);
-            FileOutputStream out = new FileOutputStream(properties);
+    public void setXMageHome(String url) {
+        this.homeURL = url;
+    }
+
+    public void setGuiSize(int size) {
+        this.guiSize = size;
+    }
+
+    public void setShowClientConsole(boolean show) {
+        this.showClientConsole = show;
+    }
+
+    public void setShowServerConsole(boolean show) {
+        this.showServerConsole = show;
+    }
+
+    public void setUseSystemJava(boolean b) {
+        this.useSystemJava = b;
+    }
+
+    public void setServerTestMode(boolean serverTestMode) {
+        this.serverTestMode = serverTestMode;
+    }
+
+    public void saveProperties() {
+        File properties = new File(getInstallPath(), PROPERTIES_FILE);
+        try (final FileOutputStream out = new FileOutputStream(properties)) {
             props.setProperty("java.version", installedJavaVersion);
             props.setProperty("xmage.version", installedXMageVersion);
             props.setProperty("xmage.client.javaopts", clientJavaOpts);
@@ -194,35 +238,8 @@ public class Config {
             props.setProperty("xmage.java.usesystem", Boolean.toString(useSystemJava));
             props.setProperty("xmage.server.testmode", Boolean.toString(serverTestMode));
             props.store(out, "---XMage Properties---");
-            out.close();
         } catch (IOException ex) {
             logger.error("Error: ", ex);
         }
-    }
-
-    public static XMageBranch[] getXMageBranches() {
-        return xMageBranches;
-    }
-
-    public static XMageBranch getXMageBranchByUrl(String url) {
-        XMageBranch xMageBranch = branchMap.get(url);
-        if (xMageBranch == null) {
-            return xMageBranches[xMageBranches.length - 1]; // custom
-        }
-        return xMageBranch;
-    }
-
-    public static void setUseSystemJava(boolean b) {
-        Config.useSystemJava = b;
-    }
-
-    public static boolean useSystemJava() { return useSystemJava; }
-
-    public static boolean isServerTestMode() {
-        return serverTestMode;
-    }
-
-    public static void setServerTestMode(boolean serverTestMode) {
-        Config.serverTestMode = serverTestMode;
     }
 }

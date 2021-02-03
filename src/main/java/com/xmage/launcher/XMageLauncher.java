@@ -102,10 +102,10 @@ public class XMageLauncher implements Runnable {
         serverConsole = new XMageConsole("XMage Server console");
         clientConsole = new XMageConsole("XMage Client console");
 
-        frame = new JFrame(messages.getString("frameTitle") + " " + Config.getVersion());
+        frame = new JFrame(messages.getString("frameTitle") + " " + Config.getInstance().getVersion());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        final int width = 700 + Config.getGuiSize() * 20;
-        final int height = 430 + Config.getGuiSize() * 12;
+        final int width = 700 + Config.getInstance().getGuiSize() * 20;
+        final int height = 430 + Config.getInstance().getGuiSize() * 12;
         frame.setPreferredSize(new Dimension(width, height));
         frame.setResizable(false);
 
@@ -157,9 +157,9 @@ public class XMageLauncher implements Runnable {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
 
-        Font fontBig = new Font("SansSerif", Font.BOLD, Config.getGuiSize() + 2);
-        Font fontSmall = new Font("SansSerif", Font.PLAIN, Config.getGuiSize() - 2);
-        Font fontSmallBold = new Font("SansSerif", Font.BOLD, Config.getGuiSize() - 2);
+        Font fontBig = new Font("SansSerif", Font.BOLD, Config.getInstance().getGuiSize() + 2);
+        Font fontSmall = new Font("SansSerif", Font.PLAIN, Config.getInstance().getGuiSize() - 2);
+        Font fontSmallBold = new Font("SansSerif", Font.BOLD, Config.getInstance().getGuiSize() - 2);
 
         mainPanel.add(Box.createRigidArea(new Dimension(250, 50)));
 
@@ -199,7 +199,7 @@ public class XMageLauncher implements Runnable {
         mainPanel.add(labelProgress, constraints);
 
         progressBar = new JProgressBar(0, 100);
-        progressBar.setPreferredSize(new Dimension((int) progressBar.getPreferredSize().getWidth(), Config.getGuiSize()));
+        progressBar.setPreferredSize(new Dimension((int) progressBar.getPreferredSize().getWidth(), Config.getInstance().getGuiSize()));
         constraints.gridx = 3;
         constraints.weightx = 1.0;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -306,7 +306,7 @@ public class XMageLauncher implements Runnable {
     }
 
     private void setDefaultFonts() {
-        Font defaultFont = new Font("SansSerif", Font.PLAIN, Config.getGuiSize());
+        Font defaultFont = new Font("SansSerif", Font.PLAIN, Config.getInstance().getGuiSize());
         UIManager.put("Button.font", defaultFont);
         UIManager.put("ToggleButton.font", defaultFont);
         UIManager.put("RadioButton.font", defaultFont);
@@ -409,14 +409,14 @@ public class XMageLauncher implements Runnable {
     private void handleClient() {
         checkJava();
         Process p = Utilities.launchClientProcess();
-        clientConsole.setVisible(Config.isShowClientConsole());
+        clientConsole.setVisible(Config.getInstance().isShowClientConsole());
         clientConsole.start(p);
     }
 
     private void handleServer() {
         if (serverProcess == null) {
             checkJava();
-            if (Config.isServerTestMode()) {
+            if (Config.getInstance().isServerTestMode()) {
                 textArea.append(messages.getString("launchServer.testMode.message") + "\n");
             }
             serverProcess = Utilities.launchServerProcess();
@@ -424,7 +424,7 @@ public class XMageLauncher implements Runnable {
                 int exitValue = serverProcess.exitValue();
                 logger.error("Problem during launch of server process. exit value = " + exitValue);
             } catch (IllegalThreadStateException e) {
-                serverConsole.setVisible(Config.isShowServerConsole());
+                serverConsole.setVisible(Config.getInstance().isShowServerConsole());
                 serverConsole.start(serverProcess);
                 btnLaunchServer.setText(messages.getString("stopServer"));
                 btnLaunchClientServer.setEnabled(false);
@@ -499,7 +499,7 @@ public class XMageLauncher implements Runnable {
                         Utilities.stopProcess(serverProcess);
                     }
                 }
-                Config.saveProperties();
+                Config.getInstance().saveProperties();
             }
         });
 
@@ -519,7 +519,7 @@ public class XMageLauncher implements Runnable {
     }
 
     private boolean getConfig() {
-        String xmageConfig = Config.getXMageHome() + "/config.json";
+        String xmageConfig = Config.getInstance().getXMageHome() + "/config.json";
 
         try {
             URL xmageUrl = new URL(xmageConfig);
@@ -547,7 +547,7 @@ public class XMageLauncher implements Runnable {
     }
 
     private void checkJava() {
-        if (Config.useSystemJava()) {
+        if (Config.getInstance().useSystemJava()) {
             textArea.append(messages.getString("java.installed") + System.getProperty("java.home") + "\n");
             if (checkJavaFX()) {
                 noJava = false;
@@ -556,12 +556,12 @@ public class XMageLauncher implements Runnable {
             JOptionPane.showMessageDialog(frame, messages.getString("java.system.nojavafx.message"),
                     messages.getString("java.system.nojavafx"),
                     JOptionPane.ERROR_MESSAGE);
-            Config.setUseSystemJava(false);
-            Config.saveProperties();
+            Config.getInstance().setUseSystemJava(false);
+            Config.getInstance().saveProperties();
         }
         try {
             String javaAvailableVersion = (String) config.getJSONObject("java").get(("version"));
-            String javaInstalledVersion = Config.getInstalledJavaVersion();
+            String javaInstalledVersion = Config.getInstance().getInstalledJavaVersion();
             textArea.append(messages.getString("java.installed") + javaInstalledVersion + "\n");
             textArea.append(messages.getString("java.available") + javaAvailableVersion + "\n");
             noJava = false;
@@ -586,21 +586,21 @@ public class XMageLauncher implements Runnable {
                                 "OK"
                         }, 1);
                 if (result == 1 || result == JOptionPane.CLOSED_OPTION) {
-                    Config.setUseSystemJava(false);
+                    Config.getInstance().setUseSystemJava(false);
                 } else if (result == 0) {
                     // check if JavaFX is available
                     if (checkJavaFX()) {
                         textArea.append(messages.getString("java.installed") + System.getProperty("java.home") + "\n");
                         noJava = false;
-                        Config.setUseSystemJava(true);
+                        Config.getInstance().setUseSystemJava(true);
                     } else {
                         JOptionPane.showMessageDialog(frame, messages.getString("java.system.nojavafx.message"),
                                 messages.getString("java.system.nojavafx"),
                                 JOptionPane.ERROR_MESSAGE);
-                        Config.setUseSystemJava(false);
+                        Config.getInstance().setUseSystemJava(false);
                     }
                 }
-                Config.saveProperties();
+                Config.getInstance().saveProperties();
             }
         } catch (JSONException ex) {
             logger.error("Error: ", ex);
@@ -610,7 +610,7 @@ public class XMageLauncher implements Runnable {
     private void checkXMage(boolean silent) {
         try {
             String xmageAvailableVersion = (String) config.getJSONObject("XMage").get(("version"));
-            String xmageInstalledVersion = Config.getInstalledXMageVersion();
+            String xmageInstalledVersion = Config.getInstance().getInstalledXMageVersion();
             textArea.append(messages.getString("xmage.installed") + xmageInstalledVersion + "\n");
             textArea.append(messages.getString("xmage.available") + xmageAvailableVersion + "\n");
             noXMage = false;
@@ -682,7 +682,7 @@ public class XMageLauncher implements Runnable {
             try {
                 File launcherFolder = new File(path.getAbsolutePath());
                 String launcherAvailableVersion = (String) config.getJSONObject("XMage").getJSONObject("Launcher").get(("version"));
-                String launcherInstalledVersion = Config.getVersion();
+                String launcherInstalledVersion = Config.getInstance().getVersion();
                 publish(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
                 publish(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
                 if (compareVersions(launcherAvailableVersion, launcherInstalledVersion) > 0) {
@@ -753,7 +753,7 @@ public class XMageLauncher implements Runnable {
         }
 
         private boolean updateJava() {
-            if (Config.useSystemJava()) {
+            if (Config.getInstance().useSystemJava()) {
                 publish(messages.getString("java.system.message") + " " + System.getProperty("java.home") + "\n");
                 return true;
             } else {
@@ -782,8 +782,8 @@ public class XMageLauncher implements Runnable {
                         publish(messages.getString("error.cleanup") + "\n");
                         logger.error("Error: could not cleanup temporary files");
                     }
-                    Config.setInstalledJavaVersion(javaAvailableVersion);
-                    Config.saveProperties();
+                    Config.getInstance().setInstalledJavaVersion(javaAvailableVersion);
+                    Config.getInstance().saveProperties();
                     return true;
                 } catch (IOException | JSONException ex) {
                     publish(0);
@@ -837,8 +837,8 @@ public class XMageLauncher implements Runnable {
                         publish(messages.getString("error.cleanup") + "\n");
                         logger.error("Error: could not cleanup temporary files");
                     }
-                    Config.setInstalledXMageVersion(xmageAvailableVersion);
-                    Config.saveProperties();
+                    Config.getInstance().setInstalledXMageVersion(xmageAvailableVersion);
+                    Config.getInstance().saveProperties();
                     return true;
                 }
             } catch (IOException | JSONException ex) {
@@ -892,7 +892,7 @@ public class XMageLauncher implements Runnable {
 
     private void removeOldLauncherFiles() {
         File launcherFolder = new File(Utilities.getInstallPath().getAbsolutePath());
-        final String launcherInstalledVersion = Config.getVersion();
+        final String launcherInstalledVersion = Config.getInstance().getVersion();
         File[] files = launcherFolder.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(final File dir, final String name) {
