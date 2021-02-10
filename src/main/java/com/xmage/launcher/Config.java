@@ -22,7 +22,7 @@ public class Config {
     private static final String VERSION_FILE = "/version.properties";
     private static final String DEFAULT_URL = "http://xmage.de/xmage";
     private static final String BETA_URL = "http://xmage.today";
-    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xmx1024m";
+    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xmx2048m -Dfile.encoding=UTF-8";
     private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xmx2G";
 
     // Singleton
