@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.json.JSONException;
@@ -81,13 +82,8 @@ public class Utilities {
 
     //thanks to Roland Illig - http://stackoverflow.com/questions/4308554/simplest-way-to-read-json-from-a-url-in-java
     public static JSONObject readJsonFromUrl(URL url) throws IOException, JSONException {
-        InputStream is = url.openStream();
-        try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            JSONObject json = new JSONObject(readAll(rd));
-            return json;
-        } finally {
-            is.close();
+        try (BufferedReader rd = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+            return new JSONObject(readAll(rd));
         }
     }
 
@@ -142,13 +138,13 @@ public class Utilities {
         logger.info("XMage Path: " + xmagePath.toString());
         logger.info("Class Path: " + classPath.toString());
 
-        ArrayList<String> command = new ArrayList<String>();
+        ArrayList<String> command = new ArrayList<>();
         command.add(javaBin.getAbsolutePath());
         command.addAll(Arrays.asList(javaOpts.split(" ")));
         command.add("-cp");
         command.add(classPath.getAbsolutePath());
         command.add(main);
-        command.add(args);
+        command.addAll(Arrays.asList(args.split(" ")));
 
         ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[command.size()]));
         pb.environment().putAll(System.getenv());
@@ -156,8 +152,7 @@ public class Utilities {
         pb.directory(xmagePath);
         pb.redirectErrorStream(true);
         try {
-            Process p = pb.start();
-            return p;
+            return pb.start();
         } catch (IOException ex) {
             logger.error("Error staring process", ex);
         }
