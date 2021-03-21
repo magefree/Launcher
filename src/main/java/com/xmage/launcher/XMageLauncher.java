@@ -206,12 +206,7 @@ public class XMageLauncher implements Runnable {
         btnLaunchClient.setForeground(Color.GRAY);
         btnLaunchClient.setEnabled(false);
 //        btnLaunchClient.setPreferredSize(new Dimension(180, 60));
-        btnLaunchClient.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleClient();
-            }
-        });
+        btnLaunchClient.addActionListener(e -> handleClient());
 
         constraints.gridx = GridBagConstraints.RELATIVE;
         constraints.gridy = 0;
@@ -225,12 +220,9 @@ public class XMageLauncher implements Runnable {
         btnLaunchClientServer.setEnabled(false);
         btnLaunchClientServer.setForeground(Color.GRAY);
 //        btnLaunchClientServer.setPreferredSize(new Dimension(80, 40));
-        btnLaunchClientServer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleServer();
-                handleClient();
-            }
+        btnLaunchClientServer.addActionListener(e -> {
+            handleServer();
+            handleClient();
         });
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -242,12 +234,7 @@ public class XMageLauncher implements Runnable {
         btnLaunchServer.setEnabled(false);
         btnLaunchServer.setForeground(Color.GRAY);
 //        btnLaunchServer.setPreferredSize(new Dimension(80, 40));
-        btnLaunchServer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleServer();
-            }
-        });
+        btnLaunchServer.addActionListener(e -> handleServer());
 
         pnlButtons.add(btnLaunchServer, constraints);
 
@@ -258,12 +245,7 @@ public class XMageLauncher implements Runnable {
 //        btnUpdate.setPreferredSize(new Dimension(80, 40));
         btnUpdate.setEnabled(true);
 
-        btnUpdate.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleUpdate();
-            }
-        });
+        btnUpdate.addActionListener(e -> handleUpdate());
 
         pnlButtons.add(btnUpdate, constraints);
 
@@ -274,12 +256,7 @@ public class XMageLauncher implements Runnable {
 //        btnCheck.setPreferredSize(new Dimension(80, 40));
         btnCheck.setEnabled(true);
 
-        btnCheck.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleCheckUpdates();
-            }
-        });
+        btnCheck.addActionListener(e -> handleCheckUpdates());
 
         pnlButtons.add(btnCheck, constraints);
 
@@ -333,58 +310,37 @@ public class XMageLauncher implements Runnable {
 
         JButton toolbarButton = new JButton("Settings");
         toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SettingsDialog settings = new SettingsDialog();
-                settings.setVisible(true);
-            }
+        toolbarButton.addActionListener(e -> {
+            SettingsDialog settings = new SettingsDialog();
+            settings.setVisible(true);
         });
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 
         toolbarButton = new JButton("About");
         toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AboutDialog about = new AboutDialog();
-                about.setVisible(true);
-            }
+        toolbarButton.addActionListener(e -> {
+            AboutDialog about = new AboutDialog();
+            about.setVisible(true);
         });
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 
         toolbarButton = new JButton("Forum");
         toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openWebpage("http://www.slightlymagic.net/forum/viewforum.php?f=70");
-            }
-        });
+        toolbarButton.addActionListener(e -> openWebpage("http://www.slightlymagic.net/forum/viewforum.php?f=70"));
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 
         toolbarButton = new JButton("Website");
         toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openWebpage("http://xmage.de");
-            }
-        });
+        toolbarButton.addActionListener(e -> openWebpage("http://xmage.de"));
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 
         toolbarButton = new JButton("Changelog");
         toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openWebpage("https://jaydi85.github.io/xmage-web-news/news.html");
-            }
-        });
+        toolbarButton.addActionListener(e -> openWebpage("https://jaydi85.github.io/xmage-web-news/news.html"));
         toolBar.add(toolbarButton);
 
         frame.add(toolBar, BorderLayout.PAGE_START);
@@ -507,16 +463,13 @@ public class XMageLauncher implements Runnable {
             }
         });
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if (getConfig()) {
-                    path = Utilities.getInstallPath();
-                    textArea.append(messages.getString("folder") + path.getAbsolutePath() + "\n");
+        SwingUtilities.invokeLater(() -> {
+            if (getConfig()) {
+                path = Utilities.getInstallPath();
+                textArea.append(messages.getString("folder") + path.getAbsolutePath() + "\n");
 
-                    DownloadLauncherTask launcher = new DownloadLauncherTask(progressBar);
-                    launcher.execute();
-                }
+                DownloadLauncherTask launcher = new DownloadLauncherTask(progressBar);
+                launcher.execute();
             }
         });
 
@@ -867,12 +820,7 @@ public class XMageLauncher implements Runnable {
 
         private void removeXMageFiles(File xmageFolder) {
             // keep images folder -- no need to make users download these again
-            File[] files = xmageFolder.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(final File dir, final String name) {
-                    return !name.matches("images|gameLogs|backgrounds|mageclient\\.log|mageserver\\.log|.*\\.dck");
-                }
-            });
+            File[] files = xmageFolder.listFiles((dir, name) -> !name.matches("images|gameLogs|backgrounds|mageclient\\.log|mageserver\\.log|.*\\.dck"));
             for (final File file : files) {
                 if (file.isDirectory()) {
                     removeXMageFiles(file);
@@ -897,14 +845,11 @@ public class XMageLauncher implements Runnable {
     private void removeOldLauncherFiles() {
         File launcherFolder = new File(Utilities.getInstallPath().getAbsolutePath());
         final String launcherInstalledVersion = Config.getInstance().getVersion();
-        File[] files = launcherFolder.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(final File dir, final String name) {
-                if (name.matches("XMageLauncher.*\\.jar")) {
-                    return !name.equals("XMageLauncher-" + launcherInstalledVersion + ".jar");
-                }
-                return false;
+        File[] files = launcherFolder.listFiles((dir, name) -> {
+            if (name.matches("XMageLauncher.*\\.jar")) {
+                return !name.equals("XMageLauncher-" + launcherInstalledVersion + ".jar");
             }
+            return false;
         });
         if (files.length > 0) {
             textArea.append(messages.getString("removing") + "\n");
