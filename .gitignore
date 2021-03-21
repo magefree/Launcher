@@ -12,3 +12,4 @@ Utils/author.txt
 syntax: regexp
 .log
 *.iml
+*.log

@@ -37,7 +37,7 @@ public class AboutDialog extends JDialog {
 
         add(Box.createRigidArea(new Dimension(0, 10)));
 
-        JLabel name = new JLabel("XMage Launcher Version " + Config.getVersion());
+        JLabel name = new JLabel("XMage Launcher Version " + Config.getInstance().getVersion());
         name.setFont(new Font("Serif", Font.BOLD, 13));
         name.setAlignmentX(0.5f);
         add(name);

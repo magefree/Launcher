@@ -1,8 +1,5 @@
 
 package com.xmage.launcher;
-
-import com.turn.ttorrent.client.Client;
-import com.turn.ttorrent.client.SharedTorrent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -68,7 +65,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
             File temp = new File(saveDirectory + File.separator + "xmage.dl");
             FileOutputStream fout = new FileOutputStream(temp);
 
-            final byte data[] = new byte[BUFFER_SIZE];
+            final byte[] data = new byte[BUFFER_SIZE];
             int count;
             long total = 0;
             long size = dl.getSize();
@@ -109,23 +106,6 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
         }
     }
 
-    public void torrent(File from, File to) throws IOException {
-        // First, instantiate the Client object.
-        SharedTorrent torrent = SharedTorrent.fromFile(from, to);
-
-        Client client = new Client(InetAddress.getLocalHost(), torrent);
-
-        client.setMaxDownloadRate((double) Config.getTorrentDownRate());
-        client.setMaxUploadRate((double) Config.getTorrentUpRate());
-
-        client.download();
-
-        while (!torrent.isComplete()) {
-            publish((int) torrent.getCompletion());
-        }
-
-    }
-
     protected void extract(File from, File to) throws IOException {
 
         TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(from)));
@@ -149,7 +129,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
                 destPath.mkdirs();
             } else {
                 destPath.createNewFile();
-                byte data[] = new byte[BUFFER_SIZE];
+                byte[] data = new byte[BUFFER_SIZE];
                 BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destPath), BUFFER_SIZE);
                 int count;
                 while ((count = tarIn.read(data, 0, BUFFER_SIZE)) != -1) {
@@ -221,7 +201,7 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
                 File pathFile = new File(destPath.getAbsolutePath().substring(0, destPath.getAbsolutePath().lastIndexOf(File.separator)));
                 pathFile.mkdirs();
                 destPath.createNewFile();
-                byte data[] = new byte[BUFFER_SIZE];
+                byte[] data = new byte[BUFFER_SIZE];
                 BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destPath), BUFFER_SIZE);
                 int count;
                 while ((count = zipIn.read(data, 0, BUFFER_SIZE)) != -1) {
