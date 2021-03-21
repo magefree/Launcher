@@ -46,6 +46,7 @@ public class SettingsDialog extends JDialog {
     private final JCheckBox chkUseSystemJava;
     private final JCheckBox chkServerTestMode;
     private final JSpinner spnGuiSize;
+    private final JSpinner spnClientDelay;
     private final JComboBox<XMageBranch> cmbXMageBranch;
 
 
@@ -146,19 +147,38 @@ public class SettingsDialog extends JDialog {
         panel1.add(chkShowServerConsole, constraints);
 
         label = new JLabel("Server test mode:");
+        String tip = "Test mode allows you to quickly create a game with AI and customize any " +
+                "game situations and combos (use the cheat button on the player panel)";
+        label.setToolTipText(tip);
         constraints.anchor = GridBagConstraints.EAST;
         constraints.gridwidth = 1;
         constraints.fill = GridBagConstraints.NONE;
         panel1.add(label, constraints);
 
         chkServerTestMode = new JCheckBox();
-        chkServerTestMode.setToolTipText("Test mode allows you to quickly create a game with AI and customize any " +
-                        "game situations and combos (use the cheat button on the player panel)");
+        chkServerTestMode.setToolTipText(tip);
         chkServerTestMode.setFont(defaultFont);
         chkServerTestMode.setSelected(Config.getInstance().isServerTestMode());
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill = GridBagConstraints.BOTH;
         panel1.add(chkServerTestMode, constraints);
+
+        label = new JLabel("Client start delay (seconds):");
+        tip = "Sets the delay in seconds after which the client starts when you click on 'Launch Client and Server' button";
+        label.setToolTipText(tip);
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel1.add(label, constraints);
+
+        SpinnerModel clientStartDelayModel = new SpinnerNumberModel(Config.getInstance().getClientStartDelaySeconds(), 0, 1000, 1);
+        spnClientDelay = new JSpinner(clientStartDelayModel);
+        spnClientDelay.setToolTipText(tip);
+        spnClientDelay.setValue(Config.getInstance().getClientStartDelaySeconds());
+        spnClientDelay.setFont(defaultFont);
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.WEST;
+        panel1.add(spnClientDelay, constraints);
 
         label = new JLabel("GUI Size:");
         constraints.anchor = GridBagConstraints.EAST;
@@ -246,12 +266,7 @@ public class SettingsDialog extends JDialog {
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.NONE;
         panel3.add(resetBtn, constraints);
-        resetBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleReset();
-            }
-        });
+        resetBtn.addActionListener(e -> handleReset());
 
         // Setup tabs
         tabbedPane = new JTabbedPane();
@@ -267,12 +282,7 @@ public class SettingsDialog extends JDialog {
         buttonPanel.add(Box.createHorizontalGlue());
 
         JButton btnDone = new JButton("Done");
-        btnDone.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleDone();
-            }
-        });
+        btnDone.addActionListener(e -> handleDone());
         buttonPanel.add(btnDone);
 
 
@@ -295,6 +305,7 @@ public class SettingsDialog extends JDialog {
         Config.getInstance().setGuiSize((Integer) this.spnGuiSize.getValue());
         Config.getInstance().setUseSystemJava(this.chkUseSystemJava.isSelected());
         Config.getInstance().setServerTestMode(this.chkServerTestMode.isSelected());
+        Config.getInstance().setClientStartDelaySeconds((Integer) this.spnClientDelay.getValue());
         Config.getInstance().saveProperties();
         dispose();
     }

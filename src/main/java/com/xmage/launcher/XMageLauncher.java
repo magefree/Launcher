@@ -11,21 +11,19 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -222,7 +220,12 @@ public class XMageLauncher implements Runnable {
 //        btnLaunchClientServer.setPreferredSize(new Dimension(80, 40));
         btnLaunchClientServer.addActionListener(e -> {
             handleServer();
-            handleClient();
+            Timer t = new Timer(Config.getInstance().getClientStartDelayMilliseconds(), after -> {
+                handleClient();
+            });
+            t.setInitialDelay(Config.getInstance().getClientStartDelayMilliseconds());
+            t.setRepeats(false);
+            t.start();
         });
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
