@@ -390,6 +390,17 @@ public class XMageLauncher implements Runnable {
             }
         });
         toolBar.add(toolbarButton);
+        toolBar.addSeparator();
+
+        toolbarButton = new JButton("Changelog");
+        toolbarButton.setBorder(emptyBorder);
+        toolbarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openWebpage("https://jaydi85.github.io/xmage-web-news/news.html");
+            }
+        });
+        toolBar.add(toolbarButton);
 
         frame.add(toolBar, BorderLayout.PAGE_START);
 
