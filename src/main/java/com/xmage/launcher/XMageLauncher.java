@@ -24,24 +24,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Locale;
-import java.util.Random;
-import java.util.ResourceBundle;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import java.util.*;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -81,6 +65,7 @@ public class XMageLauncher implements Runnable {
     private Point grabPoint;
 
     private Process serverProcess;
+    private List<Process> clientProcesses = new LinkedList<>();
     private XMageConsole serverConsole;
     private XMageConsole clientConsole;
 
@@ -422,6 +407,7 @@ public class XMageLauncher implements Runnable {
         Process p = Utilities.launchClientProcess();
         clientConsole.setVisible(Config.getInstance().isShowClientConsole());
         clientConsole.start(p);
+        clientProcesses.add(p);
     }
 
     private void handleServer() {
@@ -449,6 +435,13 @@ public class XMageLauncher implements Runnable {
     }
 
     private void handleUpdate() {
+        while (clientProcesses.size() > 0) {
+            int choice = JOptionPane.showConfirmDialog(frame, messages.getString("update.while.client.open"), messages.getString("update.while.client.open.title"), JOptionPane.OK_CANCEL_OPTION);
+            if (choice == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+            clientProcesses.removeIf(p -> !p.isAlive());
+        }
         disableButtons();
         if (!getConfig()) {
             return;
