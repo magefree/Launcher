@@ -52,7 +52,7 @@ public class Config {
     private String clientJavaOpts = DEFAULT_CLIENT_JAVA_OPTS;
     private String serverJavaOpts = DEFAULT_SERVER_JAVA_OPTS;
     private int guiSize = getScreenDPI() / 6;
-    private boolean showClientConsole = true;
+    private boolean showClientConsole = false;
     private boolean showServerConsole = true;
     private boolean useSystemJava = false;
     private boolean serverTestMode = false;
