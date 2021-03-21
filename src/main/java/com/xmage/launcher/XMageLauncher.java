@@ -11,11 +11,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -220,9 +216,7 @@ public class XMageLauncher implements Runnable {
 //        btnLaunchClientServer.setPreferredSize(new Dimension(80, 40));
         btnLaunchClientServer.addActionListener(e -> {
             handleServer();
-            Timer t = new Timer(Config.getInstance().getClientStartDelayMilliseconds(), after -> {
-                handleClient();
-            });
+            Timer t = new Timer(Config.getInstance().getClientStartDelayMilliseconds(), after -> this.handleClient());
             t.setInitialDelay(Config.getInstance().getClientStartDelayMilliseconds());
             t.setRepeats(false);
             t.start();
@@ -394,6 +388,19 @@ public class XMageLauncher implements Runnable {
     }
 
     private void handleUpdate() {
+        if (serverProcess != null) {
+            if (serverProcess.isAlive()) {
+                JOptionPane.showMessageDialog(frame,
+                        messages.getString("update.while.server.open"),
+                        messages.getString("update.while.server.open.title"),
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            } else {
+                serverProcess = null;
+                btnLaunchServer.setText(messages.getString("launchServer"));
+                btnLaunchClientServer.setEnabled(true);
+            }
+        }
         while (clientProcesses.size() > 0) {
             int choice = JOptionPane.showConfirmDialog(frame, messages.getString("update.while.client.open"), messages.getString("update.while.client.open.title"), JOptionPane.OK_CANCEL_OPTION);
             if (choice == JOptionPane.CANCEL_OPTION) {
