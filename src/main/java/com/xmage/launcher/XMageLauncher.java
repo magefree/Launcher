@@ -248,7 +248,6 @@ public class XMageLauncher implements Runnable {
             }
         });
 
-        constraints.fill = GridBagConstraints.HORIZONTAL;
         pnlButtons.add(btnLaunchClientServer, constraints);
 
         btnLaunchServer = new JButton(messages.getString("launchServer"));
