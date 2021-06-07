@@ -347,6 +347,7 @@ public class XMageLauncher implements Runnable {
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         JButton toolbarButton = new JButton("Settings");
+        toolbarButton.setFocusPainted(false);
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(new ActionListener() {
             @Override
@@ -359,6 +360,7 @@ public class XMageLauncher implements Runnable {
         toolBar.addSeparator();
 
         toolbarButton = new JButton("About");
+        toolbarButton.setFocusPainted(false);
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(new ActionListener() {
             @Override
@@ -371,6 +373,7 @@ public class XMageLauncher implements Runnable {
         toolBar.addSeparator();
 
         toolbarButton = new JButton("Forum");
+        toolbarButton.setFocusPainted(false);
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(new ActionListener() {
             @Override
@@ -382,6 +385,7 @@ public class XMageLauncher implements Runnable {
         toolBar.addSeparator();
 
         toolbarButton = new JButton("Website");
+        toolbarButton.setFocusPainted(false);
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(new ActionListener() {
             @Override
@@ -476,16 +480,14 @@ public class XMageLauncher implements Runnable {
 
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex){
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            }
             XMageLauncher gui = new XMageLauncher();
             SwingUtilities.invokeLater(gui);
-        } catch (ClassNotFoundException ex) {
-            logger.error("Error: ", ex);
-        } catch (InstantiationException ex) {
-            logger.error("Error: ", ex);
-        } catch (IllegalAccessException ex) {
-            logger.error("Error: ", ex);
-        } catch (UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             logger.error("Error: ", ex);
         }
     }
