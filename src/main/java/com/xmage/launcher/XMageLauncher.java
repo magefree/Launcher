@@ -115,8 +115,12 @@ public class XMageLauncher implements Runnable {
         frame.setIconImage(icon.getImage());
 
         Random r = new Random();
-        int imageNum = 1 + r.nextInt(17);
-        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + Integer.toString(imageNum) + ".jpg")).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
+        URL imageURL = null;
+        while (imageURL == null) {
+            int imageNum = 1 + r.nextInt(17);
+            imageURL = XMageLauncher.class.getResource("/backgrounds/" + imageNum + ".jpg");
+        }
+        ImageIcon background = new ImageIcon(new ImageIcon(imageURL).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
         mainPanel = new JLabel(background) {
             @Override
             public Dimension getPreferredSize() {
@@ -248,7 +252,6 @@ public class XMageLauncher implements Runnable {
             }
         });
 
-        constraints.fill = GridBagConstraints.HORIZONTAL;
         pnlButtons.add(btnLaunchClientServer, constraints);
 
         btnLaunchServer = new JButton(messages.getString("launchServer"));
@@ -347,6 +350,7 @@ public class XMageLauncher implements Runnable {
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         JButton toolbarButton = new JButton("Settings");
+        toolbarButton.setFocusPainted(false);
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(new ActionListener() {
             @Override
@@ -359,6 +363,7 @@ public class XMageLauncher implements Runnable {
         toolBar.addSeparator();
 
         toolbarButton = new JButton("About");
+        toolbarButton.setFocusPainted(false);
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(new ActionListener() {
             @Override
@@ -371,6 +376,7 @@ public class XMageLauncher implements Runnable {
         toolBar.addSeparator();
 
         toolbarButton = new JButton("Forum");
+        toolbarButton.setFocusPainted(false);
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(new ActionListener() {
             @Override
@@ -382,6 +388,7 @@ public class XMageLauncher implements Runnable {
         toolBar.addSeparator();
 
         toolbarButton = new JButton("Website");
+        toolbarButton.setFocusPainted(false);
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(new ActionListener() {
             @Override
@@ -476,16 +483,14 @@ public class XMageLauncher implements Runnable {
 
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex){
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            }
             XMageLauncher gui = new XMageLauncher();
             SwingUtilities.invokeLater(gui);
-        } catch (ClassNotFoundException ex) {
-            logger.error("Error: ", ex);
-        } catch (InstantiationException ex) {
-            logger.error("Error: ", ex);
-        } catch (IllegalAccessException ex) {
-            logger.error("Error: ", ex);
-        } catch (UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             logger.error("Error: ", ex);
         }
     }
