@@ -115,8 +115,12 @@ public class XMageLauncher implements Runnable {
         frame.setIconImage(icon.getImage());
 
         Random r = new Random();
-        int imageNum = 1 + r.nextInt(17);
-        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + Integer.toString(imageNum) + ".jpg")).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
+        URL imageURL = null;
+        while (imageURL == null) {
+            int imageNum = 1 + r.nextInt(17);
+            imageURL = XMageLauncher.class.getResource("/backgrounds/" + imageNum + ".jpg");
+        }
+        ImageIcon background = new ImageIcon(new ImageIcon(imageURL).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
         mainPanel = new JLabel(background) {
             @Override
             public Dimension getPreferredSize() {
