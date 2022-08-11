@@ -1,19 +1,11 @@
 package com.xmage.launcher;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 
 /**
- *
  * @author BetaSteward
  */
 public class AboutDialog extends JDialog {

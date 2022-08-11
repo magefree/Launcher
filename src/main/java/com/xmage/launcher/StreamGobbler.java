@@ -1,18 +1,16 @@
 package com.xmage.launcher;
 
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-
-import org.slf4j.LoggerFactory;
-
 /**
  * thanks to:  http://www.javaworld.com/jw-12-2000/jw-1229-traps.html?page=4
- * 
+ *
  * @author BetaSteward
  */
 public class StreamGobbler extends Thread {
@@ -47,7 +45,7 @@ public class StreamGobbler extends Thread {
             @Override
             public void run() {
                 text.append(line + "\n"); // JTextArea.append is NOT thread safe, see
-                                          // http://stackoverflow.com/questions/8436949/thread-safety-of-jtextarea-append
+                // http://stackoverflow.com/questions/8436949/thread-safety-of-jtextarea-append
             }
         });
     }

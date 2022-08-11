@@ -1,18 +1,13 @@
 package com.xmage.launcher;
 
-import static com.xmage.launcher.Utilities.getInstallPath;
+import com.xmage.launcher.Utilities.OS;
+import org.slf4j.LoggerFactory;
 
-import java.awt.Toolkit;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.awt.*;
+import java.io.*;
 import java.util.Properties;
 
-import org.slf4j.LoggerFactory;
-import com.xmage.launcher.Utilities.OS;
+import static com.xmage.launcher.Utilities.getInstallPath;
 
 /**
  * @author BetaSteward, ldeluigi

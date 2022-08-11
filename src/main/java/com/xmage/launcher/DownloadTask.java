@@ -1,18 +1,6 @@
-
 package com.xmage.launcher;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URL;
-import java.util.List;
 
-import javax.swing.JProgressBar;
-import javax.swing.JTextArea;
-import javax.swing.SwingWorker;
+import com.xmage.launcher.DownloadTask.Progress;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -20,10 +8,13 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.xmage.launcher.DownloadTask.Progress;
+
+import javax.swing.*;
+import java.io.*;
+import java.net.URL;
+import java.util.List;
 
 /**
- *
  * @author BetaSteward
  */
 public abstract class DownloadTask extends SwingWorker<Void, Progress> {
@@ -45,8 +36,8 @@ public abstract class DownloadTask extends SwingWorker<Void, Progress> {
     }
 
     private static final int BUFFER_SIZE = 4096;
-    private static final Logger logger = LoggerFactory.getLogger(DownloadTask.class);    
-    
+    private static final Logger logger = LoggerFactory.getLogger(DownloadTask.class);
+
     private final JProgressBar progressBar;
     private final JTextArea textArea;
 

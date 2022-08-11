@@ -1,34 +1,15 @@
 package com.xmage.launcher;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Objects;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
+import java.util.ResourceBundle;
 
 /**
- *
  * @author BetaSteward
  */
 public class SettingsDialog extends JDialog {
@@ -48,10 +29,13 @@ public class SettingsDialog extends JDialog {
     private final JSpinner spnGuiSize;
     private final JSpinner spnClientDelay;
     private final JComboBox<XMageBranch> cmbXMageBranch;
+    private final ResourceBundle messages;
 
 
-    public SettingsDialog() {
-        ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
+    public SettingsDialog(ResourceBundle messages) {
+        this.messages = messages;
+
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(XMageLauncher.class.getResource("/icon-mage-flashed.png")));
         this.setIconImage(icon.getImage());
 
         Font defaultFont = new Font("SansSerif", Font.PLAIN, Config.getInstance().getGuiSize());
@@ -299,6 +283,11 @@ public class SettingsDialog extends JDialog {
     private void handleDone() {
         Config.getInstance().setClientJavaOpts(this.txtClientJavaOpt.getText());
         Config.getInstance().setServerJavaOpts(this.txtServerJavaOpt.getText());
+        if (!this.txtXMageHome.getText().equals(Config.getInstance().getXMageHome())) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Remember to update XMage version after changing the XMage home.");
+        }
         Config.getInstance().setXMageHome(this.txtXMageHome.getText());
         Config.getInstance().setShowClientConsole(this.chkShowClientConsole.isSelected());
         Config.getInstance().setShowServerConsole(this.chkShowServerConsole.isSelected());

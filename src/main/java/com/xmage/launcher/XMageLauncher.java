@@ -1,27 +1,5 @@
 package com.xmage.launcher;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.Timer;
-import javax.swing.border.Border;
-import javax.swing.text.DefaultCaret;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,8 +7,21 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.Timer;
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.text.DefaultCaret;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.List;
+import java.util.*;
+
 /**
- *
  * @author BetaSteward
  */
 public class XMageLauncher implements Runnable {
@@ -59,9 +50,9 @@ public class XMageLauncher implements Runnable {
     private Point grabPoint;
 
     private Process serverProcess;
-    private List<Process> clientProcesses = new LinkedList<>();
-    private XMageConsole serverConsole;
-    private XMageConsole clientConsole;
+    private final List<Process> clientProcesses = new LinkedList<>();
+    private final XMageConsole serverConsole;
+    private final XMageConsole clientConsole;
 
     private JToolBar toolBar;
 
@@ -90,12 +81,12 @@ public class XMageLauncher implements Runnable {
 
         createToolbar();
 
-        ImageIcon icon = new ImageIcon(XMageLauncher.class.getResource("/icon-mage-flashed.png"));
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(XMageLauncher.class.getResource("/icon-mage-flashed.png")));
         frame.setIconImage(icon.getImage());
 
         Random r = new Random();
         int imageNum = 1 + r.nextInt(17);
-        ImageIcon background = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/backgrounds/" + imageNum + ".jpg")).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
+        ImageIcon background = new ImageIcon(new ImageIcon(Objects.requireNonNull(XMageLauncher.class.getResource("/backgrounds/" + imageNum + ".jpg"))).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
         mainPanel = new JLabel(background) {
             @Override
             public Dimension getPreferredSize() {
@@ -142,7 +133,7 @@ public class XMageLauncher implements Runnable {
 
         mainPanel.add(Box.createRigidArea(new Dimension(250, 50)));
 
-        ImageIcon logo = new ImageIcon(new ImageIcon(XMageLauncher.class.getResource("/label-xmage.png")).getImage().getScaledInstance(150, 75, Image.SCALE_SMOOTH));
+        ImageIcon logo = new ImageIcon(new ImageIcon(Objects.requireNonNull(XMageLauncher.class.getResource("/label-xmage.png"))).getImage().getScaledInstance(150, 75, Image.SCALE_SMOOTH));
         xmageLogo = new JLabel(logo);
         constraints.gridx = 3;
         constraints.gridy = 0;
@@ -308,7 +299,7 @@ public class XMageLauncher implements Runnable {
         JButton toolbarButton = new JButton("Settings");
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(e -> {
-            SettingsDialog settings = new SettingsDialog();
+            SettingsDialog settings = new SettingsDialog(messages);
             settings.setVisible(true);
         });
         toolBar.add(toolbarButton);
@@ -490,7 +481,7 @@ public class XMageLauncher implements Runnable {
 
         try {
             URL xmageUrl = new URL(xmageConfig);
-            textArea.append(messages.getString("readingConfig") + xmageUrl.toString() + "\n");
+            textArea.append(messages.getString("readingConfig") + xmageUrl + "\n");
             config = Utilities.readJsonFromUrl(xmageUrl);
             return true;
         } catch (IOException ex) {
@@ -505,16 +496,19 @@ public class XMageLauncher implements Runnable {
     }
 
     private boolean checkJavaFX() {
-        try {
-            Class.forName("javafx.application.Platform");
-            return true;
-        } catch( ClassNotFoundException e ) {
-            return false;
-        }
+        return true; // JavaFX is not currently needed.
+//        try {
+//            Class.forName("javafx.application.Platform");
+//            return true;
+//        } catch( ClassNotFoundException e ) {
+//            return false;
+//        }
     }
 
     private void checkJava() {
         if (Config.getInstance().useSystemJava()) {
+            // checks if the system java is suitable for XMage
+            // as it is selected in the configuration (user settings)
             textArea.append(messages.getString("java.installed") + System.getProperty("java.home") + "\n");
             if (checkJavaFX()) {
                 noJava = false;
@@ -527,6 +521,7 @@ public class XMageLauncher implements Runnable {
             Config.getInstance().saveProperties();
         }
         try {
+            // checks if the currently installed java version is up-to-date
             String javaAvailableVersion = (String) config.getJSONObject("java").get(("version"));
             String javaInstalledVersion = Config.getInstance().getInstalledJavaVersion();
             textArea.append(messages.getString("java.installed") + javaInstalledVersion + "\n");
@@ -535,8 +530,9 @@ public class XMageLauncher implements Runnable {
             newJava = false;
             if (compareVersions(javaAvailableVersion, javaInstalledVersion) > 0) {
                 newJava = true;
-                String javaMessage = "";
-                String javaTitle = "";
+                String javaMessage;
+                String javaTitle;
+                // it could be that XMage java isn't installed yet
                 if (javaInstalledVersion.isEmpty()) {
                     noJava = true;
                     textArea.append(messages.getString("java.none") + "\n");
@@ -547,15 +543,17 @@ public class XMageLauncher implements Runnable {
                     javaMessage = messages.getString("java.new.message");
                     javaTitle = messages.getString("java.new");
                 }
+                // prompt the users to select which java they want to use
                 int result = JOptionPane.showOptionDialog(frame, javaMessage, javaTitle, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
                         new String[]{
                                 messages.getString("java.system.choice"),
                                 "OK"
                         }, 1);
                 if (result == 1 || result == JOptionPane.CLOSED_OPTION) {
+                    // the user selected XMage java version
                     Config.getInstance().setUseSystemJava(false);
                 } else if (result == 0) {
-                    // check if JavaFX is available
+                    // the user selected the system java version
                     if (checkJavaFX()) {
                         textArea.append(messages.getString("java.installed") + System.getProperty("java.home") + "\n");
                         noJava = false;
@@ -586,8 +584,8 @@ public class XMageLauncher implements Runnable {
             int compared = compareVersions(xmageAvailableVersion, xmageInstalledVersion);
             if (compared > 0) {
                 newXMage = true;
-                String xmageMessage = "";
-                String xmageTitle = "";
+                String xmageMessage;
+                String xmageTitle;
                 if (xmageInstalledVersion.isEmpty()) {
                     noXMage = true;
                     textArea.append(messages.getString("xmage.none") + "\n");
@@ -653,8 +651,8 @@ public class XMageLauncher implements Runnable {
                 publish(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
                 publish(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
                 if (compareVersions(launcherAvailableVersion, launcherInstalledVersion) > 0) {
-                    String launcherMessage = "";
-                    String launcherTitle = "";
+                    String launcherMessage;
+                    String launcherTitle;
                     publish(messages.getString("xmage.launcher.new") + "\n");
                     launcherMessage = messages.getString("xmage.launcher.new.message");
                     launcherTitle = messages.getString("xmage.launcher.new");
@@ -664,7 +662,7 @@ public class XMageLauncher implements Runnable {
                     if (response == JOptionPane.YES_OPTION) {
                         String launcherRemoteLocation = (String) config.getJSONObject("XMage").getJSONObject("Launcher").get(("location"));
                         URL launcher = new URL(launcherRemoteLocation);
-                        publish(messages.getString("xmage.launcher.downloading") + launcher.toString() + "\n");
+                        publish(messages.getString("xmage.launcher.downloading") + launcher + "\n");
 
                         download(launcher, path.getAbsolutePath(), "");
 
@@ -735,7 +733,7 @@ public class XMageLauncher implements Runnable {
                     javaFolder.mkdirs();
                     String javaRemoteLocation = (String) config.getJSONObject("java").get(("location"));
                     URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
-                    publish(messages.getString("java.downloading") + java.toString() + "\n");
+                    publish(messages.getString("java.downloading") + java + "\n");
 
                     download(java, path.getAbsolutePath(), "oraclelicense=accept-securebackup-cookie");
 
@@ -767,7 +765,7 @@ public class XMageLauncher implements Runnable {
                 File xmageFolder = new File(path.getAbsolutePath() + File.separator + "xmage");
                 String xmageAvailableVersion = (String) config.getJSONObject("XMage").get(("version"));
                 String xmageRemoteLocation;
-                String[] otherLocations = new String[0];
+                String[] otherLocations;
                 xmageRemoteLocation = (String) config.getJSONObject("XMage").get(("location"));
                 JSONArray arr = (JSONArray) config.getJSONObject("XMage").get(("locations"));
                 otherLocations = new String[arr.length()];
@@ -775,15 +773,15 @@ public class XMageLauncher implements Runnable {
                     otherLocations[i] = (String) arr.get(i);
                 }
                 URL xmage = new URL(xmageRemoteLocation);
-                publish(messages.getString("xmage.downloading") + xmage.toString() + "\n");
+                publish(messages.getString("xmage.downloading") + xmage + "\n");
 
                 int altCount = 0;
                 boolean result = download(xmage, path.getAbsolutePath(), "");
                 while (!result && altCount <= otherLocations.length) {
-                    publish(messages.getString("xmage.downloading.failed") + xmage.toString() + "\n");
+                    publish(messages.getString("xmage.downloading.failed") + xmage + "\n");
                     xmage = new URL(otherLocations[altCount]);
                     altCount++;
-                    publish(messages.getString("xmage.downloading") + xmage.toString() + "\n");
+                    publish(messages.getString("xmage.downloading") + xmage + "\n");
                     result = download(xmage, path.getAbsolutePath(), "");
                 }
                 if (result) {
