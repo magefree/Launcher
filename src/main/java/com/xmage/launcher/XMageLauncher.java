@@ -303,6 +303,12 @@ public class XMageLauncher implements Runnable {
         toolbarButton.addActionListener(e -> {
             SettingsDialog settings = new SettingsDialog(messages);
             settings.setVisible(true);
+            settings.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    checkJava();
+                }
+            });
         });
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
@@ -352,12 +358,7 @@ public class XMageLauncher implements Runnable {
         checkJava();
         Process p = Utilities.launchClientProcess();
         if (p == null) {
-            btnLaunchClient.setEnabled(false);
-            btnLaunchClient.setForeground(Color.GRAY);
-            btnLaunchClientServer.setEnabled(false);
-            btnLaunchClientServer.setForeground(Color.GRAY);
-            btnLaunchServer.setEnabled(false);
-            btnLaunchServer.setForeground(Color.GRAY);
+            disableButtons(true);
             JOptionPane.showMessageDialog(frame, "Try to update XMage first.", "Error with executables", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -374,12 +375,7 @@ public class XMageLauncher implements Runnable {
             }
             serverProcess = Utilities.launchServerProcess();
             if (serverProcess == null) {
-                btnLaunchClient.setEnabled(false);
-                btnLaunchClient.setForeground(Color.GRAY);
-                btnLaunchClientServer.setEnabled(false);
-                btnLaunchClientServer.setForeground(Color.GRAY);
-                btnLaunchServer.setEnabled(false);
-                btnLaunchServer.setForeground(Color.GRAY);
+                disableButtons(true);
                 JOptionPane.showMessageDialog(frame, "Try to update XMage first.", "Error with executables", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -574,6 +570,11 @@ public class XMageLauncher implements Runnable {
                 if (result == 1 || result == JOptionPane.CLOSED_OPTION) {
                     // the user selected XMage java version
                     Config.getInstance().setUseSystemJava(false);
+                    noJava = Config.getInstance().getInstalledJavaVersion().length() == 0;
+                    if (noJava)
+                    {
+                        disableButtons(true);
+                    }
                 } else if (result == 0) {
                     // the user selected the system java version
                     if (checkJavaFX()) {
@@ -646,16 +647,22 @@ public class XMageLauncher implements Runnable {
     }
 
     private void disableButtons() {
+        disableButtons(false);
+    }
+
+    private void disableButtons(boolean justClientServer) {
         btnLaunchClient.setEnabled(false);
         btnLaunchClient.setForeground(Color.GRAY);
         btnLaunchClientServer.setEnabled(false);
         btnLaunchClientServer.setForeground(Color.GRAY);
         btnLaunchServer.setEnabled(false);
         btnLaunchServer.setForeground(Color.GRAY);
-        btnUpdate.setEnabled(false);
-        btnUpdate.setForeground(Color.GRAY);
-        btnCheck.setEnabled(false);
-        btnCheck.setForeground(Color.GRAY);
+        if (!justClientServer) {
+            btnUpdate.setEnabled(false);
+            btnUpdate.setForeground(Color.GRAY);
+            btnCheck.setEnabled(false);
+            btnCheck.setForeground(Color.GRAY);
+        }
     }
 
     private class DownloadLauncherTask extends DownloadTask {
