@@ -207,10 +207,12 @@ public class XMageLauncher implements Runnable {
 //        btnLaunchClientServer.setPreferredSize(new Dimension(80, 40));
         btnLaunchClientServer.addActionListener(e -> {
             handleServer();
-            Timer t = new Timer(Config.getInstance().getClientStartDelayMilliseconds(), after -> this.handleClient());
-            t.setInitialDelay(Config.getInstance().getClientStartDelayMilliseconds());
-            t.setRepeats(false);
-            t.start();
+            if (serverProcess != null) {
+                Timer t = new Timer(Config.getInstance().getClientStartDelayMilliseconds(), after -> this.handleClient());
+                t.setInitialDelay(Config.getInstance().getClientStartDelayMilliseconds());
+                t.setRepeats(false);
+                t.start();
+            }
         });
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -349,6 +351,10 @@ public class XMageLauncher implements Runnable {
     private void handleClient() {
         checkJava();
         Process p = Utilities.launchClientProcess();
+        if (p == null) {
+            JOptionPane.showMessageDialog(frame, "Try to update XMage first.", "Error with executables", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         clientConsole.setVisible(Config.getInstance().isShowClientConsole());
         clientConsole.start(p);
         clientProcesses.add(p);
@@ -361,6 +367,10 @@ public class XMageLauncher implements Runnable {
                 textArea.append(messages.getString("launchServer.testMode.message") + "\n");
             }
             serverProcess = Utilities.launchServerProcess();
+            if (serverProcess == null) {
+                JOptionPane.showMessageDialog(frame, "Try to update XMage first.", "Error with executables", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             try {
                 int exitValue = serverProcess.exitValue();
                 logger.error("Problem during launch of server process. exit value = " + exitValue);
