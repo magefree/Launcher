@@ -352,6 +352,12 @@ public class XMageLauncher implements Runnable {
         checkJava();
         Process p = Utilities.launchClientProcess();
         if (p == null) {
+            btnLaunchClient.setEnabled(false);
+            btnLaunchClient.setForeground(Color.GRAY);
+            btnLaunchClientServer.setEnabled(false);
+            btnLaunchClientServer.setForeground(Color.GRAY);
+            btnLaunchServer.setEnabled(false);
+            btnLaunchServer.setForeground(Color.GRAY);
             JOptionPane.showMessageDialog(frame, "Try to update XMage first.", "Error with executables", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -368,6 +374,12 @@ public class XMageLauncher implements Runnable {
             }
             serverProcess = Utilities.launchServerProcess();
             if (serverProcess == null) {
+                btnLaunchClient.setEnabled(false);
+                btnLaunchClient.setForeground(Color.GRAY);
+                btnLaunchClientServer.setEnabled(false);
+                btnLaunchClientServer.setForeground(Color.GRAY);
+                btnLaunchServer.setEnabled(false);
+                btnLaunchServer.setForeground(Color.GRAY);
                 JOptionPane.showMessageDialog(frame, "Try to update XMage first.", "Error with executables", JOptionPane.ERROR_MESSAGE);
                 return;
             }
