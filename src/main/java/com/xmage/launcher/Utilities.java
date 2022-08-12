@@ -127,6 +127,10 @@ public class Utilities {
         File xmagePath = new File(installPath, "/xmage/" + path);
         File classPath = new File(xmagePath, "/lib/*");
 
+        if (!javaBin.getParentFile().exists() || !xmagePath.isDirectory()) {
+            return null;
+        }
+
         logger.info("Launching Process:");
         logger.info("Java bin: " + javaBin);
         logger.info("XMage Path: " + xmagePath);
