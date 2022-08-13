@@ -307,6 +307,9 @@ public class XMageLauncher implements Runnable {
                 @Override
                 public void windowClosed(WindowEvent e) {
                     checkJava();
+                    if (!noJava && !noXMage) {
+                        enableButtons();
+                    }
                 }
             });
         });
@@ -570,7 +573,7 @@ public class XMageLauncher implements Runnable {
                 if (result == 1 || result == JOptionPane.CLOSED_OPTION) {
                     // the user selected XMage java version
                     Config.getInstance().setUseSystemJava(false);
-                    noJava = Config.getInstance().getInstalledJavaVersion().length() == 0;
+                    noJava = Config.getInstance().getInstalledJavaVersion().isEmpty();
                     if (noJava)
                     {
                         disableButtons(true);
@@ -619,7 +622,7 @@ public class XMageLauncher implements Runnable {
                     xmageMessage = messages.getString("xmage.new.message");
                     xmageTitle = messages.getString("xmage.new");
                 }
-                if (!silent && !noJava && !noXMage) {
+                if (!silent) {
                     JOptionPane.showMessageDialog(frame, xmageMessage, xmageTitle, JOptionPane.INFORMATION_MESSAGE);
                 }
             }
@@ -718,7 +721,7 @@ public class XMageLauncher implements Runnable {
         @Override
         public void done() {
             checkUpdates();
-            if (noJava && noXMage) {
+            if (noXMage) {
                 UpdateTask update = new UpdateTask(progressBar, false);
                 update.execute();
             }
