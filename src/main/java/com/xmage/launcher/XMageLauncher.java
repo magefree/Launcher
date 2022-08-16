@@ -309,6 +309,8 @@ public class XMageLauncher implements Runnable {
                     checkJava();
                     if (!noJava && !noXMage) {
                         enableButtons();
+                    } else if (noJava) {
+                        handleUpdate();
                     }
                 }
             });
