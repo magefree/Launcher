@@ -335,7 +335,7 @@ public class XMageLauncher implements Runnable {
 
         toolbarButton = new JButton("Website");
         toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(e -> openWebpage("http://xmage.de"));
+        toolbarButton.addActionListener(e -> openWebpage("http://xmage.today"));
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 

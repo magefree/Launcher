@@ -61,7 +61,7 @@
                             <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <url>xmage.de</url>
+                            <url>xmage.today</url>
                             <Built-By>XMage</Built-By>
                         </manifestEntries>
                     </archive>
@@ -79,7 +79,7 @@
                             <mainClass>com.xmage.launcher.XMageLauncher</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <url>xmage.de</url>
+                            <url>xmage.today</url>
                             <Built-By>XMage</Built-By>
                         </manifestEntries>
                     </archive>
