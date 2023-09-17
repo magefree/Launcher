@@ -15,7 +15,6 @@ import static com.xmage.launcher.Utilities.getInstallPath;
 public class Config {
     private static final String PROPERTIES_FILE = "installed.properties";
     private static final String VERSION_FILE = "/version.properties";
-    private static final String DEFAULT_URL = "http://xmage.de/xmage";
     private static final String BETA_URL = "http://xmage.today";
     private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xmx1000m -Dfile.encoding=UTF-8";
     private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xmx500m";
@@ -35,7 +34,6 @@ public class Config {
     // Configs
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);
     private final XMageBranch[] xMageBranches = new XMageBranch[]{
-            new XMageBranch("Stable", DEFAULT_URL),
             new XMageBranch("Beta", BETA_URL),
             new XMageBranch("Custom", null)
     };
@@ -43,7 +41,7 @@ public class Config {
     private String version = "";
     private String installedJavaVersion = "";
     private String installedXMageVersion = "";
-    private String homeURL = DEFAULT_URL;
+    private String homeURL = BETA_URL;
     private String clientJavaOpts = DEFAULT_CLIENT_JAVA_OPTS;
     private String serverJavaOpts = DEFAULT_SERVER_JAVA_OPTS;
     private int guiSize = getScreenDPI() / 6;
