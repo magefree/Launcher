@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,9 +75,16 @@ public class Utilities {
         return OS_arch;
     }
 
-    //thanks to Roland Illig - http://stackoverflow.com/questions/4308554/simplest-way-to-read-json-from-a-url-in-java
     public static JSONObject readJsonFromUrl(URL url) throws IOException, JSONException {
-        try (BufferedReader rd = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+        // redirect support (example: from http to https)
+        URLConnection connection = url.openConnection();
+        String redirect = connection.getHeaderField("Location");
+        if (redirect != null){
+            connection = new URL(redirect).openConnection();
+        }
+
+        // data read
+        try (BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
             return new JSONObject(readAll(rd));
         }
     }
