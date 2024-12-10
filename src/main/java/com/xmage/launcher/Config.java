@@ -15,9 +15,9 @@ import static com.xmage.launcher.Utilities.getInstallPath;
 public class Config {
     private static final String PROPERTIES_FILE = "installed.properties";
     private static final String VERSION_FILE = "/version.properties";
-    private static final String BETA_URL = "http://xmage.today";
-    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xmx1000m -Dfile.encoding=UTF-8";
-    private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xmx500m";
+    private static final String BETA_URL = "https://xmage.today";
+    private static final String DEFAULT_CLIENT_JAVA_OPTS = "-Xmx2000m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Djava.net.preferIPv4Stack=true";
+    private static final String DEFAULT_SERVER_JAVA_OPTS = "-Xmx1000m";
 
     // Singleton
     private static Config currentConfig = new Config(false);

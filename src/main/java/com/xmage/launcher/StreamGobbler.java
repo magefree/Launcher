@@ -45,7 +45,7 @@ public class StreamGobbler extends Thread {
             @Override
             public void run() {
                 text.append(line + "\n"); // JTextArea.append is NOT thread safe, see
-                // http://stackoverflow.com/questions/8436949/thread-safety-of-jtextarea-append
+                // https://stackoverflow.com/questions/8436949/thread-safety-of-jtextarea-append
             }
         });
     }

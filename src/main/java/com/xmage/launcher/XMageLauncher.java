@@ -329,13 +329,13 @@ public class XMageLauncher implements Runnable {
 
         toolbarButton = new JButton("Forum");
         toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(e -> openWebpage("http://www.slightlymagic.net/forum/viewforum.php?f=70"));
+        toolbarButton.addActionListener(e -> openWebpage("https://www.slightlymagic.net/forum/viewforum.php?f=70"));
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 
         toolbarButton = new JButton("Website");
         toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(e -> openWebpage("http://xmage.today"));
+        toolbarButton.addActionListener(e -> openWebpage("https://xmage.today"));
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 
