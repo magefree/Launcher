@@ -53,6 +53,7 @@ public class XMageLauncher implements Runnable {
     private final List<Process> clientProcesses = new LinkedList<>();
     private final XMageConsole serverConsole;
     private final XMageConsole clientConsole;
+    private UpdateTask lastUpdateTask = null;
 
     private JToolBar toolBar;
 
@@ -306,10 +307,11 @@ public class XMageLauncher implements Runnable {
             settings.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
-                    checkJava();
-                    if (!noJava && !noXMage) {
-                        enableButtons();
-                    } else if (noJava) {
+                    if (lastUpdateTask != null) {
+                        return;
+                    }
+                    checkUpdates();
+                    if (noJava || noXMage || newJava || newXMage) {
                         handleUpdate();
                     }
                 }
@@ -430,14 +432,14 @@ public class XMageLauncher implements Runnable {
         if (!newJava && !newXMage) {
             int response = JOptionPane.showConfirmDialog(frame, messages.getString("force.update.message"), messages.getString("force.update.title"), JOptionPane.YES_NO_OPTION);
             if (response == JOptionPane.YES_OPTION) {
-                UpdateTask update = new UpdateTask(progressBar, true);
-                update.execute();
+                lastUpdateTask = new UpdateTask(progressBar, true);
+                lastUpdateTask.execute();
             } else {
                 enableButtons();
             }
         } else {
-            UpdateTask update = new UpdateTask(progressBar, false);
-            update.execute();
+            lastUpdateTask = new UpdateTask(progressBar, false);
+            lastUpdateTask.execute();
         }
     }
 
@@ -466,7 +468,8 @@ public class XMageLauncher implements Runnable {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             XMageLauncher gui = new XMageLauncher();
             SwingUtilities.invokeLater(gui);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                 UnsupportedLookAndFeelException ex) {
             logger.error("Error: ", ex);
         }
     }
@@ -576,8 +579,7 @@ public class XMageLauncher implements Runnable {
                     // the user selected XMage java version
                     Config.getInstance().setUseSystemJava(false);
                     noJava = Config.getInstance().getInstalledJavaVersion().isEmpty();
-                    if (noJava)
-                    {
+                    if (noJava) {
                         disableButtons(true);
                     }
                 } else if (result == 0) {
@@ -711,7 +713,6 @@ public class XMageLauncher implements Runnable {
                         Utilities.restart(to);
                     }
                 }
-
             } catch (IOException | JSONException ex) {
                 publish(0);
                 cancel(true);
@@ -722,10 +723,15 @@ public class XMageLauncher implements Runnable {
 
         @Override
         public void done() {
+            // ignore all other update tries
+            if (lastUpdateTask != null) {
+                return;
+            }
+
             checkUpdates();
-            if (noXMage) {
-                UpdateTask update = new UpdateTask(progressBar, false);
-                update.execute();
+            if (noJava || noXMage) {
+                lastUpdateTask = new UpdateTask(progressBar, false);
+                lastUpdateTask.execute();
             }
         }
 
@@ -742,12 +748,32 @@ public class XMageLauncher implements Runnable {
 
         @Override
         protected Void doInBackground() {
-            if (!downgradeXMage && (force || noJava || newJava)) { // only update java on force update to the same version
-                updateJava();
+            if (lastUpdateTask != this) {
+                logger.warn("can't start update until previous finish");
+                textArea.append('\n' + "can't start update until previous finish");
+                return null;
             }
-            if (force || noXMage || newXMage) {
-                updateXMage();
+
+            logger.info("starting update...");
+            textArea.append('\n' + "starting update...");
+
+            try {
+                boolean needJavaUpdate = force || noJava;
+                if (!downgradeXMage && newJava) {
+                    // try to keep old java for old xmage
+                    needJavaUpdate = true;
+                }
+                if (needJavaUpdate) {
+                    updateJava();
+                }
+
+                if (force || noXMage || newXMage) {
+                    updateXMage();
+                }
+            } finally {
+                lastUpdateTask = null;
             }
+
             return null;
         }
 
@@ -874,6 +900,11 @@ public class XMageLauncher implements Runnable {
 
         @Override
         public void done() {
+            // ignore all other update tries
+            if (lastUpdateTask != null) {
+                return;
+            }
+
             checkUpdates();
         }
     }
