@@ -120,19 +120,22 @@ public class Utilities {
         p.destroy();
     }
 
-    private static Process launchProcess(String main, String args, String path, String javaOpts) {
-
-        File installPath = Utilities.getInstallPath();
+    public static File getJavaHome() {
         File javaHome;
         if (Config.getInstance().useSystemJava()) {
             javaHome = new File(System.getProperty("java.home"));
         } else if (getOS() == OS.OSX) {
-            javaHome = new File(installPath, "/java/jre" + Config.getInstance().getInstalledJavaVersion() + ".jre/Contents/Home");
+            javaHome = new File(Utilities.getInstallPath(), "/java/jre" + Config.getInstance().getInstalledJavaVersion() + ".jre/Contents/Home");
         } else {
-            javaHome = new File(installPath, "/java/jre" + Config.getInstance().getInstalledJavaVersion());
+            javaHome = new File(Utilities.getInstallPath(), "/java/jre" + Config.getInstance().getInstalledJavaVersion());
         }
+        return javaHome;
+    }
+
+    private static Process launchProcess(String main, String args, String path, String javaOpts) {
+        File javaHome = getJavaHome();
         File javaBin = new File(javaHome, "/bin/java");
-        File xmagePath = new File(installPath, "/xmage/" + path);
+        File xmagePath = new File(Utilities.getInstallPath(), "/xmage/" + path);
         File classPath = new File(xmagePath, "/lib/*");
 
         if (!javaBin.getParentFile().exists() || !xmagePath.isDirectory()) {

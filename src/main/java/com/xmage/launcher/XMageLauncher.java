@@ -294,12 +294,11 @@ public class XMageLauncher implements Runnable {
     }
 
     private void createToolbar() {
-
         toolBar = new JToolBar();
         toolBar.setFloatable(false);
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
-        JButton toolbarButton = new JButton("Settings");
+        JButton toolbarButton = new JButton("\uD83D\uDD27 SETTINGS"); // 🔧, &#128295;
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(e -> {
             SettingsDialog settings = new SettingsDialog(messages);
@@ -320,7 +319,31 @@ public class XMageLauncher implements Runnable {
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 
-        toolbarButton = new JButton("About");
+        toolbarButton = new JButton("\uD83D\uDC97 Site And Donates"); // 💗, &#128151;
+        toolbarButton.setBorder(emptyBorder);
+        toolbarButton.addActionListener(e -> openWebpage("https://xmage.today"));
+        toolBar.add(toolbarButton);
+        toolBar.addSeparator();
+
+        toolbarButton = new JButton("\uD83D\uDC7E Github"); // 👾, &#128126;
+        toolbarButton.setBorder(emptyBorder);
+        toolbarButton.addActionListener(e -> openWebpage("https://github.com/magefree/mage"));
+        toolBar.add(toolbarButton);
+        toolBar.addSeparator();
+
+        toolbarButton = new JButton("\uD83D\uDCAC Discord"); // 💬, &#128172;
+        toolbarButton.setBorder(emptyBorder);
+        toolbarButton.addActionListener(e -> openWebpage("https://discord.gg/Pqf42yn"));
+        toolBar.add(toolbarButton);
+        toolBar.addSeparator();
+
+        toolbarButton = new JButton("\uD83D\uDCE2 News"); //📢, &#128226;
+        toolbarButton.setBorder(emptyBorder);
+        toolbarButton.addActionListener(e -> openWebpage("https://jaydi85.github.io/xmage-web-news/news.html"));
+        toolBar.add(toolbarButton);
+        toolBar.addSeparator();
+
+        toolbarButton = new JButton("\uD83D\uDCA1 About"); // 💡, &#128161;
         toolbarButton.setBorder(emptyBorder);
         toolbarButton.addActionListener(e -> {
             AboutDialog about = new AboutDialog();
@@ -329,25 +352,7 @@ public class XMageLauncher implements Runnable {
         toolBar.add(toolbarButton);
         toolBar.addSeparator();
 
-        toolbarButton = new JButton("Forum");
-        toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(e -> openWebpage("https://www.slightlymagic.net/forum/viewforum.php?f=70"));
-        toolBar.add(toolbarButton);
-        toolBar.addSeparator();
-
-        toolbarButton = new JButton("Website");
-        toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(e -> openWebpage("https://xmage.today"));
-        toolBar.add(toolbarButton);
-        toolBar.addSeparator();
-
-        toolbarButton = new JButton("Changelog");
-        toolbarButton.setBorder(emptyBorder);
-        toolbarButton.addActionListener(e -> openWebpage("https://jaydi85.github.io/xmage-web-news/news.html"));
-        toolBar.add(toolbarButton);
-
         frame.add(toolBar, BorderLayout.PAGE_START);
-
     }
 
     private static void openWebpage(String uri) {
@@ -453,6 +458,7 @@ public class XMageLauncher implements Runnable {
     }
 
     private void checkUpdates() {
+        textArea.append("\n");
         checkJava();
         checkXMage(false);
         enableButtons();
@@ -559,7 +565,8 @@ public class XMageLauncher implements Runnable {
                 String javaMessage;
                 String javaTitle;
                 // it could be that XMage java isn't installed yet
-                if (javaInstalledVersion.isEmpty()) {
+                File javaHome = Utilities.getJavaHome();
+                if (javaInstalledVersion.isEmpty() || !javaHome.exists()) {
                     noJava = true;
                     textArea.append(messages.getString("java.none") + "\n");
                     javaMessage = messages.getString("java.none.message");
@@ -754,8 +761,8 @@ public class XMageLauncher implements Runnable {
                 return null;
             }
 
-            logger.info("starting update...");
-            textArea.append('\n' + "starting update...");
+            logger.info("Starting update...");
+            textArea.append('\n' + "Starting update...\n");
 
             try {
                 boolean needJavaUpdate = force || noJava;
