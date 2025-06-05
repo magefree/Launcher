@@ -26,11 +26,23 @@ import java.util.*;
  */
 public class XMageLauncher implements Runnable {
 
-    // TODO: change java to xmage's java on reset, empty installed java and xmage versions - so you must download it from scratch
+    // most important tasks before real release:
+    // TODO: on settings reset - add confirm dialog
+    // TODO: on settings reset - change used java to xmage's java
+    // TODO: on settings reset - make sure it reset java opts to default
+    // TODO: test - make sure you can download old releases, run it from new folder and download java without xmage update
+    // TODO: on starting - checking folder settings (ascii only folders, writeable folders, not temporary zip folders from windows)
+
+    // other tasks:
+    // TODO: rework java params, split it to:
+    // - default params (ipv4, utf-8, etc -- can't be change by user, store it in intalled.properties?
+    // - main params (max memory limit, test mode -- user can change it by GUI, e.g. enter MB value instead command use)
+    // - additional params (open, 3d graphics, etc -- can be changed by user);
+    // TODO: remove translation, keep only EN text in source code, see messages
 
     private static final Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
 
-    private final ResourceBundle messages; // TODO: remove translation, keep only EN text in source code
+    private final ResourceBundle messages;
     private final Locale locale;
 
     private final JFrame frame;
@@ -511,8 +523,6 @@ public class XMageLauncher implements Runnable {
             textArea.append(messages.getString("launcher.started") + "\n");
             path = Utilities.getInstallPath();
             textArea.append(messages.getString("folder") + path.getAbsolutePath() + "\n\n");
-
-            // TODO: add checking system settings (run from ascii only folders, run from writeable folders)
 
             if (getConfig()) {
                 // start updates chain: launcher -> java -> xmage
