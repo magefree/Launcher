@@ -191,7 +191,6 @@ public class XMageLauncher implements Runnable {
         btnLaunchClient.setFont(fontBig);
         btnLaunchClient.setForeground(Color.GRAY);
         btnLaunchClient.setEnabled(false);
-//        btnLaunchClient.setPreferredSize(new Dimension(180, 60));
         btnLaunchClient.addActionListener(e -> handleClient());
 
         constraints.gridx = GridBagConstraints.RELATIVE;
@@ -205,7 +204,6 @@ public class XMageLauncher implements Runnable {
         btnLaunchClientServer.setFont(fontSmallBold);
         btnLaunchClientServer.setEnabled(false);
         btnLaunchClientServer.setForeground(Color.GRAY);
-//        btnLaunchClientServer.setPreferredSize(new Dimension(80, 40));
         btnLaunchClientServer.addActionListener(e -> {
             handleServer();
             if (serverProcess != null) {
@@ -215,8 +213,6 @@ public class XMageLauncher implements Runnable {
                 t.start();
             }
         });
-
-        constraints.fill = GridBagConstraints.HORIZONTAL;
         pnlButtons.add(btnLaunchClientServer, constraints);
 
         btnLaunchServer = new JButton(messages.getString("launchServer"));
@@ -224,31 +220,23 @@ public class XMageLauncher implements Runnable {
         btnLaunchServer.setFont(fontSmallBold);
         btnLaunchServer.setEnabled(false);
         btnLaunchServer.setForeground(Color.GRAY);
-//        btnLaunchServer.setPreferredSize(new Dimension(80, 40));
         btnLaunchServer.addActionListener(e -> handleServer());
-
         pnlButtons.add(btnLaunchServer, constraints);
 
         btnUpdate = new JButton(messages.getString("update.xmage"));
         btnUpdate.setToolTipText(messages.getString("update.xmage.tooltip"));
         btnUpdate.setFont(fontSmallBold);
         btnUpdate.setForeground(Color.BLACK);
-//        btnUpdate.setPreferredSize(new Dimension(80, 40));
         btnUpdate.setEnabled(true);
-
         btnUpdate.addActionListener(e -> handleUpdate());
-
         pnlButtons.add(btnUpdate, constraints);
 
         btnCheck = new JButton(messages.getString("check.xmage"));
         btnCheck.setToolTipText(messages.getString("check.xmage.tooltip"));
         btnCheck.setFont(fontSmallBold);
         btnCheck.setForeground(Color.BLACK);
-//        btnCheck.setPreferredSize(new Dimension(80, 40));
         btnCheck.setEnabled(true);
-
         btnCheck.addActionListener(e -> handleCheckUpdates());
-
         pnlButtons.add(btnCheck, constraints);
 
         frame.add(mainPanel);
@@ -393,7 +381,7 @@ public class XMageLauncher implements Runnable {
             }
             try {
                 int exitValue = serverProcess.exitValue();
-                logger.error("Problem during launch of server process. exit value = " + exitValue);
+                logger.error("Problem during launch of server process. Exit value = " + exitValue);
             } catch (IllegalThreadStateException e) {
                 serverConsole.setVisible(Config.getInstance().isShowServerConsole());
                 serverConsole.start(serverProcess);
@@ -927,7 +915,11 @@ public class XMageLauncher implements Runnable {
         final String launcherInstalledVersion = Config.getInstance().getVersion();
         File[] files = launcherFolder.listFiles((dir, name) -> {
             if (name.matches("XMageLauncher.*\\.jar")) {
-                return !name.equals("XMageLauncher-" + launcherInstalledVersion + ".jar");
+                // keep only current version and other files with same name:
+                // XMageLauncher-0.3.8.jar
+                // XMageLauncher-0.3.8-test.jar
+                // XMageLauncher-0.3.8-backup.jar
+                return !name.startsWith("XMageLauncher-" + launcherInstalledVersion);
             }
             return false;
         });
@@ -940,5 +932,4 @@ public class XMageLauncher implements Runnable {
             }
         }
     }
-
 }

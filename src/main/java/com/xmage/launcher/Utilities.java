@@ -169,11 +169,10 @@ public class Utilities {
     }
 
     public static void restart(File launcherJar) {
+        // launcher must use default java
         File installPath = Utilities.getInstallPath();
-        String javaBin = System.getProperty("java.home") + "/bin/java";
-
         ArrayList<String> command = new ArrayList<>();
-        command.add(javaBin);
+        command.add("java");
         command.add("-jar");
         command.add(launcherJar.getPath());
 
