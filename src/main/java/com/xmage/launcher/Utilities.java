@@ -79,7 +79,7 @@ public class Utilities {
         // redirect support (example: from http to https)
         URLConnection connection = url.openConnection();
         String redirect = connection.getHeaderField("Location");
-        if (redirect != null){
+        if (redirect != null) {
             connection = new URL(redirect).openConnection();
         }
 
@@ -121,8 +121,14 @@ public class Utilities {
     }
 
     public static File getJavaHome() {
+        return getJavaHome(false);
+    }
+
+    public static File getJavaHome(boolean useSystemJavaOnly) {
         File javaHome;
-        if (Config.getInstance().useSystemJava()) {
+        if (useSystemJavaOnly || Config.getInstance().useSystemJava()) {
+            // TODO: is it possible to take "system" java from a launcher running process?
+            //  e.g. if you run launcher under java 8 then launcher will use same java bin path to run other apps
             javaHome = new File(System.getProperty("java.home"));
         } else if (getOS() == OS.OSX) {
             javaHome = new File(Utilities.getInstallPath(), "/java/jre" + Config.getInstance().getInstalledJavaVersion() + ".jre/Contents/Home");
