@@ -286,7 +286,7 @@ public class SettingsDialog extends JDialog {
         if (!this.txtXMageHome.getText().equals(Config.getInstance().getXMageHome())) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Remember to update XMage version after changing the XMage home.");
+                    "Don't forget to update XMage version after changing the XMage home.");
         }
         Config.getInstance().setXMageHome(this.txtXMageHome.getText());
         Config.getInstance().setShowClientConsole(this.chkShowClientConsole.isSelected());

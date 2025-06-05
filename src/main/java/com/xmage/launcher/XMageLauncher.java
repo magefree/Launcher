@@ -22,13 +22,15 @@ import java.util.List;
 import java.util.*;
 
 /**
- * @author BetaSteward
+ * @author BetaSteward, JayDi85
  */
 public class XMageLauncher implements Runnable {
 
+    // TODO: change java to xmage's java on reset, empty installed java and xmage versions - so you must download it from scratch
+
     private static final Logger logger = LoggerFactory.getLogger(XMageLauncher.class);
 
-    private final ResourceBundle messages;
+    private final ResourceBundle messages; // TODO: remove translation, keep only EN text in source code
     private final Locale locale;
 
     private final JFrame frame;
@@ -205,6 +207,7 @@ public class XMageLauncher implements Runnable {
         btnLaunchClientServer.setEnabled(false);
         btnLaunchClientServer.setForeground(Color.GRAY);
         btnLaunchClientServer.addActionListener(e -> {
+            textArea.append("\n");
             handleServer();
             if (serverProcess != null) {
                 Timer t = new Timer(Config.getInstance().getClientStartDelayMilliseconds(), after -> this.handleClient());
@@ -355,6 +358,7 @@ public class XMageLauncher implements Runnable {
     }
 
     private void handleClient() {
+        textArea.append("\n");
         checkJava();
         Process p = Utilities.launchClientProcess();
         if (p == null) {
@@ -397,6 +401,7 @@ public class XMageLauncher implements Runnable {
     }
 
     private void handleUpdate() {
+        textArea.append("\n");
         if (serverProcess != null) {
             if (serverProcess.isAlive()) {
                 JOptionPane.showMessageDialog(frame,
@@ -449,6 +454,7 @@ public class XMageLauncher implements Runnable {
     }
 
     private void handleCheckUpdates() {
+        textArea.append("\n");
         if (getConfig()) {
             checkUpdates();
             if (!newJava && !newXMage) {
@@ -487,7 +493,12 @@ public class XMageLauncher implements Runnable {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (serverProcess != null) {
-                    int response = JOptionPane.showConfirmDialog(frame, messages.getString("serverRunning.message"), messages.getString("serverRunning.title"), JOptionPane.YES_NO_OPTION);
+                    int response = JOptionPane.showConfirmDialog(
+                            frame,
+                            messages.getString("serverRunning.message"),
+                            messages.getString("serverRunning.title"),
+                            JOptionPane.YES_NO_OPTION
+                    );
                     if (response == JOptionPane.YES_OPTION) {
                         Utilities.stopProcess(serverProcess);
                     }
@@ -537,6 +548,8 @@ public class XMageLauncher implements Runnable {
             String javaAvailableVersion = (String) config.getJSONObject("java").get(("version"));
             String javaInstalledVersion = Config.getInstance().getInstalledJavaVersion();
 
+            noJava = javaInstalledVersion.isEmpty() || !checkJavaExists(); // first run, deleted java folder, etc
+            newJava = false;
             if (Config.getInstance().useSystemJava()) {
                 // from system java
                 textArea.append(messages.getString("java.used") + ": " + messages.getString("java.used.system") + "\n");
@@ -544,23 +557,23 @@ public class XMageLauncher implements Runnable {
                 if (!checkSystemJava()) {
                     textArea.append(messages.getString("java.system.notfound.message") + ": " + System.getProperty("java.home") + "\n");
                 }
+                newJava = false; // can't update system's java
             } else {
                 // from xmage java
                 textArea.append(messages.getString("java.used") + ": " + messages.getString("java.used.xmage") + "\n");
                 textArea.append(messages.getString("java.installed") + ": " + javaInstalledVersion + "\n");
+                newJava = compareVersions(javaAvailableVersion, javaInstalledVersion) > 0;
             }
             textArea.append(messages.getString("java.available") + ": " + javaAvailableVersion + "\n");
 
-            noJava = false;
-            newJava = false;
-            if (compareVersions(javaAvailableVersion, javaInstalledVersion) > 0) {
-                newJava = true;
+            if (noJava && newJava && checkXmageExists()) {
+                // fresh install - keep default settings from a launcher (xmage's java)
+                return;
+            }
+            if (newJava || noJava) {
                 String javaMessage;
                 String javaTitle;
-                // it could be that XMage java isn't installed yet
-                File javaHome = Utilities.getJavaHome();
-                if (javaInstalledVersion.isEmpty() || !javaHome.exists()) {
-                    noJava = true;
+                if (noJava) {
                     textArea.append(messages.getString("java.none") + "\n");
                     javaMessage = messages.getString("java.none.message");
                     javaTitle = messages.getString("java.none");
@@ -575,23 +588,26 @@ public class XMageLauncher implements Runnable {
                         frame,
                         javaMessage,
                         javaTitle,
-                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
                         new String[]{
-                                messages.getString("java.system.choice"),
-                                "OK"
+                                messages.getString("java.choose.xmage"),
+                                messages.getString("java.choose.system")
                         },
-                        1
+                        0
                 );
-                if (result == 1 || result == JOptionPane.CLOSED_OPTION) {
+                if (result == JOptionPane.CLOSED_OPTION) {
+                    // keep current settings
+                    return;
+                } else if (result == 0) {
                     // switch to xmage java
                     Config.getInstance().setUseSystemJava(false);
-                    noJava = Config.getInstance().getInstalledJavaVersion().isEmpty();
+                    noJava = Config.getInstance().getInstalledJavaVersion().isEmpty() || !checkJavaExists();
                     if (noJava) {
                         disableButtons(true);
                     }
-                } else if (result == 0) {
+                } else if (result == 1) {
                     // switch to system java
                     textArea.append(messages.getString("java.installed") + ": " + System.getProperty("java.home") + "\n");
 
@@ -615,9 +631,19 @@ public class XMageLauncher implements Runnable {
         }
     }
 
+    private boolean checkJavaExists() {
+        File javaHome = Utilities.getJavaHome();
+        return javaHome.exists();
+    }
+
     private boolean checkSystemJava() {
         File javaHome = Utilities.getJavaHome(true);
         return javaHome.exists();
+    }
+
+    private boolean checkXmageExists() {
+        File xmagePath = new File(Utilities.getInstallPath(), "/xmage/mage-client");
+        return xmagePath.exists();
     }
 
     private void checkXMage(boolean silent) {
@@ -705,14 +731,13 @@ public class XMageLauncher implements Runnable {
                 publish(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
                 publish(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
                 if (compareVersions(launcherAvailableVersion, launcherInstalledVersion) > 0) {
-                    String launcherMessage;
-                    String launcherTitle;
-                    publish(messages.getString("xmage.launcher.new") + "\n");
-                    launcherMessage = messages.getString("xmage.launcher.new.message");
-                    launcherTitle = messages.getString("xmage.launcher.new");
-                    int response = JOptionPane.showConfirmDialog(frame,
-                            "<html>" + launcherMessage + "  " + messages.getString("installNow") + "</html>", launcherTitle,
-                            JOptionPane.YES_NO_OPTION);
+                    publish(messages.getString("xmage.launcher.new.title") + "\n");
+                    int response = JOptionPane.showConfirmDialog(
+                            frame,
+                            "<html>" + messages.getString("xmage.launcher.new.message") + "  " + messages.getString("installNow"),
+                            messages.getString("xmage.launcher.new"),
+                            JOptionPane.YES_NO_OPTION
+                    );
                     if (response == JOptionPane.YES_OPTION) {
                         String launcherRemoteLocation = (String) config.getJSONObject("XMage").getJSONObject("Launcher").get(("location"));
                         URL launcher = new URL(launcherRemoteLocation);
@@ -726,7 +751,7 @@ public class XMageLauncher implements Runnable {
                         from.renameTo(to);
                         publish(messages.getString("done") + "\n");
                         publish(0);
-                        JOptionPane.showMessageDialog(frame, "<html>" + messages.getString("restartMessage") + "</html>",
+                        JOptionPane.showMessageDialog(frame, "<html>" + messages.getString("restartMessage"),
                                 messages.getString("restartTitle"), JOptionPane.WARNING_MESSAGE);
                         Utilities.restart(to);
                     }

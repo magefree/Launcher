@@ -76,7 +76,7 @@ public class Config {
                     this.homeURL = props.getProperty("xmage.home", this.homeURL);
                     this.showClientConsole = Boolean.parseBoolean(props.getProperty("xmage.client.console", Boolean.toString(this.showClientConsole)));
                     this.showServerConsole = Boolean.parseBoolean(props.getProperty("xmage.server.console", Boolean.toString(this.showServerConsole)));
-                    this.useSystemJava = Boolean.parseBoolean(props.getProperty("xmage.java.usesystem", Boolean.toString(this.useSystemJava)));
+                    this.useSystemJava = Boolean.parseBoolean(props.getProperty("java.usesystem", Boolean.toString(this.useSystemJava)));
                     this.serverTestMode = Boolean.parseBoolean(props.getProperty("xmage.server.testmode", Boolean.toString(this.serverTestMode)));
                     this.clientStartDelaySeconds = Integer.parseInt(props.getProperty("xmage.launcher.client.start.delay", String.valueOf(this.clientStartDelaySeconds)));
                 }
@@ -235,6 +235,7 @@ public class Config {
         File properties = new File(getInstallPath(), PROPERTIES_FILE);
         try (final FileOutputStream out = new FileOutputStream(properties)) {
             props.setProperty("java.version", installedJavaVersion);
+            props.setProperty("java.usesystem", Boolean.toString(useSystemJava));
             props.setProperty("xmage.version", installedXMageVersion);
             props.setProperty("xmage.client.javaopts", clientJavaOpts);
             props.setProperty("xmage.server.javaopts", serverJavaOpts);
@@ -242,7 +243,6 @@ public class Config {
             props.setProperty("xmage.home", homeURL);
             props.setProperty("xmage.client.console", Boolean.toString(showClientConsole));
             props.setProperty("xmage.server.console", Boolean.toString(showServerConsole));
-            props.setProperty("xmage.java.usesystem", Boolean.toString(useSystemJava));
             props.setProperty("xmage.server.testmode", Boolean.toString(serverTestMode));
             props.setProperty("xmage.launcher.client.start.delay", Integer.toString(clientStartDelaySeconds));
             props.store(out, "---XMage Properties---");
