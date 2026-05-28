@@ -58,7 +58,7 @@ public class XMageLauncher implements Runnable {
     private final JButton btnCheck;
     private final JButton btnUpdate;
 
-    private JSONObject config;
+    private JSONObject publicConfig;
     private File path;
 
     private Point grabPoint;
@@ -440,7 +440,7 @@ public class XMageLauncher implements Runnable {
             clientProcesses.removeIf(p -> !p.isAlive());
         }
         disableButtons();
-        if (!getConfig()) {
+        if (!prepareConfigs()) {
             return;
         }
 
@@ -467,7 +467,7 @@ public class XMageLauncher implements Runnable {
 
     private void handleCheckUpdates() {
         textArea.append("\n");
-        if (getConfig()) {
+        if (prepareConfigs()) {
             checkUpdates();
             if (!newJava && !newXMage) {
                 JOptionPane.showMessageDialog(frame, messages.getString("xmage.latest.message"), messages.getString("xmage.latest.title"), JOptionPane.INFORMATION_MESSAGE);
@@ -524,7 +524,7 @@ public class XMageLauncher implements Runnable {
             path = Utilities.getInstallPath();
             textArea.append(messages.getString("folder") + path.getAbsolutePath() + "\n\n");
 
-            if (getConfig()) {
+            if (prepareConfigs()) {
                 // start updates chain: launcher -> java -> xmage
                 DownloadLauncherTask launcher = new DownloadLauncherTask(progressBar);
                 launcher.execute();
@@ -533,13 +533,13 @@ public class XMageLauncher implements Runnable {
 
     }
 
-    private boolean getConfig() {
+    private boolean prepareConfigs() {
         String xmageConfig = Config.getInstance().getXMageHome() + "/config.json";
 
         try {
             URL xmageUrl = new URL(xmageConfig);
             textArea.append(messages.getString("readingConfig") + xmageUrl + "\n");
-            config = Utilities.readJsonFromUrl(xmageUrl);
+            publicConfig = Utilities.readJsonFromUrl(xmageUrl);
             return true;
         } catch (IOException ex) {
             logger.error("Error reading config from " + xmageConfig, ex);
@@ -547,15 +547,22 @@ public class XMageLauncher implements Runnable {
         } catch (JSONException ex) {
             logger.error("Invalid config from " + xmageConfig, ex);
             textArea.append(messages.getString("invalidConfig") + xmageConfig + "\n");
+        } catch (Throwable e) {
+            logger.error("Unknown config error from " + xmageConfig, e);
+            textArea.append("Unknown config error from " + xmageConfig + "\n");
         }
         enableButtons();
         return false;
     }
 
     private void checkJava() {
+        if (!isPublicConfigReady()) {
+            return;
+        }
+
         try {
             // checks if the currently installed java version is up-to-date
-            String javaAvailableVersion = (String) config.getJSONObject("java").get(("version"));
+            String javaAvailableVersion = (String) publicConfig.getJSONObject("java").get(("version"));
             String javaInstalledVersion = Config.getInstance().getInstalledJavaVersion();
 
             noJava = javaInstalledVersion.isEmpty() || !checkJavaExists(); // first run, deleted java folder, etc
@@ -656,9 +663,22 @@ public class XMageLauncher implements Runnable {
         return xmagePath.exists();
     }
 
+    private boolean isPublicConfigReady() {
+        if (publicConfig == null) {
+            logger.error("Can't download public config, make sure you had an internet access to it");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     private void checkXMage(boolean silent) {
+        if (!isPublicConfigReady()) {
+            return;
+        }
+
         try {
-            String xmageAvailableVersion = (String) config.getJSONObject("XMage").get(("version"));
+            String xmageAvailableVersion = (String) publicConfig.getJSONObject("XMage").get(("version"));
             String xmageInstalledVersion = Config.getInstance().getInstalledXMageVersion();
             textArea.append(messages.getString("xmage.installed") + xmageInstalledVersion + "\n");
             textArea.append(messages.getString("xmage.available") + xmageAvailableVersion + "\n");
@@ -735,8 +755,11 @@ public class XMageLauncher implements Runnable {
         @Override
         protected Void doInBackground() {
             try {
+                if (!isPublicConfigReady()) {
+                    throw new IllegalStateException("Public config isn't ready");
+                }
                 File launcherFolder = new File(path.getAbsolutePath());
-                String launcherAvailableVersion = (String) config.getJSONObject("XMage").getJSONObject("Launcher").get(("version"));
+                String launcherAvailableVersion = (String) publicConfig.getJSONObject("XMage").getJSONObject("Launcher").get(("version"));
                 String launcherInstalledVersion = Config.getInstance().getVersion();
                 publish(messages.getString("xmage.launcher.installed") + launcherInstalledVersion + "\n");
                 publish(messages.getString("xmage.launcher.available") + launcherAvailableVersion + "\n");
@@ -749,7 +772,7 @@ public class XMageLauncher implements Runnable {
                             JOptionPane.YES_NO_OPTION
                     );
                     if (response == JOptionPane.YES_OPTION) {
-                        String launcherRemoteLocation = (String) config.getJSONObject("XMage").getJSONObject("Launcher").get(("location"));
+                        String launcherRemoteLocation = (String) publicConfig.getJSONObject("XMage").getJSONObject("Launcher").get(("location"));
                         URL launcher = new URL(launcherRemoteLocation);
                         publish(messages.getString("xmage.launcher.downloading") + launcher + "\n");
 
@@ -766,10 +789,10 @@ public class XMageLauncher implements Runnable {
                         Utilities.restart(to);
                     }
                 }
-            } catch (IOException | JSONException ex) {
+            } catch (Throwable e) {
                 publish(0);
                 cancel(true);
-                logger.error("Error: ", ex);
+                logger.error("Error: ", e);
             }
             return null;
         }
@@ -837,15 +860,18 @@ public class XMageLauncher implements Runnable {
                 return true;
             } else {
                 try {
+                    if (!isPublicConfigReady()) {
+                        throw new IllegalStateException("Public config isn't ready");
+                    }
                     disableButtons();
                     File javaFolder = new File(path.getAbsolutePath() + File.separator + "java");
-                    String javaAvailableVersion = (String) config.getJSONObject("java").get(("version"));
+                    String javaAvailableVersion = (String) publicConfig.getJSONObject("java").get(("version"));
                     if (javaFolder.isDirectory()) { // remove existing install
                         publish(messages.getString("removing") + "\n");
                         removeJavaFiles(javaFolder);
                     }
                     javaFolder.mkdirs();
-                    String javaRemoteLocation = (String) config.getJSONObject("java").get(("location"));
+                    String javaRemoteLocation = (String) publicConfig.getJSONObject("java").get(("location"));
                     URL java = new URL(javaRemoteLocation + Utilities.getOSandArch() + ".tar.gz");
                     publish(messages.getString("java.downloading") + java + "\n");
 
@@ -864,10 +890,10 @@ public class XMageLauncher implements Runnable {
                     Config.getInstance().setInstalledJavaVersion(javaAvailableVersion);
                     Config.getInstance().saveProperties();
                     return true;
-                } catch (IOException | JSONException ex) {
+                } catch (Throwable e) {
                     publish(0);
                     cancel(true);
-                    logger.error("Error: ", ex);
+                    logger.error("Error: ", e);
                 }
             }
             return false;
@@ -875,13 +901,16 @@ public class XMageLauncher implements Runnable {
 
         private boolean updateXMage() {
             try {
+                if (!isPublicConfigReady()) {
+                    throw new IllegalStateException("Public config isn't ready");
+                }
                 disableButtons();
                 File xmageFolder = new File(path.getAbsolutePath() + File.separator + "xmage");
-                String xmageAvailableVersion = (String) config.getJSONObject("XMage").get(("version"));
+                String xmageAvailableVersion = (String) publicConfig.getJSONObject("XMage").get(("version"));
                 String xmageRemoteLocation;
                 String[] otherLocations;
-                xmageRemoteLocation = (String) config.getJSONObject("XMage").get(("location"));
-                JSONArray arr = (JSONArray) config.getJSONObject("XMage").get(("locations"));
+                xmageRemoteLocation = (String) publicConfig.getJSONObject("XMage").get(("location"));
+                JSONArray arr = (JSONArray) publicConfig.getJSONObject("XMage").get(("locations"));
                 otherLocations = new String[arr.length()];
                 for (int i = 0; i < arr.length(); i++) {
                     otherLocations[i] = (String) arr.get(i);
@@ -920,10 +949,10 @@ public class XMageLauncher implements Runnable {
                     Config.getInstance().saveProperties();
                     return true;
                 }
-            } catch (IOException | JSONException ex) {
+            } catch (Throwable e) {
                 publish(0);
                 cancel(true);
-                logger.error("Error: ", ex);
+                logger.error("Error: ", e);
             }
             return false;
         }
